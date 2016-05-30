@@ -1,7 +1,4 @@
-/*
- * spa.shell.js
- * Shell module for SPA
- */
+
 var UiShell = function(name){
 	Module.call(this, name);
 	this.config.requires = ['Utils', 'PubSub', 'Constants' ];
@@ -34,6 +31,7 @@ UiShell.prototype.start = function(){
 			lgg.debug('...setting anchor_map: ' + JSON.stringify(ctx.anchor_map));
 			//so we have an anchor map, if no body then set body to browser module by default
 			if(null == ctx.anchor_map.body){
+				lgg.debug('going to use default anchor map'); 
 				$.uriAnchor.setAnchor( cfg.modules['constants'].defaultAnchorMap );
 				return false;
 			};

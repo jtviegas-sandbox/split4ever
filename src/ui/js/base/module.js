@@ -39,7 +39,7 @@ var Module = function(name){
 		// level 2
 		var debug = function(msg){
 			if( 2 >= level)
-				print('<LOG> ' + msg);
+				print('<DEBUG> ' + msg);
 		};
 		//level 3
 		var info = function(msg){
@@ -73,7 +73,8 @@ var Module = function(name){
 }
 
 /*
-	sets up required modules
+	sets up required modules, if the module is not yet loaded
+	by APP global variable, load it and init it
 	register to events on pubsub
 */
 Module.prototype.init = function(){
@@ -88,23 +89,26 @@ Module.prototype.init = function(){
 			instance = APP.findModule(requirement);
 			if(null != instance){
 				this.config.modules[moduleName] = instance;
-				this.logger.debug('got module instance '+ moduleName + " from APP global object");
+				this.logger.debug('got module instance ' + moduleName + ' from APP global object!');
 			}
 			else {
 				// if not provided by APP then lets create the module
+				// and keep its reference with us, it is not global
 				var classDefinition = classForName(requirement);
 				if(null != classDefinition){
 					instance = new classDefinition(moduleName);
-					this.logger.debug('creating module instance '+ moduleName + " from class");
+					this.logger.debug('creating module instance ' + moduleName + ' from class');
 					instance.init();
-					this.logger.debug('called init on module instance '+ moduleName);
+					this.logger.debug('called init on module instance ' + moduleName);
 				}
 				else
-					this.throw('!!! could not find module:' + requirement + ' !!!');
+					this.throw('!!! could not find module: ' + requirement + ' !!!');
 			}
 
 			this.config.modules[moduleName] = instance;
 
+			// if eventually this module is requiring pubsub then it is because
+			// it want to register to receive its events
 			if(moduleName == 'pubsub' && 0 < this.config.events.length ){
 				//register events if necessary
 				instance.subscribe(this.config.events, this);

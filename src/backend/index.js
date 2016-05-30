@@ -1,11 +1,10 @@
 var express = require('express');
 var util = require('util');
-var favicon = require('serve-favicon');
+var favicon = requires('serve-favicon');
 var cookieSession = require('cookie-session');
 var uuid = require('uuid');
 var cookieParser = require('cookie-parser');
 var PragmaLogger = require('pragma-logger');
-
 
 //CONSTANTS
 var PORT=8080;
@@ -43,7 +42,7 @@ app.use(cookieSession(cookieSessionProps));
 app.use(cookieParser());
 app.set('port', process.env.PORT || PORT);
 
-/*
+
 var options = {
   dotfiles: 'ignore',
   etag: false,
@@ -51,13 +50,12 @@ var options = {
   //index: false,
   redirect: false
 };
-
+/*
 if(custom.areWeOnDocker())
 	app.use(express.static('ui', options));
 else
-	app.use(express.static('dist/ui', options));
 */
-
+app.use(express.static('dist/ui', options));
 app.use('/api/collections', collections);
 
 // custom 404 page

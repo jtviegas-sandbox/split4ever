@@ -19,7 +19,7 @@ Constants.prototype.newSubCategoryPrompt = 'please provide a new sub category: '
 Constants.prototype.newCategoryPrompt = 'please provide a new category: ';
 Constants.prototype.delFilesPrompt = 'You are sure you want to delete files?';
 
-Constants.prototype.defaultAnchorMap = { body : 'item' , _body : {searchtext   : ''} };
+Constants.prototype.defaultAnchorMap = { body : 'browser' , _body : {searchtext   : ''} };
 Constants.prototype.uiMode = { view : 0 , edit: 1 };
 Constants.prototype.cache_size = 128;
 

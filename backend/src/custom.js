@@ -1,7 +1,7 @@
 
 var PragmaLogger = require('pragma-logger');
 
-var Custom = function() {
+var Custom = function(){
 	
 	var createLogger = function(name) {
 		return new PragmaLogger({

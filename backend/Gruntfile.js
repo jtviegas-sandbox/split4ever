@@ -26,8 +26,9 @@ module.exports = function(grunt) {
             all: { 
                 src: 'test/*.js', 
                 options: { 
-                    ui: 'tdd' , 
-                    reporter: 'nyan'
+                    ui: 'tdd' 
+                    , reporter: 'spec'
+                    , bail: false
                 }, 
             }
         }
@@ -72,11 +73,16 @@ module.exports = function(grunt) {
     grunt.registerTask('default', [ 'copy', 'watch', 
         'jshint', 'clean', 'cafemocha' ]);
 
+    grunt.registerTask('test', [
+        'env:dev',
+        'cafemocha'
+      ]);
+
     grunt.registerTask('build', [
         'env:dev',
         'clean',
-        'copy',
-        'cafemocha'
+        'copy'
+        //, 'cafemocha'
       ]);
 
 };

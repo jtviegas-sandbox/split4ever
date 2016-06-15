@@ -4,14 +4,24 @@ echo "building..."
 folder=$(dirname $(readlink -f $0))
 base=$(dirname $folder)
 
-#ARCHIVE_DIR=$base/dist
-FRONTEND=$base/frontend
-BACKEND=$base/backend
+
+if [ $BLUEMIX_BUILD ];then
+	npm install -g bower
+	FRONTEND=frontend
+	BACKEND=backend
+else
+	ARCHIVE_DIR=$base/dist
+	FRONTEND=$base/frontend
+	BACKEND=$base/backend
+fi
+
+
 FRONTEND_BUILD=$FRONTEND/dist
 BACKEND_BUILD=$BACKEND/dist
 
 BACKEND_DIST=$ARCHIVE_DIR
 FRONTEND_DIST=$ARCHIVE_DIR/public
+LOGS_DIST=$BACKEND_DIST/logs
 
 echo "...cleaning..."
 rm -rf $DIST
@@ -19,8 +29,10 @@ echo "...building frontend..."
 _pwd=`pwd`
 echo "moving to ...$FRONTEND..."
 cd $FRONTEND
-npm install -g bower
+
+
 npm install
+bower install
 grunt build
 if [ "0" != "$?" ]; then
 	echo "...frontend build failed...leaving!!!"
@@ -42,6 +54,7 @@ cd $_pwd
 
 echo "...merging builds..."
 mkdir -p $FRONTEND_DIST
+mkdir -p $LOGS_DIST
 
 echo "...merging backend..."
 cp -r $BACKEND_BUILD/* $BACKEND_DIST/

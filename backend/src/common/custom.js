@@ -122,10 +122,10 @@ var Custom = function() {
 
 	var dummyItemEquals = function(a, b){
 		
-		if(!_.isEqual(a._id, b._id))
+/*		if(!_.isEqual(a._id, b._id))
 			return false;
 		if(!_.isEqual(a._rev, b._rev))
-			return false;
+			return false;*/
 		if(!_.isEqual(a.images, b.images))
 			return false;
 		if(!_.isEqual(a.name, b.name))

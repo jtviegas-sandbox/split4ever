@@ -14,7 +14,7 @@ var logger = new PragmaLogger({
     }
   }, 'collections_functions');
 
-var model = require('../model.js');
+var model = require('../common/model.js');
 
 var CollectionsFunctions = function(){
 

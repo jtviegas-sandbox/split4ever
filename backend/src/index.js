@@ -1,6 +1,6 @@
 var express = require('express');
 var util = require('util');
-var favicon = requires('serve-favicon');
+var favicon = require('serve-favicon');
 var cookieSession = require('cookie-session');
 var uuid = require('uuid');
 var cookieParser = require('cookie-parser');
@@ -33,7 +33,7 @@ var cookieSessionProps = {
 };
 
 //custom modules
-var custom = require('./custom.js');
+var custom = require('./common/custom.js');
 var collections = require('./collections/route.js');
 
 var app = express();

@@ -50,12 +50,8 @@ var options = {
   //index: false,
   redirect: false
 };
-/*
-if(custom.areWeOnDocker())
-	app.use(express.static('ui', options));
-else
-*/
-app.use(express.static('dist/ui', options));
+
+app.use(express.static('public', options));
 app.use('/api/collections', collections);
 
 // custom 404 page

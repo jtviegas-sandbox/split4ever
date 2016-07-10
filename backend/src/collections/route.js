@@ -27,11 +27,10 @@ router.use(bodyParser.json()); // for parsing application/json
 router.use(bodyParser.urlencoded(bodyParserProps)); // for parsing application/x-www-form-urlencoded
 router.use(multer()); // for parsing multipart/form-data
 
-router.get('/:name/all', functions.getAll);
 router.get('/:name/:id', functions.get);
-router.post('/:name', functions.post);
 router.delete('/:name/:id', functions.del);
-
+router.get('/:name', functions.getAll);
+router.post('/:name', functions.post);
 
 logger.trace('...finished loading.');
 module.exports = router;

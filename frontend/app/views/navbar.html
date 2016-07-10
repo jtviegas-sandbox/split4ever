@@ -1,0 +1,25 @@
+<div class="navbar navbar-default" role="navigation" ng-controller="NavbarCtrl">
+  <div class="container">
+    <div class="navbar-header">
+
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#js-navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="navbar-brand" href="#/">frontend</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="js-navbar-collapse">
+
+      <ul class="nav navbar-nav">
+        <li ng-class="pageClass('/')"><a href="#/">home</a></li>
+        <li ng-class="pageClass('/parts')"><a ng-href="#/parts">parts</a></li>
+        <li ng-class="pageClass('/about')"><a ng-href="#/about">about</a></li>
+        <li ng-class="pageClass('/contact')"><a ng-href="#/contact">contact</a></li>
+      </ul>
+    </div>
+  </div>
+</div>

@@ -2,12 +2,12 @@
 
 /**
  * @ngdoc function
- * @name uiApp.controller:MainCtrl
+ * @name frontendApp.controller:MainCtrl
  * @description
  * # MainCtrl
- * Controller of the uiApp
+ * Controller of the frontendApp
  */
-angular.module('uiApp')
+angular.module('frontendApp')
   .controller('MainCtrl', function () {
     this.awesomeThings = [
       'HTML5 Boilerplate',

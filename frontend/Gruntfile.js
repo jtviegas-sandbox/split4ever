@@ -1,4 +1,4 @@
-// Generated on 2016-05-18 using generator-angular 0.15.1
+// Generated on 2016-07-10 using generator-angular 0.15.1
 'use strict';
 
 // # Globbing
@@ -338,7 +338,7 @@ module.exports = function (grunt) {
     ngtemplates: {
       dist: {
         options: {
-          module: 'split4ever',
+          module: 'frontendApp',
           htmlmin: '<%= htmlmin.dist.options %>',
           usemin: 'scripts/scripts.js'
         },
@@ -392,14 +392,7 @@ module.exports = function (grunt) {
           cwd: 'bower_components/bootstrap/dist',
           src: 'fonts/*',
           dest: '<%= yeoman.dist %>'
-        }
-        , {
-            expand: true,
-            cwd: '<%= yeoman.app %>/views',
-            dest: '<%= yeoman.dist %>/views',
-            src: '{,*/}*.html'
-          }
-        ]
+        }]
       },
       styles: {
         expand: true,
@@ -407,7 +400,6 @@ module.exports = function (grunt) {
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
       }
-      
     },
 
     // Run some tasks in parallel to speed up the build process
@@ -432,11 +424,6 @@ module.exports = function (grunt) {
         singleRun: true
       }
     }
-    , exec: {
-            dependencies:{
-                cmd: 'bower install'  
-            } 
-    }
   });
 
 
@@ -447,7 +434,6 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'clean:server',
-      'exec:dependencies',
       'wiredep',
       'concurrent:server',
       'postcss:server',
@@ -463,7 +449,6 @@ module.exports = function (grunt) {
 
   grunt.registerTask('test', [
     'clean:server',
-    'exec:dependencies',
     'wiredep',
     'concurrent:test',
     'postcss',
@@ -473,7 +458,6 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build', [
     'clean:dist',
-    'exec:dependencies',
     'wiredep',
     'useminPrepare',
     'concurrent:dist',

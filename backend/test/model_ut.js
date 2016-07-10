@@ -8,6 +8,7 @@ var custom = require('../dist/common/custom.js');
 var logger = custom.createLogger('tests');
 
 var TEST_DB = 'unittests';
+
 var numOfDummyItems = 10;
 var dummyItems = [];
 

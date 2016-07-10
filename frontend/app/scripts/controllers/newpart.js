@@ -2,13 +2,13 @@
 
 /**
  * @ngdoc function
- * @name frontendApp.controller:AboutCtrl
+ * @name frontendApp.controller:NewpartCtrl
  * @description
- * # AboutCtrl
+ * # NewpartCtrl
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('AboutCtrl', function () {
+  .controller('NewpartCtrl', function () {
     this.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',

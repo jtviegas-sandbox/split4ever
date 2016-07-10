@@ -2,14 +2,14 @@
 
 /**
  * @ngdoc overview
- * @name uiApp
+ * @name frontendApp
  * @description
- * # uiApp
+ * # frontendApp
  *
  * Main module of the application.
  */
 angular
-  .module('uiApp', [
+  .module('frontendApp', [
     'ngAnimate',
     'ngAria',
     'ngCookies',
@@ -31,7 +31,33 @@ angular
         controller: 'AboutCtrl',
         controllerAs: 'about'
       })
+      .when('/parts/new', {
+        templateUrl: 'views/newpart.html',
+        controller: 'NewpartCtrl',
+        controllerAs: 'newpart'
+      })
+      .when('/parts/:id', {
+        templateUrl: 'views/part.html',
+        controller: 'PartCtrl',
+        controllerAs: 'part'
+      })
+      .when('/parts', {
+        templateUrl: 'views/parts.html',
+        controller: 'PartsCtrl',
+        controllerAs: 'parts'
+      })
+      
+      .when('/contact', {
+        templateUrl: 'views/contact.html',
+        controller: 'ContactCtrl',
+        controllerAs: 'contact'
+      })
       .otherwise({
         redirectTo: '/'
       });
-  });
+  })
+  .controller( 'AppCtrl', 
+    function($scope, $location, $http){
+
+    }
+  );

@@ -8,10 +8,9 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('NewpartCtrl', function () {
-    this.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-  });
+  .controller('NewpartCtrl', [ "$scope", function ($scope) {
+
+    $scope.item = {};
+    $scope.item.images = [];
+
+  }]);

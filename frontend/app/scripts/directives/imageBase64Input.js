@@ -6,7 +6,7 @@ angular.module('frontendApp')
     return {
         restrict: 'E',
             replace: 'true',
-            template: '<input type="file" accept="image/*" multiple="true" style="color:transparent" value="pick images" />',
+            template: '<input type="file" accept="image/*" multiple="true" style="color:transparent" />',
         scope: {
             images: "="
         },
@@ -25,7 +25,6 @@ angular.module('frontendApp')
                             //image.data = event.target.result.replace("data:"+ file.type +";base64,", '');
                             image.data = event.target.result;
                             scope.images.push(image);
-                            console.log('done');
                         });
                     };
                     reader.readAsDataURL(file);

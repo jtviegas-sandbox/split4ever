@@ -4,25 +4,11 @@ var favicon = require('serve-favicon');
 var cookieSession = require('cookie-session');
 var uuid = require('uuid');
 var cookieParser = require('cookie-parser');
-var PragmaLogger = require('pragma-logger');
+var logger = require('./common/utils').appLogger;
 
 //CONSTANTS
-var PORT=8080;
+var PORT=3000;
 var BODY_MAX_SIZE = '10240kb';
-
-var logger = new PragmaLogger({
-    logger: {
-      charset: 'utf8',
-      levels: {
-        debug: './logs/%pid_debug_%y-%m-%d-app.log',
-        error: './logs/%pid_error_%y-%m-%d-app.log',
-        warn: './logs/%pid_warn_%y-%m-%d-app.log',
-        trace: './logs/%pid_trace_%y-%m-%d-app.log',
-        info: './logs/%pid_info_%y-%m-%d-app.log'
-      },
-      messageFormat: '%t \t| %name :: %lvl \t| PID: %pid - %msg'
-    }
-  }, 'app');
 
 var cookieSessionProps = {
   name: 'session',
@@ -35,13 +21,12 @@ var cookieSessionProps = {
 //custom modules
 var custom = require('./common/custom.js');
 var collections = require('./collections/route.js');
+var authentication = require('./auth/authentication.js');
 
 var app = express();
-
 app.use(cookieSession(cookieSessionProps));
 app.use(cookieParser());
 app.set('port', process.env.PORT || PORT);
-
 
 var options = {
   dotfiles: 'ignore',
@@ -52,7 +37,7 @@ var options = {
 };
 
 app.use(express.static('public', options));
-app.use('/api/collections', collections);
+app.use('/api/collections', authentication.authenticate, collections);
 
 // custom 404 page
 app.use(function(req, res){
@@ -76,4 +61,3 @@ var server = app.listen(app.get('port'), function () {
   logger.info(util.format('split4ever listening at http://%s:%s', host, port));
 
 });
-

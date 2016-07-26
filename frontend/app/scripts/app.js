@@ -19,6 +19,7 @@ angular
     'ngSanitize',
     'ngTouch',
     'ui.bootstrap'
+    ,'ngTagsInput'
   ])
   .config(function ($routeProvider) {
     $routeProvider
@@ -32,7 +33,7 @@ angular
         controller: 'AboutCtrl',
         controllerAs: 'about'
       })
-      .when('/parts/new', {
+      .when('/parts/0', {
         templateUrl: 'views/newpart.html',
         controller: 'NewpartCtrl',
         controllerAs: 'newpart'

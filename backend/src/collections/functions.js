@@ -1,20 +1,15 @@
 var PragmaLogger = require('pragma-logger');
 var util = require('util');
-var logger = new PragmaLogger({
-    logger: {
-      charset: 'utf8',
-      levels: {
-        debug: './logs/%pid_debug_%y-%m-%d-collections_functions.log',
-        error: './logs/%pid_error_%y-%m-%d-collections_functions.log',
-        warn: './logs/%pid_warn_%y-%m-%d-collections_functions.log',
-        trace: './logs/%pid_trace_%y-%m-%d-collections_functions.log',
-        info: './logs/%pid_info_%y-%m-%d-collections_functions.log'
-      },
-      messageFormat: '%t \t| %name :: %lvl \t| PID: %pid - %msg'
-    }
-  }, 'collections_functions');
+var logger = require('../common/utils').appLogger;
 
+var config = require('../common/config.js');
 var model = require('../common/model.js');
+model.init(config.app.db.names, function(err, o){
+  if(err)
+    logger.error(err);
+  else
+    logger.info('init\'ed databases');
+});
 
 var CollectionsFunctions = function(){
 
@@ -60,15 +55,15 @@ var CollectionsFunctions = function(){
     logger.trace('<IN>post');
     var collectionName = req.params.name;
     var obj = req.body;
-    logger.debug('body: ' + JSON.stringify(obj));
-    var callback = function(err, objId){
+    //logger.debug('body: ' + JSON.stringify(obj));
+    var callback = function(err, o){
       if(err){
         logger.error(err);  
         res.status(400).end();
       }
       else {
-        logger.info(util.format('ok: ', JSON.stringify(objId)));
-        res.status(200).json(objId);
+        //logger.info(util.format('ok: ', JSON.stringify(objId)));
+        res.status(200).json(o.result);
         res.end();
       }
     };
@@ -79,8 +74,11 @@ var CollectionsFunctions = function(){
 
   var del = function(req,res){
     logger.trace('<IN>del');
+
     var collectionName = req.params.name;
     var id = req.params.id;
+    var rev = req.params.rev;
+
     var callback = function(err, o){
       if(err){
         logger.error(err);  
@@ -90,7 +88,7 @@ var CollectionsFunctions = function(){
         res.status(200).end();
       }
     };
-    model.del(collectionName, id, callback);
+    model.del(collectionName, { '_id': id, '_rev': rev }, callback);
     logger.trace('<OUT>del');
   };
 

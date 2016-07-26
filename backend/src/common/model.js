@@ -2,14 +2,14 @@ var custom = require('./custom.js');
 var Cloudant = require('cloudant');
 var util = require('util');
 var assert = require('assert');
-
+var logger = require('./utils').appLogger;
+var config = require('./config');
 
 var Model = (function(){
 
 	var DB_USR = null;
 	var DB_PSWD = null;
 	var connection = null;
-	var logger = custom.createLogger('model');
 
 	//------------------private methods
 	var createDbs = function(dbMap, connection, callBack){
@@ -98,8 +98,6 @@ var Model = (function(){
 		});
 	};
 
-	
-
 	var init = function(databases, callback) {
 		logger.trace('@Model.init');
 		if (process.env.VCAP_SERVICES) {
@@ -109,9 +107,16 @@ var Model = (function(){
 			DB_PSWD = cloudant_info.credentials.password;
 		}
 		else {
-			DB_USR = process.env.DB_USR;
-			DB_PSWD = process.env.DB_PSWD;
+			if(process.env.DB_USR && process.env.DB_PSWD){
+				DB_USR = process.env.DB_USR;
+				DB_PSWD = process.env.DB_PSWD;
+			}
+			else {
+				DB_USR = config.app.db.user;
+				DB_PSWD = config.app.db.pswd;
+			}
 		}
+
 		logger.info(util.format("connecting with user %s", DB_USR));
 		var connectionOptions = {account:DB_USR, password:DB_PSWD};
 
@@ -122,11 +127,13 @@ var Model = (function(){
 					if(callback)
 						callback(err);
 				}
-		    	logger.info(util.format('Connected to cloudant with username: %s', reply.userCtx.name));
-		   		initDatabases(databases, connection, callback);
+				else {
+					logger.info(util.format('Connected to cloudant with username: %s', reply.userCtx.name));
+			   		initDatabases(databases, connection, callback);	
+				}
 			}
 		);
-		logger.trace('@Model.init');
+		logger.trace('Model.init@');
 	};
 
 	var post = function(db, o, callback) {
@@ -134,7 +141,7 @@ var Model = (function(){
 		logger.trace('@Model.post');
 		var dbObj = connection.use(db);
 
-		var postCallback = function() {
+		var postCallback = function(o) {
 			var obj = o;
 			var f = function(err, r){
 				if(err){

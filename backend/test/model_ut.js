@@ -5,7 +5,7 @@ var fail = require('chai').fail;
 var util = require('util');
 var model = require('../dist/common/model.js');
 var custom = require('../dist/common/custom.js');
-var logger = custom.createLogger('tests');
+var logger = require('../dist/common/utils').appLogger;
 
 var TEST_DB = 'unittests';
 

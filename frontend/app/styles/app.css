@@ -64,6 +64,14 @@ body {
   margin-top: 28px;
 }
 
+
+#appAlertArea {
+    min-height: 46px;
+    margin: 3px;
+    padding:0px;
+    border: 0px;
+}
+
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
   .container {

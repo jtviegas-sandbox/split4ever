@@ -6,8 +6,9 @@ angular.module('frontendApp')
     return {
         restrict: 'A',
         scope: {
-            obj: '=',
-            size: '='
+            obj: '='
+            , size: '='
+            , canvasid: '=' 
         },
         link: function (scope, el, attrs) {
 
@@ -25,7 +26,7 @@ angular.module('frontendApp')
                 so it will be the main variable that we won't
                 allow to be smaller then the allowed size
                 */
-                var canvas = document.getElementById("hiddencanvas");
+                var canvas = document.getElementById(scope.canvasid);
                 canvas.width = scope.size.w;
                 canvas.height = scope.size.h;
                 var ctx = canvas.getContext('2d');
@@ -56,11 +57,6 @@ angular.module('frontendApp')
                 ctx.drawImage(el[0], xborder, yborder, endW, endH);
                 scope.obj._resized = true;
                 scope.obj.data = canvas.toDataURL(scope.obj.type);
-                //el[0].setAttribute('src', canvas.toDataURL(scope.obj.type));
-
-                /*while (hiddenarea.hasChildNodes()) {
-                    hiddenarea.removeChild(hiddenarea.lastChild);
-                }*/
             });
         }
     };

@@ -15,39 +15,52 @@ var Model = (function(){
 	var createDbs = function(dbMap, connection, callBack){
 		
 		var dbs = [];
-		for(dbName in dbMap)
-			if(dbMap.hasOwnProperty(dbName))
-				if(false == dbMap[dbName])
-					dbs.push(dbName);
+		for(db in dbMap)
+			if(dbMap.hasOwnProperty(db))
+				if(false == dbMap[db].exists)
+					dbs.push(dbMap[db].config);
 
 		if( 0 < dbs.length ){
 			var stat= { create:dbs.length , created:0 };
 			logger.info(util.format("must create %d dbs", stat.create));
 
 			for(var i=0; i < dbs.length; i++){
-				logger.info(util.format("must create db %s", dbs[i]));
-				var creationCallback = function(name, map, counterStat, callback){
+				logger.info(util.format("must create db %s", dbs[i].name));
+
+				var creationCallback = function(dbconf, map, counterStat, callback){
 					var f = function(err, data){
 						if(err){
-							console.log(err);
-							if(callback)
-								callback(err);
-							else 
-								throw err;
+							logger.error(JSON.stringify(err));
+							throw err;
 						}
 						else {
-							map[name] = true;
-							logger.info(util.format("created db %s", name));
-							counterStat.created++;
-							if(callback)
-								if (counterStat.created == counterStat.create)
-									callback(null, {ok:true});
+							map[dbconf.name].exists = true;
+							logger.info(util.format("created db %s", dbconf.name));
+							if(dbconf.views && Array.isArray(dbconf.views)){
+								for(var i = 0; i < dbconf.views.length; i++){
+									var view = dbconf.views[i];
+
+									createView(dbconf.name, view.name, view.map, function(err){
+										if(err){
+											logger.error(JSON.stringify(err));
+											throw err;
+										}
+										else{
+											logger.info(util.format("created view %s in db %s", view.name, dbconf.name));
+											if(callBack)
+												callback(null, {ok:true});
+										}
+									});
+								}
+							}
+			
 						}	
 						
 					};
 					return {f: f};
 				};
-				connection.db.create(dbs[i], 
+
+				connection.db.create(dbs[i].name, 
 					creationCallback(dbs[i], dbMap, stat, callBack).f);
 			}
 		}
@@ -58,30 +71,39 @@ var Model = (function(){
 		
 	};
 
-	var initDatabases = function(dbs, connection, callback) {
+	
+
+	//------------------public  methods
+
+	var scaffolding = function(dbConf, callback) {
+
 		var existentDbMap = {};
 		var cb = function(err, data){
+
 			if(err){
-				console.log(err);
-				if(callback)
-					callback(err);
+				logger.error(err);
+				throw err;
 			}
 	    	logger.info(util.format("dbs in server: %s", data));
-	    	if(data && 0<data.length)
-	    		for(var i=0; i < data.length; i++)
-	    			existentDbMap[data[i]] = true;
-			logger.info(util.format("dbs we need: %s", dbs));
-	    	for(var i=0; i<dbs.length; i++)
-	    		if( ! existentDbMap[dbs[i]] )
-	    			existentDbMap[dbs[i]]=false;
-	    	
+
+	    	if(data && 0<data.length){
+	    		for( var i=0; i < data.length; i++ ){
+	    			logger.info(util.format("existent db: %s", data[i]));
+	    			existentDbMap[data[i]] = { 'exists': true };
+	    		}
+	    	}
+	    	console.log(JSON.stringify(dbConf));
+	    	for(var i=0; i<dbConf.instances.length; i++){
+	    		logger.info(util.format("we need db: %s", dbConf.instances[i].name));
+	    		if( ! existentDbMap[dbConf.instances[i].name] )
+	    			existentDbMap[dbConf.instances[i].name] = { 'exists': false , 'config' : dbConf.instances[i] };
+	    	}
 	    	logger.info(util.format("dbs map: %s", JSON.stringify(existentDbMap)));
+
 	    	createDbs(existentDbMap, connection, callback);
 		};
 	    connection.db.list(cb);
 	};
-
-	//------------------public  methods
 
 	var createDb = function(name, callback){
 		connection.db.create(name,function(err, o){
@@ -98,7 +120,7 @@ var Model = (function(){
 		});
 	};
 
-	var init = function(databases, callback) {
+	var init = function(dbConf, callback) {
 		logger.trace('@Model.init');
 		if (process.env.VCAP_SERVICES) {
 			var services = JSON.parse(process.env.VCAP_SERVICES);
@@ -112,8 +134,8 @@ var Model = (function(){
 				DB_PSWD = process.env.DB_PSWD;
 			}
 			else {
-				DB_USR = config.app.db.user;
-				DB_PSWD = config.app.db.pswd;
+				DB_USR = dbConf.credentials.user;
+				DB_PSWD = dbConf.credentials.pswd;
 			}
 		}
 
@@ -128,8 +150,9 @@ var Model = (function(){
 						callback(err);
 				}
 				else {
-					logger.info(util.format('Connected to cloudant with username: %s', reply.userCtx.name));
-			   		initDatabases(databases, connection, callback);	
+					logger.info(util.format('Connected to cloudant with username: %s', reply.userCtx.name));	
+					if(callback)
+						callback(null);
 				}
 			}
 		);
@@ -296,19 +319,60 @@ var Model = (function(){
 						cb(err);
 				}
 				else {
-					logger.info(util.format("got %d docs", r.rows.length));
+					console.log('GOT %s', JSON.stringify(r));
+					var result = [];
+					r.rows.forEach(function(doc) {
+				      if( 0 > doc.id.indexOf('_design'))
+				      	result.push(doc);
+				    });
+					logger.info(util.format("got %d docs", result.length));
 					if(cb)
-						cb(null, {ok: true, result:r.rows})
+						cb(null, {ok: true, 'result':result})
 				}	
 			};
 
 			return { f: f };
 
 		}(callback);
-			
+
 		dbObj.list(getAllCallback.f);
 
 		logger.trace('Model.getAll@');
+	};
+
+	var getSome  = function(db, options, callback) {
+
+		logger.trace('@Model.getSome');
+		var dbObj = connection.use(db);
+
+		var getAllCallback = function(cb){
+
+			var f = function(err, r){
+				if(err){
+					logger.error(err);
+					if(cb)
+						cb(err);
+				}
+				else {
+					//console.log('GOT %s', JSON.stringify(r));
+					var result = [];
+					r.docs.forEach(function(doc) {
+				      if( 0 > doc._id.indexOf('_design'))
+				      	result.push(doc);
+				    });
+					logger.info(util.format("got %d docs", result.length));
+					if(cb)
+						cb(null, result)
+				}	
+			};
+
+			return { f: f };
+
+		}(callback);
+
+		dbObj.find(options, getAllCallback.f);
+
+		logger.trace('Model.getSome@');
 	};
 
 	var deleteDb = function(name, callback) {
@@ -326,8 +390,56 @@ var Model = (function(){
 			});
 	};
 
+
+	var createView = function(dbName, viewName, mapFunctionStr, callback) {
+		var dbObj = connection.use(dbName);
+
+		var viewConf ={
+	      "_id": "_design/" + dbName,
+	        "language": "javascript",
+	      "views": {
+	      	"datasource" : { "map": mapFunctionStr }
+	      } 
+	  	};
+		console.log('creating view: %s',JSON.stringify(viewConf));
+	    dbObj.insert(viewConf, function(err,result){
+		      if (err) 
+		        callback(err); 
+		      else 
+		        callback(null);
+	    });
+	};
+
+	var readView = function(dbName, viewName, options, callback){
+		logger.debug('[Model.readView] in');
+		var dbObj = connection.use(dbName);
+
+		dbObj.view(dbName, viewName, options,
+		    function(err,body) {
+		    	console.log('body: %s', JSON.stringify(body));
+				if (!err) {
+				    var results=[];
+				    body.rows.forEach(
+				    	function(doc) {
+							results.push(doc.value);
+					    }
+					);
+					console.log('results: %s', JSON.stringify(results));
+				    callback(null,results);
+				} 
+				else {
+					logger.debug('[Model.readView.callback] err');
+				    callback(err);
+				}
+				logger.debug('[Model.readView] done');
+		   }
+		);
+		logger.debug('[Model.readView] out');
+	};
+
 	return { 
 		init: init
+		, scaffolding: scaffolding
 		, post: post
 		, deleteDb: deleteDb
 		, createDb: createDb
@@ -335,11 +447,11 @@ var Model = (function(){
 		, get: get
 		, delAll:delAll
 		, delBulk: delBulk
-		, del:del
+		, del: del
+		, createView: createView
+		, readView: readView
+		, getSome: getSome
 	}; 
-
-
-	
 
 })();
 

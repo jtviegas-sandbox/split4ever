@@ -1,23 +1,35 @@
-<div class="jumbotron">
+<!-- <div class="jumbotron">
   <h1>'Allo, 'Allo!</h1>
   <p class="lead">
     <img src="images/yeoman.png" alt="I'm Yeoman"><br>
     Always a pleasure scaffolding your apps.
   </p>
   <p><a class="btn btn-lg btn-success" ng-href="#/">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
-</div>
+</div> -->
 
-<div class="row marketing">
-  <h4>HTML5 Boilerplate</h4>
-  <p>
-    HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.
-  </p>
+  
+ <!--  <div class="row"> -->
+    <div class="col-xs-6 col-sm-4 col-md-4" ui-scroll="part in datasource" start-index="0" buffer-size="3">
+      <div class="thumbnail">
 
-  <h4>Angular</h4>
-  <p>
-    AngularJS is a toolset for building the framework most suited to your application development.
-  </p>
+        <uib-carousel interval="0" no-wrap="false">
+          <uib-slide ng-repeat="image in part.images" >
+            <div class="row">
+               <img class="img-responsive img-rounded" ng-src="{{image.data}}">
+            </div>
+          </uib-slide>
+        </uib-carousel>
+        <div class=caption>
+          <h4>{{part.name}}</h4>
+          <p class="pull-right">{{part.price | currency : "€"}}</p>
+          <p>tags: {{tags2String(part.tags)}}</p>
+          <p>notes: {{part.notes}}</p>
+          <p>
+            <a href=# class="btn btn-primary" role="button">View</a> 
+          </p> 
+        </div>
+      </div>
+    </div>
+<!--   </div> -->
+      
 
-  <h4>Karma</h4>
-  <p>Spectacular Test Runner for JavaScript.</p>
-</div>

@@ -1,36 +1,66 @@
 
 var expect = require('chai').expect;
 var assert = require('chai').assert;
-var fail = require('chai').fail;
+var fail = require('chai').assert.fail;
 var util = require('util');
 var model = require('../dist/common/model.js');
 var custom = require('../dist/common/custom.js');
 var logger = require('../dist/common/utils').appLogger;
 
-var TEST_DB = 'unittests';
+var DB_CONF = {
+				credentials: {
+					user: 'joaovieg'
+					, pswd: 'Carr!eg0'
+				}
+				, instances: [
+					{
+						name: 'unittests'
+						, views: [
+							{ 
+								'name': 'datasource' 
+								, 'map': "function(doc) { emit(doc._id, doc); }"
+							} 
+						]
+					}
+				]
+			};
+var TEST_DB = DB_CONF.instances[0].name;
 
 var numOfDummyItems = 10;
 var dummyItems = [];
+var dummyIdGenerator = 0;
+
+var getDummyId = function(){
+	var id = ++dummyIdGenerator;
+	return 'dummy_' + id; 
+};
 
 describe('model test - items', function() {
 
 	for(var i=0; i<numOfDummyItems; i++)
-		dummyItems.push(custom.createDummyItem(true));
+		dummyItems.push(custom.createDummyItem(true, getDummyId()));
 
 	before(function(done) {
+
 	    // runs before all tests in this block
 	    logger.info('-------------- before tests --------------');
-	    model.init([ TEST_DB ], function(err, o){
+
+	    model.init(DB_CONF, function(err, o){
 	    	if(err)
 	    		throw err;
+			//deleting just in case latest tests did not run till the end
+			model.deleteDb(TEST_DB, function(){
+				model.scaffolding(DB_CONF, function(err, o){
+		    		if(err)
+		    			throw err;
 
-	    	model.delAll(TEST_DB, function(err, o){
-	    		if(err)
-	    			throw err;
-	    		logger.info('------------------------------------------');
-	    		done();
-	    	});
-	    });
+		    		logger.info('------------------------------------------');
+		    		done();
+		    	});
+			});
+
+		});
+  
 
 	});
 
@@ -54,6 +84,7 @@ describe('model test - items', function() {
 						done();
 		    		}
 		    		else {
+		    			console.log(JSON.stringify(o.result));
 						assert.typeOf(o.result, 'array');
 						assert.lengthOf(o.result,0);
 						done();
@@ -206,6 +237,79 @@ describe('model test - items', function() {
 			model.getAll(TEST_DB, callback);
 		});
 
+	});
+
+	describe('#getAll() with options', function(){
+
+		var experimentSize = 6;
+		var startIndex = dummyItems.length;
+		var endIndex = startIndex + experimentSize;
+		var counter = 0;
+		var experimentSequence = experimentSize/2;
+
+		it('should insert a set of items in sequence', function(done){
+
+			var callback = function(index){
+	    		var f = function(err, r){
+	    			if(err){
+		    			console.log(err);
+		    			fail(err, null);	
+						done();
+		    		}
+		    		else {
+		    			logger.info(util.format('ok: %s', JSON.stringify(r)));
+						expect(r.result).to.not.be.null;
+						expect(r.result._id).to.not.be.null;
+						expect(r.result._rev).to.not.be.null;
+						dummyItems[index] = r.result;
+						if(++counter == experimentSize)
+							done();
+		    		}
+	    		};
+	    		return { f: f };
+			};
+			for(var i=startIndex;  i < endIndex; i++){
+				var item = custom.createDummyItem(true, getDummyId());
+				console.log('created dummy item %s', JSON.stringify(item));
+				dummyItems.push(item);
+				console.log("going to insert item: %s", JSON.stringify(item));
+
+				model.post(TEST_DB, item, callback(i).f);
+			}
+		});
+
+	   it('should return a subset of those items inserted previously', 
+	    	function(done){
+
+
+		    	var readViewCallback = function(err, o){
+		    		if(err){
+		    			logger.error(util.format('[readViewCallback] %s', JSON.stringify(err)));	
+		    			fail(err, null);
+		    		}
+		    		else {
+		    			console.log('GOT %s', JSON.stringify(o));
+						assert.typeOf(o, 'array');
+						assert.lengthOf(o, experimentSequence);
+						o.forEach(function(doc) {
+					      if(doc._id == dummyItems[startIndex]._id)
+					      	fail("should not retrieve the startIndex", null);
+					    });
+		    		}
+		    		done();
+				};
+				//console.log('parts so far: %s', JSON.stringify(dummyItems));
+				console.log("going to get items with id > %s (got from index %d)", dummyItems[startIndex]._id, startIndex);
+				var l = dummyItems[startIndex]._id;
+				var options =  { 
+					'selector': { '_id': { '$gt': l } }
+					, 'sort': [ { '_id': 'asc' } ] 
+					, 'limit': experimentSequence
+					};
+				model.getSome(TEST_DB, options, readViewCallback);
+
+			}
+		);
 	});
 
 });

@@ -15,7 +15,11 @@
     "bootstrap": "^3.3.6",
     "es5-shim": "3.1.0",
     "json3": "3.3.1",
-    "ng-tags-input": "3.1.1"
+    "grunt-karma": "^1.0.0",
+    "jquery": "^2.2.3",
+    "ng-tags-input": "3.1.1",
+    "angular-strap": "^2.3.8",
+    "angular-motion": "^0.4.4"
   },
   "devDependencies": {
     "angular-mocks": "^1.4.0"

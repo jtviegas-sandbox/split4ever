@@ -4,13 +4,27 @@ var Config = function() {
 		app: {
 			name: 'split4ever'
 			, db : {
-				user: 'joaovieg'
-				, pswd: ''
-				, names: ['part']
+				credentials: {
+					user: 'joaovieg'
+					, pswd: 'C_______0'
+				}
+				, instances: [
+					{
+						name: 'part'
+						, views: [
+							{ 
+								'name': 'datasource' 
+								, 'map': "function(doc) { emit(doc._id, doc); }"
+							} 
+						]
+					}
+					, { 
+						name: 'tag' 
+					}
+				]
 			}
 		}
 	};
-
 }();
 
 module.exports = Config;

@@ -9,10 +9,11 @@ var router = express.Router();
 router.use(bodyParser.json({limit: '50mb'})); // for parsing application/json
 router.use(bodyParser.urlencoded({ extended: true, limit: '50mb' })); // for parsing application/x-www-form-urlencoded
 
-
+router.get('/:name/:id/:n', functions.getNfromId);
 router.get('/:name/:id', functions.get);
-router.delete('/:name/:id/:rev', functions.del);
 router.get('/:name', functions.getAll);
+router.delete('/:name/:id/:rev', functions.del);
+
 router.post('/:name', functions.post);
 
 logger.trace('...finished loading.');

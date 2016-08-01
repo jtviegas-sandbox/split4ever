@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('frontendApp').service( 'app', 
-  function (config, $timeout){
+  function ($alert, $timeout, config){
 
     var showAlert = function(title, type, msg, container, timeout, customClass) {
           
@@ -21,13 +21,12 @@ angular.module('frontendApp').service( 'app',
     };
 
     //success(green), info(blue), warning(yellow), danger(red)
-    var showAppAlert = function(msg, type){
-      var alertType = 'info';
-      if(type)
-        alertType = type;
+    var showAppAlert = function(msg, type, container){
 
-      showAlert(config.LITERALS.appTitle + ': ', alertType, msg, 
-        config.container, config.timeout,config.customClass);
+      showAlert(config.LITERALS.appTitle + ': ', 
+        (type ? type : 'info'), msg, 
+        (container ? container : config.ALERT.container), 
+        config.ALERT.timeout,config.ALERT.customClass);
     };
 
     var context = {};

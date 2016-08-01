@@ -82,7 +82,7 @@ var Custom = function() {
 	    return o;
 	};
 
-	var createDummyItem = function(shouldItBeRandom){
+	var createDummyItem = function(shouldItBeRandom, id){
 		var o = {
 				images:[
 				//'','',''...... objectIDs
@@ -90,17 +90,18 @@ var Custom = function() {
 				name: '',
 				notes: '',
 				price: '',
-				category:'', // {name: '....'}
-				subCategory: '' // {name: '....', category:'....'}
+				tags:[] // {name: '....'}
+
 			};
 
 		if(shouldItBeRandom){
 			o.name = randomString(12);
 			o.notes = randomString(24);
 			o.price = random(3,6);
-			o.category = randomString(12);
-			o.subCategory = randomString(12);
+			o.tags.push(randomString(12));
 		}
+		if(id)
+			o._id = id;
 
 		return o;
 	};
@@ -119,10 +120,7 @@ var Custom = function() {
 			return false;
 		if(!_.isEqual(a.price, b.price))
 			return false;
-		if(!_.isEqual(a.category, b.category))
-			return false;
-		if(!_.isEqual(a.subCategory, b.subCategory))
-			return false;
+
 
 		return true;
 	};

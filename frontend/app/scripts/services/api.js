@@ -47,9 +47,96 @@ angular.module('frontendApp')
         );
       };
 
+      var getItem = function(input, callback){
+        var id = input._id;
+        $http({
+            method: 'GET'
+            , url: config.API.url + '/collections/part/' + id
+          }).then(
+            function success(response) {
+              console.log(response);
+              if(callback)
+                callback(null, response.data);
+            },
+            function error(response) {
+              console.log(response);
+              if(callback)
+                callback(response)
+            }
+        );
+      };
+
+      var getDatasourceItems = function(input, callback){
+        var id = input._id;
+        var n = input.n;
+        $http({
+            method: 'GET'
+            , url: config.API.url + '/collections/part/' + id + '/' + n
+          }).then(
+            function success(response) {
+/*              console.log(response);*/
+              if(callback)
+                callback(null, response.data);
+            },
+            function error(response) {
+/*              console.log(response);*/
+              if(callback)
+                callback(response)
+            }
+        );
+      };
+
+
+
+      var getTags = function(callback){
+/*        $http({
+            method: 'GET'
+            , url: config.API.url + '/collections/tag'
+          }).then(
+            function success(response) {
+              console.log(response);
+              if(callback)
+                callback(null, response.data);
+            },
+            function error(response) {
+              console.log(response);
+              if(callback)
+                callback(response)
+            }
+        );*/
+
+        callback(null, { result: [{'text': 'travoes'}, {'text': 'espelhos'}, {'text': 'portas'}, {'text': 'rodas'}, {'text': 'embraiagens'}] });
+
+      };
+
+      var addTag = function(input, callback){
+
+        var url = config.API.url + '/collections/tag';
+        var data = input;
+        var options = { headers: { 'Content-Type': 'application/json' } };
+
+        $http.post(url, data, options)
+          .then(
+            function success(response) {
+              console.log(response);
+              if(callback)
+                callback(null, response.data);
+            },
+            function error(response) {
+              console.log(response);
+              if(callback)
+                callback(response)
+            }
+          );
+      };
+
       return { 
         setItem: setItem
         , delItem: delItem
+        , getItem: getItem
+        , getTags: getTags
+        , addTag: addTag
+        , getDatasourceItems: getDatasourceItems
       };
     }
   ) 

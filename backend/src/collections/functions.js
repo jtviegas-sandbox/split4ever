@@ -4,11 +4,17 @@ var logger = require('../common/utils').appLogger;
 
 var config = require('../common/config.js');
 var model = require('../common/model.js');
-model.init(config.app.db.names, function(err, o){
+
+model.init(config.app.db, function(err, o){
   if(err)
-    logger.error(err);
-  else
-    logger.info('init\'ed databases');
+    throw err;
+  else {
+    model.scaffolding(config.app.db, function(err, o){
+      if(err)
+        throw err;
+      logger.info('init\'ed databases');
+    });
+  }
 });
 
 var CollectionsFunctions = function(){
@@ -17,6 +23,9 @@ var CollectionsFunctions = function(){
     logger.trace('<IN>getAll');
 
     var collectionName = req.params.name;
+    var options = null;
+    if(req.body)
+      options = req.body;
 
     var callback = function(err, o){
         if(err){
@@ -29,9 +38,42 @@ var CollectionsFunctions = function(){
         }
     };
 
-    model.getAll(collectionName, callback);
+    model.getAll(collectionName, callback, options);
     logger.trace('<OUT>getAll');
   };
+
+  var getNfromId = function(req,res){
+    logger.trace('<IN>getNfromId');
+
+    var collectionName = req.params.name;
+    var id = req.params.id;
+    var nRecords = parseInt(req.params.n);
+
+    if("0" == id)
+      id=0;
+
+    var options = 
+      { 
+        "selector": { "_id": { "$gt": id } }
+        , "sort": [ { "_id": "asc" } ] 
+        , "limit": nRecords
+      };
+
+    var callback = function(err, o){
+        if(err){
+          logger.error(err);  
+          res.status(400).end();
+        }
+        else {
+          res.status(200).json(o);
+          res.end();
+        }
+    };
+
+    model.getSome(collectionName, options, callback);
+    logger.trace('<OUT>getNfromId');
+  };
+
 
   var get = function(req,res){
     logger.trace('<IN>get');
@@ -97,6 +139,7 @@ var CollectionsFunctions = function(){
     , get: get
     , post: post
     , del: del
+    , getNfromId: getNfromId
   };
 
 }();

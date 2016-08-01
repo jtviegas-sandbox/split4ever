@@ -24,7 +24,7 @@ body {
 
 /* Custom page header */
 .header {
-  border-bottom: 1px solid #e5e5e5;
+  //border-bottom: 1px solid #e5e5e5;
   margin-bottom: 10px;
 }
 /* Make the masthead heading the same height as the navigation */
@@ -70,6 +70,13 @@ body {
     margin: 3px;
     padding:0px;
     border: 0px;
+}
+
+.appAlert {
+    height: 36px;
+    margin: 0px;
+    padding-top:6px;
+    margin-top:4px;
 }
 
 /* Responsive: Portrait tablets and up */

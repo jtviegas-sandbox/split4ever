@@ -19,9 +19,12 @@ angular
     'ngSanitize',
     'ngTouch',
     'ui.bootstrap'
-    ,'ngTagsInput'
+    , 'ngTagsInput'
+    , 'mgcrea.ngStrap'
+    , 'ui.scroll'
+    , 'ui.scroll.jqlite'
   ])
-  .config(function ($routeProvider) {
+  .config(function ($routeProvider, $locationProvider, tagsInputConfigProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -33,14 +36,9 @@ angular
         controller: 'AboutCtrl',
         controllerAs: 'about'
       })
-      .when('/parts/0', {
-        templateUrl: 'views/newpart.html',
-        controller: 'NewpartCtrl',
-        controllerAs: 'newpart'
-      })
-      .when('/parts/:id', {
+      .when('/part/:id', {
         templateUrl: 'views/part.html',
-        controller: 'PartCtrl',
+        controller: 'partCtrl',
         controllerAs: 'part'
       })
       .when('/parts', {
@@ -56,6 +54,19 @@ angular
       .otherwise({
         redirectTo: '/'
       });
+
+      tagsInputConfigProvider.setDefaults('tagsInput', {  minLength: 1 });
+
+     //check browser support
+      if(window.history && window.history.pushState){
+          //$locationProvider.html5Mode(true); will cause an error $location in HTML5 mode requires a  tag to be present! 
+          //Unless you set baseUrl tag after head tag like so: <head> <base href="/">
+
+       // to know more about setting base URL visit: https://docs.angularjs.org/error/$location/nobase
+
+       // if you don't wish to set base URL then use this
+       $locationProvider.html5Mode(true);
+      }
   })
   .controller( 'AppCtrl', 
     function($scope, $location, $http){

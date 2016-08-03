@@ -49,12 +49,26 @@ var CollectionsFunctions = function(){
     var id = req.params.id;
     var nRecords = parseInt(req.params.n);
 
-    if("0" == id)
+    if("0" == id || 0 == id)
       id=0;
 
     var options = 
       { 
-        "selector": { "_id": { "$gt": id } }
+        "selector": {
+         "$and":[
+           {
+            "_id": {
+              "$gt": id
+            }
+           }
+            , { "$not":{
+                  "_id": {
+                    "$regex": "_design/.*"
+                  }
+                }
+              }
+           ]
+        }
         , "sort": [ { "_id": "asc" } ] 
         , "limit": nRecords
       };

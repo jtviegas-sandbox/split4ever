@@ -67,6 +67,7 @@ angular.module('frontendApp')
       };
 
       var getDatasourceItems = function(input, callback){
+        console.log('[api.getDatasourceItems] IN (%s)', JSON.stringify(input) );
         var id = input._id;
         var n = input.n;
         $http({
@@ -74,12 +75,10 @@ angular.module('frontendApp')
             , url: config.API.url + '/collections/part/' + id + '/' + n
           }).then(
             function success(response) {
-/*              console.log(response);*/
               if(callback)
                 callback(null, response.data);
             },
             function error(response) {
-/*              console.log(response);*/
               if(callback)
                 callback(response)
             }

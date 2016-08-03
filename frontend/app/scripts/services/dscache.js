@@ -6,71 +6,109 @@ angular.module('frontendApp').service( 'dscache',
     var os = [];
 
     var getByIndex = function (index, buffer, callback){
+
+      console.log('[dscache.getByIndex] IN (%d,%d, ...)', index, buffer );
+
       if(1 > buffer)
-        throw "buffer must be a non-zero positive number"
+        throw "buffer must be a non-zero positive number";
       if(index > os.length)
-        throw "index should be contained or adjacent to the extistent array"
+        throw "index should be contained or adjacent to the existent array";
 
-      var lowIdx = index;
-      var id = null;
-      var doLoad = false;
+      var index1 = index;
+      var index2 = index + buffer -1;
 
-      if( (index < os.length) && ( (index+buffer-1) < os.length )  ){
-        console.log('[dscache] loading from cache');
-        callback(null, os.slice(index, index+buffer));
+      assureIndexRange(index1, index2, callback);
+
+    };
+
+    var partArrayIds2String= function(a){
+      var r = null;
+      for(var i = 0; i < a.length; i++){
+        if(null == r)
+          r = a[i]._id;
+        else
+          r = r + ', ' + a[i]._id; 
+      }
+      return r;
+    };
+
+    var assureIndexRange = function(i1, i2, callback){
+
+      console.log('[dscache.assureIndexRange] IN (%d,%d, ...)', i1, i2 );
+      
+      if(i1 > i2)
+        throw "first range index can not be higher than the last range index";
+
+      var mustLoad = false;
+      var firstIndex2retrieve = null;
+      var secondIndex2retrieve = null;
+
+      if(i2 >= os.length){
+        firstIndex2retrieve = os.length;
+        secondIndex2retrieve = i2;
+        mustLoad=true;
+      }
+
+      if(mustLoad){
+
+        var loadCallback = function(parentCallback){
+          var func = function(err, r){
+             if(err){
+                if (parentCallback)
+                  parentCallback(err)
+             }
+            else
+              if(parentCallback){
+                console.log('cache before slice: %s', partArrayIds2String(os));
+                var slice = os.slice(i1, i2+1)
+                console.log('slice [%d - %d]: %s', i1, i2+1, partArrayIds2String(slice));
+                parentCallback(null, slice);
+              }
+          };
+
+          return {func: func};
+        }(callback);
+       
+        load(firstIndex2retrieve, secondIndex2retrieve, loadCallback.func)
       }
       else {
-        lowIdx = os.length;
-          //now we now we have to start querying from the 
-          //id of the previous item so...
-          if(0 == lowIdx)
-            id = "0"
-          else
-            id = os[lowIdx-1]._id;
-          doLoad = true;
-      }
-   
-      if(doLoad){
-        console.log('[dscache] loading cache from index %d', lowIdx);
-        console.log('[dscache] loading from api using index %d and id %s', lowIdx-1, id);
-
-        load(id, buffer, function(err, r){
-          if(err){
-            callback(err);
-          }
-          else {
-            for(var i=0; i < r.length; i++){
-              os.push(r[i]);
-              console.log('[dscache] got id %s', r[i]._id);
-            }
-            console.log('[dscache] cache size is now %d', os.length);
-            console.log('[dscache] going to slice from %d to %d ', index, index+buffer);
-            
-            var slice = os.slice(index, index+buffer);
-            console.log('[dscache] slice size: %d', slice.length);
-            callback(null, slice);
-          }
-        });
+        if(callback){
+          console.log('[dscache.assureIndexRange] cache before slice: %s', partArrayIds2String(os));
+          var slice = os.slice(i1, i2+1)
+          console.log('[dscache.assureIndexRange] slice [%d - %d]: %s', i1, i2+1, partArrayIds2String(slice));
+          callback(null, slice);
+        }
       }
 
     };
 
-    var load = function(id, buffer, callback){
+    var load = function(idx1, idx2, callback){
+      console.log('[dscache.load] IN (%d,%d, ...)', idx1, idx2 );
+      var id = null;
+      var n = null;
+
+      if(0 == idx1)
+        id = 0;
+      else
+        id = os[idx1-1]._id;
+
+      n = idx2 - idx1 + 1;
 
       api.getDatasourceItems(
-        {'_id': id,  'n': buffer }, 
+        {'_id': id,  'n': n }, 
         function(err, o){
           if(err){
             console.log(err)
           }
           else {
             console.log('got %d parts', o.length);
+            o.forEach(function(el){
+              os.push(el)
+            });
             callback(null, o);
           }
       });
-
-    };
-
+    }
 
     return { 
       getByIndex: getByIndex

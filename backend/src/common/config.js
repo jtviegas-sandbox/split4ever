@@ -6,7 +6,7 @@ var Config = function() {
 			, db : {
 				credentials: {
 					user: 'joaovieg'
-					, pswd: 'C_______0'
+					, pswd: 'Carr!eg0'
 				}
 				, instances: [
 					{

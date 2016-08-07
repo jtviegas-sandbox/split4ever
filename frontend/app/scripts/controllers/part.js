@@ -1,8 +1,10 @@
 'use strict';
 
 angular.module('frontendApp')
-  .controller('partCtrl', ['$scope', '$routeParams', 'config', 'api', 'app', 
-    function ($scope, $routeParams, config, api, app) {
+  .controller('partCtrl', ['$scope', '$routeParams', 'config', 'api', 'app',  '$location', '$window', '$log', 
+    function ($scope, $routeParams, config, api, app, $location, $window, $log) {
+
+      
 
       var tagsCache = [];
       api.getTags(function(err, o){
@@ -18,20 +20,6 @@ angular.module('frontendApp')
         }
       });
 
-      var findTagIndexInArray = function(array, tag){
-        var r = -1;
-
-        for(var i = 0; i < array.length; i++){
-          var t = array[i];
-          if( t.text == tag.text){
-            r = i;
-            break;
-          }
-        }
-
-        return r;
-      };
-
       $scope.getTags = function(query){
         //var tags = ['travoes', 'espelhos', 'portas', 'rodas', 'embraiagens'];
         var r = [];
@@ -39,7 +27,7 @@ angular.module('frontendApp')
         Array.prototype.push.apply(state, $scope.item.tags);
         tagsCache.forEach(function(value, index, array){
           if( 0 <= value.text.indexOf( query ) ){
-            if(0 > findTagIndexInArray(state, value))
+            if(0 > app.findTagIndexInArray(state, value))
               r.push(value);
           } 
         });
@@ -68,7 +56,7 @@ angular.module('frontendApp')
           if(oldval){
             if(newval.length >  oldval.length){
               newval.forEach(function(value, index, array){
-                if(0 > findTagIndexInArray(oldval, value)){
+                if(0 > app.findTagIndexInArray(oldval, value)){
                   newTag = value;
                   add = true;
                 }
@@ -86,12 +74,12 @@ angular.module('frontendApp')
             newTag.text = newTag.text.trim().toLowerCase();
             console.log('adding new tag %j', newTag);
             //if is not in cache add it
-            if(0 > findTagIndexInArray(tagsCache, newTag)){
+            if(0 > app.findTagIndexInArray(tagsCache, newTag)){
               console.log('not in cache going to persist');
               api.addTag(newTag, function(err, r){
                 if(err){
                   console.log('could not persist tag: %s', JSON.stringify(err));
-                  var idx = findTagIndexInArray($scope.item.tags, newTag);
+                  var idx = app.findTagIndexInArray($scope.item.tags, newTag);
                   if(0 <= idx){
                     $scope.item.tags.splice(idx, 1);
                     console.log('removed the tag from the part');
@@ -122,12 +110,12 @@ angular.module('frontendApp')
             var callback = function(err, r){
               if(err){
                 console.log(JSON.stringify(err));
-                //app.showAppAlert(APP_CONSTANTS.LITERALS.docGroupSetNok, 'danger'); 
+                app.showAppAlert(config.LITERALS.partSubmitFailed, 'danger', config.PART.partAlertArea); 
               }
               else {
                 $scope.item._id = r._id;
                 $scope.item._rev = r._rev;
-                //app.showAppAlert(APP_CONSTANTS.LITERALS.docGroupSetOk, 'success');        
+                app.showAppAlert(config.LITERALS.partSubmitOk, 'success', config.PART.partAlertArea);        
               }
             };
             api.setItem($scope.item,callback);
@@ -144,11 +132,11 @@ angular.module('frontendApp')
       var callback = function(err, r){
         if(err){
           console.log(JSON.stringify(err));
-          //app.showAppAlert(APP_CONSTANTS.LITERALS.docGroupSetNok, 'danger'); 
+          app.showAppAlert(config.LITERALS.partDeleteFailed, 'danger', config.PART.partAlertArea); 
         }
         else {
           setNewItem();
-          //app.showAppAlert(APP_CONSTANTS.LITERALS.docGroupSetOk, 'success');        
+          app.showAppAlert(config.LITERALS.partDeleteOk, 'success', config.PART.partAlertArea);        
         }
       };
       api.delItem($scope.item,callback);
@@ -156,6 +144,8 @@ angular.module('frontendApp')
 
     // load the item
     if( '0' == $routeParams.id ){
+
+      console.log('going to load %s', $location.url());
       app.showAppAlert('creating a pristine part to be saved later', 'info', '#partAlert');
       setNewItem();
     }

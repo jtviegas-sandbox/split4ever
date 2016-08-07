@@ -48,30 +48,45 @@ var CollectionsFunctions = function(){
     var collectionName = req.params.name;
     var id = req.params.id;
     var nRecords = parseInt(req.params.n);
-
+    
     if("0" == id || 0 == id)
       id=0;
 
     var options = 
       { 
         "selector": {
-         "$and":[
-           {
-            "_id": {
-              "$gt": id
+          "$and":[
+            {
+              "_id": {
+                "$gt": id
+              }
             }
-           }
             , { "$not":{
                   "_id": {
                     "$regex": "_design/.*"
                   }
                 }
-              }
-           ]
+            }
+          ]
         }
         , "sort": [ { "_id": "asc" } ] 
         , "limit": nRecords
       };
+
+    if(req.query && req.query.tags){
+
+      var tagsValue = [];
+      
+      if(!Array.isArray(req.query.tags))
+          tagsValue.push(req.query.tags);
+      else
+        Array.prototype.push.apply(tagsValue, req.query.tags);
+
+      var tagsOption = {
+        "tags" : { "$in": tagsValue }
+      };
+      options["selector"]["$and"].push(tagsOption);
+    }
 
     var callback = function(err, o){
         if(err){

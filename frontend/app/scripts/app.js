@@ -22,7 +22,7 @@ angular
     , 'ngTagsInput'
     , 'mgcrea.ngStrap'
     , 'ui.scroll'
-    , 'ui.scroll.jqlite'
+    //, 'ui.scroll.jqlite'
   ])
   .config(function ($routeProvider, $locationProvider, tagsInputConfigProvider) {
     $routeProvider

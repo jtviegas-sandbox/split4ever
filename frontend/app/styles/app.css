@@ -11,29 +11,15 @@ html {
 }
 
 body {
-  padding: 0;
+  min-height: auto;
+  padding-top: 70px;
 }
 
-/* Everything but the jumbotron gets side spacing for mobile first views */
-.header,
-.marketing,
-.footer {
-  padding-left: 15px;
-  padding-right: 15px;
+a[ng-click]{
+    cursor: pointer;
 }
 
-/* Custom page header */
-.header {
-  //border-bottom: 1px solid #e5e5e5;
-  margin-bottom: 10px;
-}
-/* Make the masthead heading the same height as the navigation */
-.header h3 {
-  margin-top: 0;
-  margin-bottom: 0;
-  line-height: 40px;
-  padding-bottom: 19px;
-}
+
 
 /* Custom page footer */
 .footer {
@@ -79,8 +65,48 @@ body {
     margin-top:4px;
 }
 
-/* Responsive: Portrait tablets and up */
-@media screen and (min-width: 768px) {
+
+
+
+
+/* Custom page header */
+.header {
+  //border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 10px;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+  padding-bottom: 19px;
+}
+.header,
+.marketing,
+.footer {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Responsive: small devices , portrait tablets and up */
+@media screen and (max-width: 767px) {
+
+  /* Remove the padding we set earlier */
+  .header,
+  .marketing,
+  .footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* Space out the masthead */
+  .header {
+    margin-bottom: 20px;
+  }
+
+}
+
+@media screen and (min-width: 768px) and (max-width: 1199px) {
+
   .container {
     max-width: 730px;
   }
@@ -94,11 +120,42 @@ body {
   }
   /* Space out the masthead */
   .header {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
   }
-  /* Remove the bottom border on the jumbotron for visual effect */
-  .jumbotron {
-    border-bottom: 0;
-  }
+
 }
 
+@media screen and (min-width: 1200px) {
+
+  .container {
+    max-width: 80%;
+  }
+
+  // Remove the padding we set earlier 
+  .header,
+  .marketing,
+  .footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .header {
+    margin-bottom: 30px;
+  }
+
+}
+
+/* ----------- laptop Non-Retina Screens ----------- */
+/*@media screen 
+  and (min-device-width: 1200px) 
+  and (max-device-width: 1600px) 
+  and (-webkit-min-device-pixel-ratio: 1) { 
+}*/
+
+/* ----------- laptop Retina Screens ----------- */
+/*@media screen 
+  and (min-device-width: 1200px) 
+  and (max-device-width: 1600px) 
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (min-resolution: 192dpi) { 
+}*/

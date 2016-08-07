@@ -8,6 +8,6 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('FooterCtrl', function () {
-
+  .controller('FooterCtrl', function ($scope, config) {
+  	$scope.literals = config.LITERALS;
   });

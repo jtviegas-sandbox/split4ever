@@ -1,5 +1,6 @@
 var express = require('express');
 var util = require('util');
+var path = require('path')
 var favicon = require('serve-favicon');
 var cookieSession = require('cookie-session');
 var uuid = require('uuid');
@@ -9,6 +10,13 @@ var logger = require('./common/utils').appLogger;
 //CONSTANTS
 var PORT=3000;
 var BODY_MAX_SIZE = '10240kb';
+
+
+process.env.MODE = 'PROD';
+if ( process.argv.indexOf("--test") > -1 ) {
+  process.env.MODE = 'TEST';
+  console.log('Starting in test mode');
+}
 
 var cookieSessionProps = {
   name: 'session',
@@ -21,12 +29,16 @@ var cookieSessionProps = {
 //custom modules
 var custom = require('./common/custom.js');
 var collections = require('./collections/route.js');
+var authenticationRoute = require('./auth/route.js');
 var authentication = require('./auth/authentication.js');
 
 var app = express();
 app.use(cookieSession(cookieSessionProps));
 app.use(cookieParser());
+app.use(authentication.passport.initialize());
+app.use(authentication.passport.session()); 
 app.set('port', process.env.PORT || PORT);
+
 
 var options = {
   dotfiles: 'ignore',
@@ -35,9 +47,11 @@ var options = {
   //index: false,
   redirect: false
 };
+app.use('/', express.static('public', options));
 
-app.use(express.static('public', options));
-app.use('/api/collections', authentication.authenticate, collections);
+
+app.use('/auth', authenticationRoute);
+app.use('/api/collections', collections);
 
 // custom 404 page
 app.use(function(req, res){

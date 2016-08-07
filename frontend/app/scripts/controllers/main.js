@@ -8,12 +8,24 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('MainCtrl', [ '$scope', 'dscache','$timeout',  function ($scope, dscache, $timeout) {
+  .controller('MainCtrl', [ '$scope', 'dscache','$timeout', 'config', 'api','app','$rootScope',    
+  	function ($scope, dscache, $timeout, config, api, app, $rootScope) {
+
+  	$scope.literals = config.LITERALS;
 
     $scope.datasource = function(){
 
     	var minIndex = 0;
     	var maxIndex = 0;
+
+    	var setTagsFilter = function(tf){
+    		dscache.setTagsFilter(tf);
+    	};
+
+    	var resetIndexes = function(){
+    		minIndex = 0;
+    		maxIndex = 0;
+    	};
 
     	var partArrayIds2String= function(a){
       		var r = null;
@@ -36,7 +48,6 @@ angular.module('frontendApp')
     				console.log(err);
     			else {
     				console.log('[datasource.get] got %d parts', r.length);
-
 	    			if(0 < r.length){
 	    				if(index < minIndex)
     						minIndex=index;
@@ -46,8 +57,6 @@ angular.module('frontendApp')
     					console.log('[datasource.get] minIndex: %d | maxIndex: %d | got %d parts !', minIndex, maxIndex, r.length);
     					console.log('[datasource.get] %s', partArrayIds2String(r));
     				}
-    			
-    				
     				success(r);
     			}
     		}), 1000);
@@ -58,18 +67,17 @@ angular.module('frontendApp')
     		get: get
     		, minIndex: minIndex
     		, maxIndex: maxIndex
+    		, setTagsFilter: setTagsFilter
+    		, resetIndexes: resetIndexes
     	};
 	}();
 
-	$scope.tags2String = function(t){
-		var r = null;
-		for(var i = 0; i < t.length; i++){
-			if(null == r)
-				r = t[i].text;
-			else
-				r = r + ', ' + t[i].text;
-		}
-		return r;
-	};
+    var tagsFilterHasChanged = $rootScope.$on('tagsFilterUpdate', function(event, data){
+        $scope.datasource.setTagsFilter(data);
+        $scope.datasource.resetIndexes();
+        return $scope.scrollAdapter.reload(0);
+    });
+
+    $scope.$on('$destroy', tagsFilterHasChanged);
 
   }]);

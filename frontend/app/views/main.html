@@ -7,10 +7,20 @@
   <p><a class="btn btn-lg btn-success" ng-href="#/">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
 </div> -->
 
-  
- <!--  <div class="row"> -->
+<!--   <div class="container">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+      <em>{{literals.subTitle2}}</em>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+          <tags-input ng-model="tagsFilter" add-on-paste="true" placeholder="{{literals.tagsFilterPlaceholder}}" required>
+          <auto-complete source="getTags($query)" min-length="0"></auto-complete>
+        </tags-input>
+    </div>
 
-    <div class="col-xs-6 col-sm-4 col-md-4" ui-scroll="part in datasource" start-index="0" buffer-size="4">
+    <hr class="col-xs-12 col-sm-12 col-md-12">
+  </div> -->
+  <div class="row">
+    <div class="col-xs-6 col-sm-4 col-md-4" ui-scroll="part in datasource" start-index="0" buffer-size="4" adapter="scrollAdapter">
       <div class="thumbnail">
 
         <uib-carousel interval="0" no-wrap="false">
@@ -31,6 +41,6 @@
         </div>
       </div>
     </div>
-<!--   </div> -->
+  </div>
  
 

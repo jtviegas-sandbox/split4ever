@@ -1,0 +1,9 @@
+
+a:hover{
+    cursor: pointer;
+}
+
+.navbar-form > tags-input {
+	min-width: 364px;
+	//max-width: 200px;
+}

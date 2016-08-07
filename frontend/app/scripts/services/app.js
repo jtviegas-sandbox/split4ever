@@ -29,12 +29,40 @@ angular.module('frontendApp').service( 'app',
         config.ALERT.timeout,config.ALERT.customClass);
     };
 
+
+    var findTagIndexInArray = function(array, tag){
+        var r = -1;
+
+        for(var i = 0; i < array.length; i++){
+          var t = array[i];
+          if( t.text == tag.text){
+            r = i;
+            break;
+          }
+        }
+
+        return r;
+    };
+
+   var tags2String = function(t){
+      var r = null;
+      for(var i = 0; i < t.length; i++){
+        if(null == r)
+          r = t[i].text;
+        else
+          r = r + ', ' + t[i].text;
+      }
+      return r;
+    };
+
     var context = {};
 
     return { 
       showAlert: showAlert
       , showAppAlert: showAppAlert
       , context: context
+      , findTagIndexInArray:findTagIndexInArray
+      , tags2String: tags2String
     };
 
   } 

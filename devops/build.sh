@@ -24,7 +24,7 @@ FRONTEND_DIST=$ARCHIVE_DIR/public
 LOGS_DIST=$BACKEND_DIST/logs
 
 echo "...cleaning..."
-rm -rf $DIST
+rm -rf $ARCHIVE_DIR
 echo "...building frontend..."
 _pwd=`pwd`
 echo "moving to ...$FRONTEND..."

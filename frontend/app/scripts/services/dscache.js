@@ -4,6 +4,12 @@ angular.module('frontendApp').service( 'dscache',
   function (api){
 
     var os = [];
+    var tagsFilter = [];
+
+    var setTagsFilter = function(tf){
+        tagsFilter = tf;
+        os = [];
+    };
 
     var getByIndex = function (index, buffer, callback){
 
@@ -29,7 +35,7 @@ angular.module('frontendApp').service( 'dscache',
         else
           r = r + ', ' + a[i]._id; 
       }
-      return r;
+      return null == r ? "" : r;
     };
 
     var assureIndexRange = function(i1, i2, callback){
@@ -95,7 +101,7 @@ angular.module('frontendApp').service( 'dscache',
       n = idx2 - idx1 + 1;
 
       api.getDatasourceItems(
-        {'_id': id,  'n': n }, 
+        {'_id': id,  'n': n , 'tags': tagsFilter}, 
         function(err, o){
           if(err){
             console.log(err)
@@ -112,6 +118,7 @@ angular.module('frontendApp').service( 'dscache',
 
     return { 
       getByIndex: getByIndex
+      , setTagsFilter: setTagsFilter
     };
 
   } 

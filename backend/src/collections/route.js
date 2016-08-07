@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var logger = require('../common/utils').appLogger;
+var authentication = require('../auth/authentication');
 
 var functions = require('./functions');
 logger.trace('started loading...');
@@ -12,9 +13,9 @@ router.use(bodyParser.urlencoded({ extended: true, limit: '50mb' })); // for par
 router.get('/:name/:id/:n', functions.getNfromId);
 router.get('/:name/:id', functions.get);
 router.get('/:name', functions.getAll);
-router.delete('/:name/:id/:rev', functions.del);
+router.delete('/:name/:id/:rev', authentication.verifyAuth, functions.del);
 
-router.post('/:name', functions.post);
+router.post('/:name', authentication.verifyAuth, functions.post);
 
 logger.trace('...finished loading.');
 module.exports = router;

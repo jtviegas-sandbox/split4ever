@@ -136,6 +136,25 @@ angular.module('frontendApp')
           );
       };
 
+      var getSession = function(callback) {
+
+        $http({
+            method: 'GET',
+            url: config.API.auth.url + '/session'
+          }).then(
+            function success(response) {
+              console.log(response);
+              if(callback)
+                callback(null, response.data);
+            },
+            function error(response) {
+              console.log(response);
+              if(callback)
+                callback(response)
+            }
+          );
+      };
+
       return { 
         setItem: setItem
         , delItem: delItem
@@ -143,6 +162,7 @@ angular.module('frontendApp')
         , getTags: getTags
         , addTag: addTag
         , getDatasourceItems: getDatasourceItems
+        , getSession: getSession
       };
     }
   ) 

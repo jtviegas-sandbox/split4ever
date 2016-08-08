@@ -3,7 +3,7 @@
 	  <div class="panel-body">
 		<uib-carousel interval="0" no-wrap="false">
 	      <uib-slide ng-repeat="image in item.images" >
-	      <div class="row">
+	      <div ng-if="session.AdminloggedIn" class="row">
 	        	<div class="col-xs-6">
 	        		<h6>{{image.name}}</h6>
 	        	</div>
@@ -18,14 +18,14 @@
 	    </uib-carousel>
 	  </div> 
 	<div class="panel-footer">
-		<div class="row">
+		<div ng-if="session.AdminloggedIn" class="row">
 	 		<imagebase64input images="item.images" class="col-xs-3 col-xs-offset-9" />
 	 	</div> 
 	</div>
 </div>
 
 <form name="newpartform" novalidate ng-submit="submit()">
-	<div class="row">
+	<div ng-if="session.AdminloggedIn" class="row">
 	    <div class="col-sm-6">
 	    	<p ng-if="item._id">id: {{item._id}}</p>
 	    </div>
@@ -37,7 +37,8 @@
 	    <div class="col-sm-6">
 	      <div class="form-group" ng-class="{'has-error': formErrors && !newpartform.name.$valid}">
 	        <label for="name" class="control-label">name</label>
-	        <input name="name" type="text" class="form-control" placeholder="provide a part name..." ng-model='item.name' required ng-minlength="6" ng-maxlength="64">
+	        <input ng-if="session.AdminloggedIn" name="name" type="text" class="form-control" placeholder="provide a part name..." ng-model='item.name' required ng-minlength="6" ng-maxlength="64">
+	        <input ng-if="!session.AdminloggedIn" name="name" type="text" class="form-control" placeholder="provide a part name..." ng-model='item.name' required ng-minlength="6" ng-maxlength="64" readonly>
 	      </div>
 	    </div>
 	    <div class="col-sm-6">
@@ -45,32 +46,37 @@
 	        <label for="price" class="control-label">price</label>
 	        <div class="input-group">
 			  <span class="input-group-addon" id="sizing-addon">€</span>
-			  <input type="number" name="price" class="form-control" placeholder="0.0" aria-describedby="sizing-addon" ng-model='item.price' required ng-min="1" ng-max="999999" />
+			  <input ng-if="session.AdminloggedIn" type="number" name="price" class="form-control" placeholder="0.0" aria-describedby="sizing-addon" ng-model='item.price' required ng-min="1" ng-max="999999" />
+			  <input ng-if="!session.AdminloggedIn" type="number" name="price" class="form-control" placeholder="0.0" aria-describedby="sizing-addon" ng-model='item.price' required ng-min="1" ng-max="999999" readonly/>
 			</div>
 	       </div>
 	    </div>
   	</div>
   	<div class="row">
 	    <div class="col-sm-12">
+
 	      <div class="form-group" ng-class="{'has-error': formErrors && !newpartform.tags.$valid}">
 	        <label for="tags" class="control-label">tags</label>
-	        <tags-input name="tags" id="tags" ng-model="item.tags" add-on-paste="true" placeholder="...add multiple tags..." required>
-		      <auto-complete source="getTags($query)"></auto-complete>
+	        <tags-input ng-if="session.AdminloggedIn" name="tags" id="tags" ng-model="item.tags" add-on-paste="true" placeholder="...add multiple tags..." required>
+		      <auto-complete source="getTags($query)" min-length="0"></auto-complete>
 		    </tags-input>
+		    <input ng-if="!session.AdminloggedIn" name="tags" type="text" class="form-control" value="{{tags2string(item.tags)}}" readonly>
 	      </div>
+
 	    </div>
   	</div>
   	<div class="row">
 	    <div class="col-sm-12">
 	      <div class="form-group" ng-class="{'has-error': formErrors && !newpartform.notes.$valid}">
 	        <label for="notes" class="control-label">notes</label>
-	        <textarea name="notes" class="form-control" placeholder="..." ng-model='item.notes' required ng-min="1" ng-max="999999" ></textarea>
+	        <textarea ng-if="session.AdminloggedIn" name="notes" class="form-control" placeholder="..." ng-model='item.notes' required ng-min="1" ng-max="999999" ></textarea>
+	        <textarea ng-if="!session.AdminloggedIn" name="notes" class="form-control" placeholder="..." ng-model='item.notes' required ng-min="1" ng-max="999999" readonly >
 	      </div>
 	    </div>
   	</div>
-  	<div class="row col-sm-12">
+  	<div ng-if="session.AdminloggedIn" class="row col-sm-12">
     	<div class="col-sm-6">
-        	<button ng-if="item._id && item._rev" type='button' class="btn btn-default pull-left" ng-click="delete()">delete</button>
+        	<button ng-if="item._id && item._rev" type='button' class="btn btn-danger pull-left" ng-click="delete()">delete</button>
       	</div>
       	<div class="col-sm-6">
         	<input type="submit" class="btn btn-primary pull-right" value="submit" >

@@ -20,7 +20,7 @@
     <hr class="col-xs-12 col-sm-12 col-md-12">
   </div> -->
   <div class="row">
-    <div class="col-xs-6 col-sm-4 col-md-4" ui-scroll="part in datasource" start-index="0" buffer-size="4" adapter="scrollAdapter">
+    <div class="col-xs-6 col-sm-4 col-md-4" ui-scroll="part in datasource" start-index="0" buffer-size="6" adapter="scrollAdapter">
       <div class="thumbnail">
 
         <uib-carousel interval="0" no-wrap="false">
@@ -36,7 +36,7 @@
           <p>tags: {{tags2String(part.tags)}}</p>
           <p>notes: {{part.notes}}</p>
           <p>
-            <a href=# class="btn btn-primary" role="button">View</a> 
+            <a href="/part/{{part._id}}" class="btn btn-primary" role="button">View</a> 
           </p> 
         </div>
       </div>

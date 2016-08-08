@@ -46,11 +46,17 @@ angular.module('frontendApp').service( 'app',
 
    var tags2String = function(t){
       var r = null;
-      for(var i = 0; i < t.length; i++){
-        if(null == r)
-          r = t[i].text;
+      if(t){
+        if(Array.isArray(t)){
+          for(var i = 0; i < t.length; i++){
+            if(null == r)
+              r = t[i].text;
+            else
+              r = r + ', ' + t[i].text;
+          }
+        }
         else
-          r = r + ', ' + t[i].text;
+          r = t.toString();
       }
       return r;
     };

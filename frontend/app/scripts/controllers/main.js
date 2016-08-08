@@ -12,6 +12,7 @@ angular.module('frontendApp')
   	function ($scope, dscache, $timeout, config, api, app, $rootScope) {
 
   	$scope.literals = config.LITERALS;
+    $scope.tags2String = app.tags2String;
 
     $scope.datasource = function(){
 

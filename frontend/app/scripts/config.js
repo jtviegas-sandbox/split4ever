@@ -19,11 +19,17 @@ angular.module('frontendApp')
     		image: {
     			dimension: { w: 400, h: 300}
     		}
-      , partAlertArea: '#partAlert'
+            , partAlertArea: '#partAlert'
     	}
     	, API : {
     		url: '/api'
+            , auth: {
+                url: '/auth'
+            } 
     	}
+        , AUTH : {
+            adminId: 'ssoexp-ucv0ssb7w7-ct20.iam.ibmcloud.com/www.ibm.com/app'
+        }
         , ALERT: {
             container: '#appAlertArea'
             , timeout: 10000

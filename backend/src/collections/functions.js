@@ -55,19 +55,19 @@ var CollectionsFunctions = function(){
     var options = 
       { 
         "selector": {
-          "$and":[
-            {
+ 
+            
               "_id": {
                 "$gt": id
               }
-            }
-            , { "$not":{
+            
+            ,  "$not":{
                   "_id": {
                     "$regex": "_design/.*"
                   }
                 }
-            }
-          ]
+            
+   
         }
         , "sort": [ { "_id": "asc" } ] 
         , "limit": nRecords
@@ -78,14 +78,13 @@ var CollectionsFunctions = function(){
       var tagsValue = [];
       
       if(!Array.isArray(req.query.tags))
-          tagsValue.push(req.query.tags);
-      else
-        Array.prototype.push.apply(tagsValue, req.query.tags);
+          tagsValue.push(JSON.parse(req.query.tags));
+      else{
+        for(var i = 0; i < req.query.tags.length; i++)
+          tagsValue.push(JSON.parse(req.query.tags[i]));
+      }
 
-      var tagsOption = {
-        "tags" : { "$in": tagsValue }
-      };
-      options["selector"]["$and"].push(tagsOption);
+      options.selector.tags= { "$all": tagsValue };
     }
 
     var callback = function(err, o){

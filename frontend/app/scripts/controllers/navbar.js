@@ -8,12 +8,16 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('NavbarCtrl', [ '$scope', '$window', '$location', 'config', 'app', 'api', '$rootScope',
-  	function ($scope, $window, $location, config, app, api, $rootScope) {
+  .controller('NavbarCtrl', [ '$scope', '$window', '$location', 'config', 'app', 
+  	'api', '$rootScope', 'session',
+  	function ($scope, $window, $location, config, app, api, $rootScope, session) {
     
     $scope.literals = config.LITERALS;
     var tagsCache = [];
     $scope.tagsFilter = [];
+
+    $scope.session = { loggedIn: false,
+      AdminloggedIn: false };
     
 
 	$scope.getTags = function(){
@@ -43,6 +47,10 @@ angular.module('frontendApp')
 		}
 	});
 
+    session.get(function(err, r){
+        $scope.session  = r;
+    });
+
     $scope.$watchCollection('tagsFilter', function ( newValue, oldValue ) {
 			$rootScope.$emit('tagsFilterUpdate', newValue);
         }
@@ -53,6 +61,10 @@ angular.module('frontendApp')
 		return (path == '/' + $location.path().split('/')[1]) ? 'active' : '';
 	};
 
+    $scope.pageIs = function(path){
+        return (path == '/' + $location.path().split('/')[1]) ;
+    };
+
 	$scope.login = function(){
 		var angularPath = $location.path().replace(/^[/]{1}/, '/#');
 		var encodedPath = encodeURIComponent(angularPath);
@@ -61,8 +73,8 @@ angular.module('frontendApp')
 	};
 
 	$scope.logout = function(){
-		var loginUrl = "http://" + $window.location.host + "/auth/logout";
-		$window.location.href = loginUrl;
+		var logoutUrl = "http://" + $window.location.host + "/auth/logout";
+		$window.location.href = logoutUrl;
 	};
 
 	

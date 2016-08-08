@@ -83,8 +83,6 @@ var Authentication = function(){
 		logger.debug('[Authentication.verifyAuth] IN');
 	  if (process.env.MODE == 'TEST')   
 	      return next();
-	  console.log(JSON.stringify(req.session));
-	  console.log('authenticated? ', JSON.stringify(req.isAuthenticated()));
 
 	  if(!req.isAuthenticated())
 	  		res.status(401).end();
@@ -97,6 +95,34 @@ var Authentication = function(){
 	var logout = function(req, res) {
 		req.logout();
 		res.redirect('https://' + issuer_id + '/idaas/mtfim/sps/idaas/logout');
+	};
+
+	var session = function(req, res) {
+		logger.debug('[Authentication.session] IN');
+		var r = {};
+		
+		if (process.env.MODE == 'TEST'){
+	     	 r.user = {
+					id: '******DUMMY*********'
+					, groups: 'DUMMYGROUP'
+					, firstName: 'TEST'
+				};
+		}
+		else{
+			if(req.isAuthenticated()){
+				console.log('session %s', JSON.stringify(req.session));
+			 	var u = req.session.passport.user;
+				r.user = {
+					id: u.id
+					, groups: u.groups
+					, firstName: u._json.firstName
+				};
+			}
+		}
+
+		res.status(200).json(r);
+        res.end();
+		logger.debug('[Authentication.session] OUT');
 	};
 
 	var loginCallback = function(req,res,next) {               
@@ -125,7 +151,7 @@ var Authentication = function(){
 		, logout: logout
 		, loginCallback: loginCallback
 		, loginFail: loginFail
-
+		, session: session
 	};
 }();
 

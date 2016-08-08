@@ -1,10 +1,14 @@
 'use strict';
 
 angular.module('frontendApp')
-  .controller('partCtrl', ['$scope', '$routeParams', 'config', 'api', 'app',  '$location', '$window', '$log', 
-    function ($scope, $routeParams, config, api, app, $location, $window, $log) {
+  .controller('partCtrl', ['$scope', '$routeParams', 'config', 'api', 'app',  
+    '$location', '$window', '$log', 'session', 
+    function ($scope, $routeParams, config, api, app, $location, $window, $log, session) {
 
-      
+      $scope.session = { loggedIn: false,
+      AdminloggedIn: false };
+
+      $scope.tags2string = app.tags2String;
 
       var tagsCache = [];
       api.getTags(function(err, o){
@@ -26,15 +30,17 @@ angular.module('frontendApp')
         var state = [];
         Array.prototype.push.apply(state, $scope.item.tags);
         tagsCache.forEach(function(value, index, array){
-          if( 0 <= value.text.indexOf( query ) ){
+      /*    if( 0 <= value.text.indexOf( query ) ){*/
             if(0 > app.findTagIndexInArray(state, value))
               r.push(value);
-          } 
+        /*  } */
         });
         return r;
       };
 
-      
+      session.get(function(err, r){
+        $scope.session  = r;
+      });
 
     $scope.config = { part: config.PART };
 
@@ -128,7 +134,7 @@ angular.module('frontendApp')
           $scope.formErrors = true;
           return ;
       }
-      
+
       var callback = function(err, r){
         if(err){
           console.log(JSON.stringify(err));
@@ -157,7 +163,7 @@ angular.module('frontendApp')
         }
         else {
           $scope.item = o.result;
-          app.showAppAlert('retrieved the part successfully!', 'danger', '#partAlert');
+          app.showAppAlert('retrieved the part successfully!', 'success', '#partAlert');
         }
       };
       api.getItem({ '_id': $routeParams.id },callback);

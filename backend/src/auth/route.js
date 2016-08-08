@@ -24,6 +24,8 @@ router.get('/sso/callback', authentication.loginCallback);
 
 router.get('/logout', authentication.logout);
 
+router.get('/session', authentication.session);
+
 logger.trace('[auth.route] ...finished loading.');
 
 module.exports = router;

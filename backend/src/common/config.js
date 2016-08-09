@@ -13,13 +13,15 @@ var Config = function() {
 						name: 'part'
 						, views: [
 							{ 
-								'name': 'datasource' 
-								, 'map': "function(doc) { emit(doc._id, doc); }"
+								'name': 'tags' 
+								, 'map': "function(doc) { emit(doc._id, doc.tags); }"
+								, 'reduce': "function(keys, values, rereduce){ \
+												if (rereduce){ \
+													return sum(values); \
+									    		} else { \
+									        		return sum(values); } }"
 							} 
 						]
-					}
-					, { 
-						name: 'tag' 
 					}
 				]
 			}

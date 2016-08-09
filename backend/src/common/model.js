@@ -40,7 +40,7 @@ var Model = (function(){
 								for(var i = 0; i < dbconf.views.length; i++){
 									var view = dbconf.views[i];
 
-									createView(dbconf.name, view.name, view.map, function(err){
+									createView(dbconf.name, view.name, view.map, view.reduce, function(err){
 										if(err){
 											logger.error(JSON.stringify(err));
 											throw err;
@@ -391,16 +391,19 @@ var Model = (function(){
 	};
 
 
-	var createView = function(dbName, viewName, mapFunctionStr, callback) {
+	var createView = function(dbName, viewName, mapFunctionStr, reduceFunctionStr, callback) {
 		var dbObj = connection.use(dbName);
 
 		var viewConf ={
-	      "_id": "_design/" + dbName,
-	        "language": "javascript",
-	      "views": {
-	      	"datasource" : { "map": mapFunctionStr }
-	      } 
+	      "_id": "_design/" + dbName
+	      , "language": "javascript"
+	      , "views": {} 
 	  	};
+	  	viewConf.views[viewName] = {};
+	  	viewConf.views[viewName]["map"] = mapFunctionStr;
+	  	if(reduceFunctionStr){
+	  		viewConf.views[viewName]["reduce"] = reduceFunctionStr;
+	  	}
 		console.log('creating view: %s',JSON.stringify(viewConf));
 	    dbObj.insert(viewConf, function(err,result){
 		      if (err) 

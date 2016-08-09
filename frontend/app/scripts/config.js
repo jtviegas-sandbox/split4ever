@@ -28,7 +28,7 @@ angular.module('frontendApp')
             } 
     	}
         , AUTH : {
-            adminId: 'ssoexp-ucv0ssb7w7-ct20.iam.ibmcloud.com/www.ibm.com/app'
+            adminGroup: 'admin'
         }
         , ALERT: {
             container: '#appAlertArea'

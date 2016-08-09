@@ -3,30 +3,29 @@
 angular.module('frontendApp').service( 'session', 
   function (api, config){
 
-    var o = { loggedIn: false,
-      AdminloggedIn: false };
+   
 
     var get = function (callback){
       console.log('[session.get] IN');
 
       var localCallback = function(err, r){
 
-        if(!err && r.user){
-          o.loggedIn = true;
-          o.user = r.user;
-              if(r.user.id == config.AUTH.adminId)
-                  o.AdminloggedIn = true;
+        var o = { loggedIn: false, AdminloggedIn: false };
+
+        if(err){
+            console.log('[session.get] err: %s', JSON.stringify(err));
         }
         else {
-          if(err)
-            console.log('[session.get] err: %s', JSON.stringify(err));
-          
-          o = { loggedIn: false ,
-            AdminloggedIn: false};
+          if(r.user){
+            o.loggedIn = true;
+            o.user = r.user;
+            if(-1 < o.user.groups.indexOf(config.AUTH.adminGroup)){
+              o.AdminloggedIn = true;
+            }
+          }
         }
-
+        console.log(JSON.stringify(o));
         callback(null, o);
-
       };
 
       api.getSession(localCallback);

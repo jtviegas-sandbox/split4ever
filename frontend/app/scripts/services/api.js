@@ -95,9 +95,9 @@ angular.module('frontendApp')
 
 
       var getTags = function(callback){
-/*        $http({
+        $http({
             method: 'GET'
-            , url: config.API.url + '/collections/tag'
+            , url: config.API.url + '/collections/part/tags'
           }).then(
             function success(response) {
               console.log(response);
@@ -109,10 +109,10 @@ angular.module('frontendApp')
               if(callback)
                 callback(response)
             }
-        );*/
-
+        );
+/*
         callback(null, { result: [{'text': 'travoes'}, {'text': 'espelhos'}, {'text': 'portas'}, {'text': 'rodas'}, {'text': 'embraiagens'}] });
-
+*/
       };
 
       var addTag = function(input, callback){

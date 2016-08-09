@@ -39,9 +39,9 @@ angular.module('frontendApp')
 		  console.log('couldn\'t load tags cache: %j', err);
 		}
 		else{
-		  var cacheLen = o.result.length;
+		  var cacheLen = o.length;
 		  if(0 < cacheLen)
-		    Array.prototype.push.apply(tagsCache, o.result);
+		    Array.prototype.push.apply(tagsCache, o);
 
 		  console.log('loaded tags cache with %d items', cacheLen);
 		}

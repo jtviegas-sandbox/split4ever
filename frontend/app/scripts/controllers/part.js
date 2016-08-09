@@ -16,9 +16,9 @@ angular.module('frontendApp')
           console.log('couldn\'t load tags cache: %j', err);
         }
         else{
-          var cacheLen = o.result.length;
+          var cacheLen = o.length;
           if(0 < cacheLen)
-            Array.prototype.push.apply(tagsCache, o.result);
+            Array.prototype.push.apply(tagsCache, o);
 
           console.log('loaded tags cache with %d items', cacheLen);
         }
@@ -61,41 +61,30 @@ angular.module('frontendApp')
           var add = false;
           if(oldval){
             if(newval.length >  oldval.length){
+              //array is bigger now, something was added
               newval.forEach(function(value, index, array){
-                if(0 > app.findTagIndexInArray(oldval, value)){
-                  newTag = value;
+                value.text = value.text.trim().toLowerCase()
+                var tag = { 'text': value.text };
+                if(0 > app.findTagIndexInArray(oldval, tag)){
+                  newTag = tag;
                   add = true;
                 }
               });
             }
           }
           else {
-            if( 0 < newval.length ){
-              newTag = newval[0];
+            if( 0 < newval.length ){ //being paranoid
+              newval[0].text = newval[0].text.trim().toLowerCase()
+              newTag = { 'text': newval[0].text};
               add = true;
             }
           }
 
           if(add){
-            newTag.text = newTag.text.trim().toLowerCase();
             console.log('adding new tag %j', newTag);
             //if is not in cache add it
             if(0 > app.findTagIndexInArray(tagsCache, newTag)){
-              console.log('not in cache going to persist');
-              api.addTag(newTag, function(err, r){
-                if(err){
-                  console.log('could not persist tag: %s', JSON.stringify(err));
-                  var idx = app.findTagIndexInArray($scope.item.tags, newTag);
-                  if(0 <= idx){
-                    $scope.item.tags.splice(idx, 1);
-                    console.log('removed the tag from the part');
-                  }
-                }
-                else {
-                  tagsCache.push(newTag);
-                  console.log('persisted tag and added it to cache %j ', newTag);
-                }
-              });
+              tagsCache.push(newTag);
             }
 
           }

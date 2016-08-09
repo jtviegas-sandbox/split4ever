@@ -104,7 +104,7 @@ var Authentication = function(){
 		if (process.env.MODE == 'TEST'){
 	     	 r.user = {
 					id: '******DUMMY*********'
-					, groups: 'DUMMYGROUP'
+					, groups: ['DUMMYGROUP', 'admin']
 					, firstName: 'TEST'
 				};
 		}

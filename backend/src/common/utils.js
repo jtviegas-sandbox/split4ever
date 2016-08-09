@@ -20,11 +20,31 @@ var Utils = function() {
 		}, name );
 	};
 
+	var getPropertyNames = function(o){
+		var r=[];
+		for(var propName in o){
+			if(o.hasOwnProperty(propName))
+				r.push(propName);	
+		}
+		return r;
+	}
+
+	var getPropertyArray = function(o){
+		var r=[];
+		for(var propName in o){
+			if(o.hasOwnProperty(propName))
+				r.push(o[propName]);	
+		}
+		return r;
+	}
+
 	var logger = createLogger(config.app.name);
 	
 
 	return { 
 		appLogger: logger
+		, getPropertyNames: getPropertyNames
+		, getPropertyArray: getPropertyArray
 	};
 
 }();

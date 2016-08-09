@@ -6,22 +6,30 @@ var Config = function() {
 			, db : {
 				credentials: {
 					user: 'joaovieg'
-					, pswd: 'Carr!eg0'
+					, pswd: '_'
 				}
 				, instances: [
 					{
 						name: 'part'
-						, views: [
-							{ 
-								'name': 'tags' 
-								, 'map': "function(doc) { emit(doc._id, doc.tags); }"
-								, 'reduce': "function(keys, values, rereduce){ \
-												if (rereduce){ \
-													return sum(values); \
-									    		} else { \
-									        		return sum(values); } }"
-							} 
-						]
+						, designDoc: {
+					      "_id": "_design/part"
+					      , "language": "javascript"
+					      , "views": {
+					      	"tags" : {
+					      		"map": "function(doc) { \
+					      					if(Array.isArray(doc.tags) && 0 < doc.tags.length) { \
+						      					doc.tags.forEach( \
+						      						function(e){ \
+						      							if(null != e.text){ \
+						      								emit(e.text, 1); \
+						      							} \
+						      						} \
+					      						) \
+					      					};  }"
+      							, "reduce": "_count"
+					      	}
+					      } 
+					  	}
 					}
 				]
 			}
@@ -30,3 +38,4 @@ var Config = function() {
 }();
 
 module.exports = Config;
+

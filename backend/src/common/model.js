@@ -3,6 +3,7 @@ var Cloudant = require('cloudant');
 var util = require('util');
 var assert = require('assert');
 var logger = require('./utils').appLogger;
+var utils = require('./utils');
 var config = require('./config');
 
 var Model = (function(){
@@ -11,114 +12,46 @@ var Model = (function(){
 	var DB_PSWD = null;
 	var connection = null;
 
-	//------------------private methods
-	var createDbs = function(dbMap, connection, callBack){
-		
-		var dbs = [];
-		for(db in dbMap)
-			if(dbMap.hasOwnProperty(db))
-				if(false == dbMap[db].exists)
-					dbs.push(dbMap[db].config);
+	var scaffolding = function(dbConf, callback) {
+		logger.trace('[Model.scaffolding] IN');
 
-		if( 0 < dbs.length ){
-			var stat= { create:dbs.length , created:0 };
-			logger.info(util.format("must create %d dbs", stat.create));
+		var doneCounter = 0;
 
-			for(var i=0; i < dbs.length; i++){
-				logger.info(util.format("must create db %s", dbs[i].name));
-
-				var creationCallback = function(dbconf, map, counterStat, callback){
-					var f = function(err, data){
+		for(var i = 0; i < dbConf.instances.length; i++){
+			var dbc = dbConf.instances[i];
+			logger.info(util.format("going to create db %s", dbc.name));
+			createDb(dbc, function(err, r){
+				if(err){
+					logger.error(util.format('[Model.scaffolding] ...out of createDb2... err: %s', JSON.stringify(err)));
+					if(callback)
+						callback(err);
+				}
+				logger.info('[Model.scaffolding] ...out of createDb...');
+				if(dbc.designDoc){
+					storeDesignDoc(dbc.designDoc, function(err, r){
 						if(err){
-							logger.error(JSON.stringify(err));
+							logger.error(util.format('[Model.scaffolding] ... out of storeDesignDoc... err: %s', JSON.stringify(err)));
 							throw err;
 						}
-						else {
-							map[dbconf.name].exists = true;
-							logger.info(util.format("created db %s", dbconf.name));
-							if(dbconf.views && Array.isArray(dbconf.views)){
-								for(var i = 0; i < dbconf.views.length; i++){
-									var view = dbconf.views[i];
+						if( ++doneCounter == dbConf.instances.length){
+							if(callback)
+								callback(null);
+						}
+					});
+				}
+				else {
+					if( ++doneCounter == dbConf.instances.length)
+						if(callback)
+							callback(null);
+				}
 
-									createView(dbconf.name, view.name, view.map, view.reduce, function(err){
-										if(err){
-											logger.error(JSON.stringify(err));
-											throw err;
-										}
-										else{
-											logger.info(util.format("created view %s in db %s", view.name, dbconf.name));
-											if(callBack)
-												callback(null, {ok:true});
-										}
-									});
-								}
-							}
-			
-						}	
-						
-					};
-					return {f: f};
-				};
+			});
+		}
 
-				connection.db.create(dbs[i].name, 
-					creationCallback(dbs[i], dbMap, stat, callBack).f);
-			}
-		}
-		else {
-			if(callBack)
-				callBack(null, {ok:true});
-		}
-		
+	    logger.trace('[Model.scaffolding] OUT');
 	};
 
 	
-
-	//------------------public  methods
-
-	var scaffolding = function(dbConf, callback) {
-
-		var existentDbMap = {};
-		var cb = function(err, data){
-
-			if(err){
-				logger.error(err);
-				throw err;
-			}
-	    	logger.info(util.format("dbs in server: %s", data));
-
-	    	if(data && 0<data.length){
-	    		for( var i=0; i < data.length; i++ ){
-	    			logger.info(util.format("existent db: %s", data[i]));
-	    			existentDbMap[data[i]] = { 'exists': true };
-	    		}
-	    	}
-	    	console.log(JSON.stringify(dbConf));
-	    	for(var i=0; i<dbConf.instances.length; i++){
-	    		logger.info(util.format("we need db: %s", dbConf.instances[i].name));
-	    		if( ! existentDbMap[dbConf.instances[i].name] )
-	    			existentDbMap[dbConf.instances[i].name] = { 'exists': false , 'config' : dbConf.instances[i] };
-	    	}
-	    	logger.info(util.format("dbs map: %s", JSON.stringify(existentDbMap)));
-
-	    	createDbs(existentDbMap, connection, callback);
-		};
-	    connection.db.list(cb);
-	};
-
-	var createDb = function(name, callback){
-		connection.db.create(name,function(err, o){
-			if(err){
-				logger.error(err);
-				if(callback)
-					callback(err);
-			}
-			else {
-				var message = util.format("created db %s", name);
-				logger.info(message);
-				callback(null, {ok:true, name:name, msg:message});
-			}
-		});
-	};
 
 	var init = function(dbConf, callback) {
 		logger.trace('@Model.init');
@@ -127,36 +60,61 @@ var Model = (function(){
 			var cloudant_info = services.cloudantNoSQLDB[0];
 			DB_USR = cloudant_info.credentials.username;
 			DB_PSWD = cloudant_info.credentials.password;
+			logger.info("[Model.init] got credentials from vcap env var");
 		}
 		else {
 			if(process.env.DB_USR && process.env.DB_PSWD){
 				DB_USR = process.env.DB_USR;
 				DB_PSWD = process.env.DB_PSWD;
+				logger.info("[Model.init] got credentials from env vars");
 			}
 			else {
 				DB_USR = dbConf.credentials.user;
 				DB_PSWD = dbConf.credentials.pswd;
+				logger.info("[Model.init] got credentials from config");
 			}
 		}
 
 		logger.info(util.format("connecting with user %s", DB_USR));
 		var connectionOptions = {account:DB_USR, password:DB_PSWD};
-
+		logger.info('Connected to cloudant');
 		connection = Cloudant(connectionOptions, 
 			function(err, connection, reply){
 				if (err){
 					console.log(err);
-					if(callback)
+					if(callback){
 						callback(err);
+					}
 				}
 				else {
 					logger.info(util.format('Connected to cloudant with username: %s', reply.userCtx.name));	
-					if(callback)
+					if(callback){
 						callback(null);
+					}
 				}
 			}
 		);
 		logger.trace('Model.init@');
+	};
+
+	var createDb = function(conf, callback){
+		logger.trace('[Model.createDb] IN');
+		console.log('cnx: %s', JSON.stringify(connection));
+		connection.db.create(conf.name,function(err, o){
+			if(err && err.message != "The database could not be created, the file already exists."){
+				logger.error(util.format("[Model.createDb] err: %s", err.message));
+				if(callback){
+					callback(err);
+				}
+			}
+			else {
+				logger.info(util.format("[Model.createDb] created db %s", conf.name));
+				if(callback){
+					callback(null);
+				}
+			}
+		});
+		logger.trace('[Model.createDb] OUT');
 	};
 
 	var post = function(db, o, callback) {
@@ -340,7 +298,64 @@ var Model = (function(){
 		logger.trace('Model.getAll@');
 	};
 
-	var getSome  = function(db, options, callback) {
+	var getViews = function(db, callback){
+		logger.trace('[Model.getViews] IN');
+		var localCallback = function(err, result){
+
+			if(err){
+				callback(err);
+			}
+			else {
+				var o = [];
+				if(0 < result.length){
+					
+					var r = result[0];
+
+					if(r.views){
+						Array.prototype.push.apply(o, utils.getPropertyArray(r.views));
+					}
+				}
+
+				logger.trace(util.format('[Model.getViews] result: %s', JSON.stringify(o)));
+				callback(null, o);
+			}
+		};
+		var options =  { 
+				'selector': 
+					{ '_id': 
+						{ '$eq': '_design/' + db } 
+					}
+			, 'sort': [ { '_id': 'asc' } ] 
+		};
+		getSome(db, options, localCallback, true);
+		logger.trace('[Model.getViews] OUT');
+	};
+
+	var getDesignDoc = function(db, callback){
+		logger.trace('@Model.getDesignDoc');
+		var localCallback = function(err, result){
+			console.log(JSON.stringify(result));
+			if(err){
+				callback(err)
+			}
+			else {
+				var r = null;
+				if(Array.isArray(result) && 0 < result.length)
+					r = result[0];
+				callback(null, r);
+			}
+		};
+		var options =  { 
+				'selector': 
+					{ '_id': 
+						{ '$eq': '_design/' + db } 
+					}  
+		};
+		getSome(db, options, localCallback, true);
+		logger.trace('@Model.getDesignDoc');
+	};
+
+	var getSome  = function(db, options, callback, designDocsAlso) {
 
 		logger.trace('@Model.getSome');
 		var dbObj = connection.use(db);
@@ -356,10 +371,15 @@ var Model = (function(){
 				else {
 					//console.log('GOT %s', JSON.stringify(r));
 					var result = [];
-					r.docs.forEach(function(doc) {
-				      if( 0 > doc._id.indexOf('_design'))
-				      	result.push(doc);
-				    });
+					if(designDocsAlso){
+						Array.prototype.push.apply(result, r.docs);
+					}
+					else {
+						r.docs.forEach(function(doc) {
+					      if( 0 > doc._id.indexOf('_design'))
+					      	result.push(doc);
+					    });
+					}
 					logger.info(util.format("got %d docs", result.length));
 					if(cb)
 						cb(null, result)
@@ -376,41 +396,84 @@ var Model = (function(){
 	};
 
 	var deleteDb = function(name, callback) {
+		logger.debug('[Model.deleteDb] in');
+
 		connection.db.destroy(name, function(err, o){
-				if(err){
-					logger.error(err);
-				if(callback)
+			if(err && err.message != "Database does not exist."){
+				logger.error(util.format("[Model.deleteDb] err:%s", JSON.stringify(err)));
+				if(callback){
 					callback(err);
 				}
-				else {
-					var message = util.format("deleted db %s", name);
-					logger.info(message);
-					callback(null, {ok:true, name:name, msg:message});
-				}
-			});
+			}
+			else {
+				var message = util.format("[Model.deleteDb] deleted db %s", name);
+				logger.info(message);
+				callback(null, {'ok':true, 'name':name, 'msg':message});
+			}
+		});
+		logger.debug('[Model.deleteDb] out');
 	};
 
 
 	var createView = function(dbName, viewName, mapFunctionStr, reduceFunctionStr, callback) {
-		var dbObj = connection.use(dbName);
 
-		var viewConf ={
-	      "_id": "_design/" + dbName
-	      , "language": "javascript"
-	      , "views": {} 
-	  	};
-	  	viewConf.views[viewName] = {};
-	  	viewConf.views[viewName]["map"] = mapFunctionStr;
-	  	if(reduceFunctionStr){
-	  		viewConf.views[viewName]["reduce"] = reduceFunctionStr;
-	  	}
-		console.log('creating view: %s',JSON.stringify(viewConf));
-	    dbObj.insert(viewConf, function(err,result){
-		      if (err) 
-		        callback(err); 
-		      else 
-		        callback(null);
-	    });
+		logger.debug('[Model.createView] IN');
+		var localCallback = function(err, r){
+			if(err)
+				return callback(err);
+
+			if(null == r){
+				//lets create design doc
+				r = {
+			      "_id": "_design/" + dbName
+			      , "language": "javascript"
+			      , "views": {} 
+			  	};
+			}
+
+			r.views[viewName] = {};
+		  	r.views[viewName]["map"] = mapFunctionStr;
+		  	if(reduceFunctionStr){
+		  		r.views[viewName]["reduce"] = reduceFunctionStr;
+		  	}
+		  	storeDesignDoc(r, callback);
+		}
+
+		getDesignDoc(dbName, localCallback);
+
+		logger.debug('[Model.createView] OUT');
+	};
+
+	/*
+		we create one design doc per document db
+	*/
+	var storeDesignDoc = function(conf, callback) {
+		logger.debug('[Model.storeDesignDoc] IN');
+
+		var dbName = conf._id.substring('_design/'.length);
+		logger.info(util.format("going to store design doc in db %s", dbName));
+
+		var localCallback = function(err, r){
+			if(err)
+				return callback(err);
+
+			if(null != r){
+				//lets update design doc
+				conf._rev = r._rev
+			}
+			var dbObj = connection.use(dbName);
+			logger.info(util.format('creating design doc: %s',JSON.stringify(conf)));
+		    dbObj.insert(conf, function(err,result){
+			      if (err) 
+			        callback(err); 
+			      else 
+			        callback(null);
+		    });
+		}
+
+		getDesignDoc(dbName, localCallback);
+
+		logger.debug('[Model.storeDesignDoc] OUT');
 	};
 
 	var readView = function(dbName, viewName, options, callback){
@@ -422,11 +485,9 @@ var Model = (function(){
 		    	console.log('body: %s', JSON.stringify(body));
 				if (!err) {
 				    var results=[];
-				    body.rows.forEach(
-				    	function(doc) {
-							results.push(doc.value);
-					    }
-					);
+				    if(body.rows && Array.isArray(body.rows) && 0 < body.rows.length){
+				    	Array.prototype.push.apply(results, body.rows);
+				    }
 					console.log('results: %s', JSON.stringify(results));
 				    callback(null,results);
 				} 
@@ -442,7 +503,6 @@ var Model = (function(){
 
 	return { 
 		init: init
-		, scaffolding: scaffolding
 		, post: post
 		, deleteDb: deleteDb
 		, createDb: createDb
@@ -454,6 +514,10 @@ var Model = (function(){
 		, createView: createView
 		, readView: readView
 		, getSome: getSome
+		, getViews: getViews
+		, getDesignDoc: getDesignDoc
+		, storeDesignDoc: storeDesignDoc
+		, scaffolding: scaffolding
 	}; 
 
 })();

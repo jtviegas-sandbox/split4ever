@@ -121,6 +121,27 @@ var CollectionsFunctions = function(){
     logger.trace('<OUT>get');
   };
 
+  var getTags = function(req,res){
+    logger.trace('<IN>getTags');
+    var collectionName = req.params.name;
+    var callback = function(err, o){
+      if(err){
+        logger.error(err);  
+        res.status(400).end();
+      }
+      else {
+        var r = [];
+        if(o && Array.isArray(o)){
+          o.forEach(function(e){r.push({'text': e.key})});
+        }
+        res.status(200).json(r);
+        res.end();
+      }
+    };
+    model.readView(collectionName, 'tags', { reduce: true, group: true}, callback);
+    logger.trace('<OUT>getTags');
+  };
+
   var post = function(req,res){
     logger.trace('<IN>post');
     var collectionName = req.params.name;
@@ -168,6 +189,7 @@ var CollectionsFunctions = function(){
     , post: post
     , del: del
     , getNfromId: getNfromId
+    , getTags: getTags
   };
 
 }();

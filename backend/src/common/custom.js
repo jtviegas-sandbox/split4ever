@@ -1,3 +1,4 @@
+"use strict";
 
 var PragmaLogger = require('pragma-logger');
 var _ = require('underscore');
@@ -72,6 +73,10 @@ var Custom = function() {
 		return (Math.random() * (ma - mi)) + mi;
 	};
 
+	var randomBoolean = function(){
+        return Math.random()<.5; 
+    };
+
 	var randomString = function(len) {
 		var o = "";
 	    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -98,7 +103,11 @@ var Custom = function() {
 			o.name = randomString(12);
 			o.notes = randomString(24);
 			o.price = random(3,6);
-			o.tags.push(randomString(12));
+
+			if(randomBoolean())
+				o.tags.push( { "text": randomString(12) } );
+			else
+				o.tags.push( { "text": "abc" } );
 		}
 		if(id)
 			o._id = id;

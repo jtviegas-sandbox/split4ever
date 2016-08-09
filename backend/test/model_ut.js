@@ -1,3 +1,4 @@
+"use strict";
 
 var expect = require('chai').expect;
 var assert = require('chai').assert;
@@ -6,21 +7,31 @@ var util = require('util');
 var model = require('../dist/common/model.js');
 var custom = require('../dist/common/custom.js');
 var logger = require('../dist/common/utils').appLogger;
+var utils = require('../dist/common/utils');
 
 var DB_CONF = {
-				credentials: {
-					user: 'joaovieg'
-					, pswd: 'Carr!eg0'
-				}
-				, instances: [
+				instances: [
 					{
 						name: 'unittests'
-						, views: [
-							{ 
-								'name': 'datasource' 
-								, 'map': "function(doc) { emit(doc._id, doc); }"
-							} 
-						]
+						, designDoc: {
+					      "_id": "_design/unittests"
+					      , "language": "javascript"
+					      , "views": {
+						      	"tags" : {
+						      		"map": "function(doc) { \
+						      					if(Array.isArray(doc.tags) && 0 < doc.tags.length) { \
+							      					doc.tags.forEach( \
+							      						function(e){ \
+							      							if(null != e.text){ \
+							      								emit(e.text, 1); \
+							      							} \
+							      						} \
+						      						) \
+						      					};  }"
+	      							, "reduce": "_count"
+						      	}
+					      } 
+					  	}
 					}
 				]
 			};
@@ -41,22 +52,37 @@ describe('model test - items', function() {
 		dummyItems.push(custom.createDummyItem(true, getDummyId()));
 
 	before(function(done) {
-
 	    // runs before all tests in this block
 	    logger.info('-------------- before tests --------------');
+/*		this.timeout(5000);*/
+
 
 	    model.init(DB_CONF, function(err, o){
 	    	if(err)
 	    		throw err;
-			//deleting just in case latest tests did not run till the end
-			model.deleteDb(TEST_DB, function(){
-				model.scaffolding(DB_CONF, function(err, o){
-		    		if(err)
-		    			throw err;
 
-		    		logger.info('------------------------------------------');
-		    		done();
-		    	});
+			//deleting just in case latest tests did not run till the end
+			model.deleteDb(TEST_DB, function(err, r){
+				if(err){
+	    			logger.error(err);
+	    			fail(err, null);
+					done();
+	    		}
+	    		else{
+	    			model.scaffolding(DB_CONF, function(err, o){
+			    		if(err){
+			    			logger.error(err);
+			    			fail(err, null);
+							done();
+			    		}
+			    		else{
+			    			logger.info('------------------------------------------');
+			    			done();
+			    		}
+			    		
+			    	});
+	    		}
+				
 			});
 
 		});
@@ -312,5 +338,100 @@ describe('model test - items', function() {
 		);
 	});
 
+	describe('#getViews()', function(){
+
+	    it('should return an array of 1 element for we have one view in db', 
+	    	function(done){
+		    	var callback = function(err, o){
+		    		if(err){
+		    			logger.error(err);	
+		    			fail(err, null);
+						done();
+		    		}
+		    		else {
+		    			console.log(JSON.stringify(o));
+						assert.typeOf(o, 'array');
+						assert.lengthOf(o,1);
+						done();
+		    		}
+				};
+				model.getViews(TEST_DB, callback);
+		});
+
+	    it('should return an array of 1 element for we have one view in db', 
+	    	function(done){
+	    		var NEW_CONF = {
+					name: 'unittests'
+					, designDoc: {
+				      "_id": "_design/unittests"
+				      , "language": "javascript"
+				      , "views": {
+				      	"tags" : {
+						      		"map": "function(doc) { \
+						      					if(Array.isArray(doc.tags) && 0 < doc.tags.length) { \
+							      					doc.tags.forEach( \
+							      						function(e){ \
+							      							if(null != e.text){ \
+							      								emit(e.text, 1); \
+							      							} \
+							      						} \
+						      						) \
+						      					};  }"
+	      							, "reduce": "_count"
+						}
+				      	, "price" : {
+				      		"map": "function(doc) { emit(doc._id, doc.price); }"
+							, "reduce": "_count"
+				      	}
+				      } 
+				  	}
+				};
+		    	var callback = function(err, o){
+		    		if(err){
+		    			logger.error(err);	
+		    			fail(err, null);
+						done();
+		    		}
+		    		else {
+						model.getViews(TEST_DB, function(err, o){
+				    		if(err){
+				    			logger.error(err);	
+				    			fail(err, null);
+								done();
+				    		}
+				    		else {
+				    			console.log(JSON.stringify(o));
+								assert.typeOf(o, 'array');
+								assert.lengthOf(o,2);
+								done();
+				    		}
+						});
+
+		    		}
+				};
+				model.storeDesignDoc(NEW_CONF.designDoc, callback);
+		});
+
+		it('testing tags view', 
+	    	function(done){
+
+		    	var callback = function(err, o){
+		    		if(err){
+		    			logger.error(err);	
+		    			fail(err, null);
+						done();
+		    		}
+		    		else {
+		    			console.log(JSON.stringify(o));
+						done();
+		    		}
+				};
+				model.readView(TEST_DB, 'tags', { reduce: true, group: true}, callback);
+		});
+
+	});
+
 });
 
+
+			

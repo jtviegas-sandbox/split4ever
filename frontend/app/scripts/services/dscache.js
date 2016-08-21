@@ -4,10 +4,10 @@ angular.module('frontendApp').service( 'dscache',
   function (api){
 
     var os = [];
-    var tagsFilter = [];
+    var categoryFilter = {};
 
-    var setTagsFilter = function(tf){
-        tagsFilter = tf;
+    var setCategoryFilter = function(cf){
+        categoryFilter = cf;
         os = [];
     };
 
@@ -101,7 +101,7 @@ angular.module('frontendApp').service( 'dscache',
       n = idx2 - idx1 + 1;
 
       api.getDatasourceItems(
-        {'_id': id,  'n': n , 'tags': tagsFilter}, 
+        {'_id': id,  'n': n , 'filter': categoryFilter}, 
         function(err, o){
           if(err){
             console.log(err)
@@ -118,7 +118,7 @@ angular.module('frontendApp').service( 'dscache',
 
     return { 
       getByIndex: getByIndex
-      , setTagsFilter: setTagsFilter
+      , setCategoryFilter: setCategoryFilter
     };
 
   } 

@@ -95,19 +95,21 @@ var Custom = function() {
 				name: '',
 				notes: '',
 				price: '',
-				tags:[] // {name: '....'}
-
+				/*tags:[] // {name: '....'}*/
+				category: ''
+				, subCategory: ''
 			};
 
 		if(shouldItBeRandom){
 			o.name = randomString(12);
 			o.notes = randomString(24);
 			o.price = random(3,6);
-
-			if(randomBoolean())
+			o.category = randomString(12);
+			o.subCategory = randomString(12);
+			/*if(randomBoolean())
 				o.tags.push( { "text": randomString(12) } );
 			else
-				o.tags.push( { "text": "abc" } );
+				o.tags.push( { "text": "abc" } );*/
 		}
 		if(id)
 			o._id = id;
@@ -128,6 +130,10 @@ var Custom = function() {
 		if(!_.isEqual(a.notes, b.notes))
 			return false;
 		if(!_.isEqual(a.price, b.price))
+			return false;
+		if(!_.isEqual(a.category, b.category))
+			return false;
+		if(!_.isEqual(a.subCategory, b.subCategory))
 			return false;
 
 

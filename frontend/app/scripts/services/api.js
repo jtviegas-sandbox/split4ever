@@ -68,7 +68,7 @@ angular.module('frontendApp')
 
       var getDatasourceItems = function(input, callback){
         console.log('[api.getDatasourceItems] IN (%s)', JSON.stringify(input) );
-        
+
         var id = input._id;
         var n = input.n;
 
@@ -77,8 +77,8 @@ angular.module('frontendApp')
           , url: config.API.url + '/collections/part/' + id + '/' + n
           , withCredentials : true
         };
-        if(input.tags)
-          options.params = { 'tags': input.tags };
+        if(input.filter)
+          options.params = { 'filter': input.filter };
         
         $http(options).then(
             function success(response) {
@@ -94,10 +94,10 @@ angular.module('frontendApp')
 
 
 
-      var getTags = function(callback){
+      var getCategories = function(callback){
         $http({
             method: 'GET'
-            , url: config.API.url + '/collections/part/tags'
+            , url: config.API.url + '/collections/part/categories'
           }).then(
             function success(response) {
               console.log(response);
@@ -110,12 +110,9 @@ angular.module('frontendApp')
                 callback(response)
             }
         );
-/*
-        callback(null, { result: [{'text': 'travoes'}, {'text': 'espelhos'}, {'text': 'portas'}, {'text': 'rodas'}, {'text': 'embraiagens'}] });
-*/
       };
 
-      var addTag = function(input, callback){
+/*      var addTag = function(input, callback){
 
         var url = config.API.url + '/collections/tag';
         var data = input;
@@ -134,7 +131,7 @@ angular.module('frontendApp')
                 callback(response)
             }
           );
-      };
+      };*/
 
       var getSession = function(callback) {
 
@@ -159,8 +156,7 @@ angular.module('frontendApp')
         setItem: setItem
         , delItem: delItem
         , getItem: getItem
-        , getTags: getTags
-        , addTag: addTag
+        , getCategories: getCategories
         , getDatasourceItems: getDatasourceItems
         , getSession: getSession
       };

@@ -41,11 +41,6 @@ angular
         controller: 'partCtrl',
         controllerAs: 'part'
       })
-      .when('/parts', {
-        templateUrl: 'views/parts.html',
-        controller: 'PartsCtrl',
-        controllerAs: 'parts'
-      })
       .when('/contact', {
         templateUrl: 'views/contact.html',
         controller: 'ContactCtrl',

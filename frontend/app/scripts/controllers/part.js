@@ -2,41 +2,50 @@
 
 angular.module('frontendApp')
   .controller('partCtrl', ['$scope', '$routeParams', 'config', 'api', 'app',  
-    '$location', '$window', '$log', 'session', 
-    function ($scope, $routeParams, config, api, app, $location, $window, $log, session) {
+    '$location', '$window', '$log', 'session', 'utils', 
+    function ($scope, $routeParams, config, api, app, $location, $window, $log, session, utils) {
 
-      $scope.session = { loggedIn: false,
-      AdminloggedIn: false };
+      $scope.session = { loggedIn: false, AdminloggedIn: false };
+      $scope.categories = { '___new_category___': { 'name': '___new_category___', subs:[]}};
 
-      $scope.tags2string = app.tags2String;
+      $scope.categoryClicked = function($event){
+        if( 0 == $event.currentTarget.selectedOptions[0].index && $event.currentTarget.selectedOptions[0].innerText != ''){
+        //if('___new_category___' == $scope.item.category){
+          app.showAppModal('sm', 'add new category', function(err, o){
+            if(null == err && null != o){
+              var newcat = { 'name':o, subs:[] };
+              $scope.categories[newcat.name] = newcat;
+              $scope.item.category = newcat.name;
+            }
+          });
+        }
+      };
 
-      var tagsCache = [];
-      api.getTags(function(err, o){
+      $scope.subCategoryClicked = function($event){
+        if( 0 == $event.currentTarget.selectedOptions[0].index && $event.currentTarget.selectedOptions[0].innerText != ''){
+        //if('___new_category___' == $scope.item.category){
+          app.showAppModal('sm', 'add new sub category', function(err, o){
+            if(null == err && null != o){
+              $scope.item.subCategory = o;
+              $scope.categories[$scope.item.category].subs.push(o);
+            }
+          });
+        }
+      };
+
+      api.getCategories(function(err, o){
         if(err){
-          console.log('couldn\'t load tags cache: %j', err);
+          console.log('couldn\'t load categories: %j', err);
         }
         else{
-          var cacheLen = o.length;
-          if(0 < cacheLen)
-            Array.prototype.push.apply(tagsCache, o);
-
-          console.log('loaded tags cache with %d items', cacheLen);
+          if(0 < o.length){
+            o.forEach(function(e){
+              $scope.categories[e.name] = e;
+            });
+          }
+          console.log('loaded categories cache with %d items', o.length);
         }
       });
-
-      $scope.getTags = function(query){
-        //var tags = ['travoes', 'espelhos', 'portas', 'rodas', 'embraiagens'];
-        var r = [];
-        var state = [];
-        Array.prototype.push.apply(state, $scope.item.tags);
-        tagsCache.forEach(function(value, index, array){
-      /*    if( 0 <= value.text.indexOf( query ) ){*/
-            if(0 > app.findTagIndexInArray(state, value))
-              r.push(value);
-        /*  } */
-        });
-        return r;
-      };
 
       session.get(function(err, r){
         $scope.session  = r;
@@ -50,49 +59,8 @@ angular.module('frontendApp')
     };
 
     var setNewItem = function(){
-
       $scope.item = {};
       $scope.item.images = [];
-      $scope.item.tags = []; //we'll have here: {'text': ''}
-      $scope.$watchCollection('item.tags', function( newval, oldval) {
-
-        if(newval){
-          var newTag = null;
-          var add = false;
-          if(oldval){
-            if(newval.length >  oldval.length){
-              //array is bigger now, something was added
-              newval.forEach(function(value, index, array){
-                value.text = value.text.trim().toLowerCase()
-                var tag = { 'text': value.text };
-                if(0 > app.findTagIndexInArray(oldval, tag)){
-                  newTag = tag;
-                  add = true;
-                }
-              });
-            }
-          }
-          else {
-            if( 0 < newval.length ){ //being paranoid
-              newval[0].text = newval[0].text.trim().toLowerCase()
-              newTag = { 'text': newval[0].text};
-              add = true;
-            }
-          }
-
-          if(add){
-            console.log('adding new tag %j', newTag);
-            //if is not in cache add it
-            if(0 > app.findTagIndexInArray(tagsCache, newTag)){
-              tagsCache.push(newTag);
-            }
-
-          }
-
-        }
-
-      });
-
     };
 
     $scope.submit = function(){

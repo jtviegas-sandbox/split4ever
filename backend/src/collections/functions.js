@@ -48,6 +48,7 @@ var CollectionsFunctions = function(){
     var collectionName = req.params.name;
     var id = req.params.id;
     var nRecords = parseInt(req.params.n);
+
     
     if("0" == id || 0 == id)
       id=0;
@@ -73,18 +74,13 @@ var CollectionsFunctions = function(){
         , "limit": nRecords
       };
 
-    if(req.query && req.query.tags){
-
-      var tagsValue = [];
-      
-      if(!Array.isArray(req.query.tags))
-          tagsValue.push(JSON.parse(req.query.tags));
-      else{
-        for(var i = 0; i < req.query.tags.length; i++)
-          tagsValue.push(JSON.parse(req.query.tags[i]));
+    if(req.query && req.query.filter){
+      var filter = JSON.parse(req.query.filter);
+      if(null != filter.category){
+        options.selector.category = filter.category;
+        if(null != filter.subCategory)
+          options.selector.subCategory = filter.subCategory;
       }
-
-      options.selector.tags= { "$all": tagsValue };
     }
 
     var callback = function(err, o){
@@ -98,6 +94,7 @@ var CollectionsFunctions = function(){
         }
     };
 
+    console.log('going to getsome with options: %s', JSON.stringify(options));
     model.getSome(collectionName, options, callback);
     logger.trace('<OUT>getNfromId');
   };
@@ -121,7 +118,7 @@ var CollectionsFunctions = function(){
     logger.trace('<OUT>get');
   };
 
-  var getTags = function(req,res){
+  var getCategories = function(req,res){
     logger.trace('<IN>getTags');
     var collectionName = req.params.name;
     var callback = function(err, o){
@@ -132,13 +129,16 @@ var CollectionsFunctions = function(){
       else {
         var r = [];
         if(o && Array.isArray(o)){
-          o.forEach(function(e){r.push({'text': e.key})});
+          o.forEach(function(e){
+            if(null != e.key)
+              r.push( { 'name': e.key, 'subs':e.value } )
+          });
         }
         res.status(200).json(r);
         res.end();
       }
     };
-    model.readView(collectionName, 'tags', { reduce: true, group: true}, callback);
+    model.readView(collectionName, 'categories', { reduce: true, group: true}, callback);
     logger.trace('<OUT>getTags');
   };
 
@@ -189,7 +189,7 @@ var CollectionsFunctions = function(){
     , post: post
     , del: del
     , getNfromId: getNfromId
-    , getTags: getTags
+    , getCategories: getCategories
   };
 
 }();

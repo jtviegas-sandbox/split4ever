@@ -1,65 +1,23 @@
 'use strict';
 
-/**
- * @ngdoc function
- * @name frontendApp.controller:NavbarCtrl
- * @description
- * # NavbarCtrl
- * Controller of the frontendApp
- */
 angular.module('frontendApp')
   .controller('NavbarCtrl', [ '$scope', '$window', '$location', 'config', 'app', 
   	'api', '$rootScope', 'session',
   	function ($scope, $window, $location, config, app, api, $rootScope, session) {
     
     $scope.literals = config.LITERALS;
-    var tagsCache = [];
-    $scope.tagsFilter = [];
-
-    $scope.session = { loggedIn: false,
-      AdminloggedIn: false };
-    
-
-	$scope.getTags = function(){
-        //var tags = ['travoes', 'espelhos', 'portas', 'rodas', 'embraiagens'];
-        var r = [];
-        var state = [];
-        Array.prototype.push.apply(state, $scope.tagsFilter);
-        tagsCache.forEach(function(value, index, array){
-
-        	if(0 > app.findTagIndexInArray(state, value))
-        		r.push(value); 
-
-       	});
-        return r;
+    $scope.categories = {};
+    $scope.categoryFilter = {
+      category: null
+      , subCategory: null
     };
 
-    api.getTags(function(err, o){
-		if(err){
-		  console.log('couldn\'t load tags cache: %j', err);
-		}
-		else{
-		  var cacheLen = o.length;
-		  if(0 < cacheLen)
-		    Array.prototype.push.apply(tagsCache, o);
+    $scope.session = { loggedIn: false, AdminloggedIn: false };
 
-		  console.log('loaded tags cache with %d items', cacheLen);
-		}
-	});
-
-    session.get(function(err, r){
-        $scope.session  = r;
-    });
-
-    $scope.$watchCollection('tagsFilter', function ( newValue, oldValue ) {
-			$rootScope.$emit('tagsFilterUpdate', newValue);
+    $scope.$watchCollection('categoryFilter', function ( newValue, oldValue ) {
+      $rootScope.$emit('categoryFilterUpdate', newValue);
         }
     );
-
-    //function called by <ul class="nav navbar-nav"> in index.html to adjust header items class
-	$scope.pageClass = function(path){
-		return (path == '/' + $location.path().split('/')[1]) ? 'active' : '';
-	};
 
     $scope.pageIs = function(path){
         return (path == '/' + $location.path().split('/')[1]) ;
@@ -77,6 +35,53 @@ angular.module('frontendApp')
 		$window.location.href = logoutUrl;
 	};
 
-	
+  api.getCategories(function(err, o){
+    if(err){
+      console.log('couldn\'t load categories: %j', err);
+    }
+    else{
+      if(0 < o.length){
+        o.forEach(function(e){
+          console.log('got category: %s', JSON.stringify(e));
+          $scope.categories[e.name] = e;
+        });
+      }
+      console.log('loaded categories cache with %d items', o.length);
+    }
+  });
+
 
   }]);
+
+
+/*
+  session.get(function(err, r){
+        $scope.session  = r;
+    });
+
+  var tagsCache = [];
+    $scope.tagsFilter = [];
+    $scope.getTags = function(){
+          //var tags = ['travoes', 'espelhos', 'portas', 'rodas', 'embraiagens'];
+          var r = [];
+          var state = [];
+          Array.prototype.push.apply(state, $scope.tagsFilter);
+          tagsCache.forEach(function(value, index, array){
+
+            if(0 > app.findTagIndexInArray(state, value))
+              r.push(value); 
+
+          });
+          return r;
+      };
+      //function called by <ul class="nav navbar-nav"> in index.html to adjust header items class
+    $scope.pageClass = function(path){
+      return (path == '/' + $location.path().split('/')[1]) ? 'active' : '';
+    };
+
+$scope.$watchCollection('tagsFilter', function ( newValue, oldValue ) {
+      $rootScope.$emit('tagsFilterUpdate', newValue);
+        }
+    );
+
+    */

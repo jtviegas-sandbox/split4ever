@@ -11,7 +11,7 @@ router.use(bodyParser.json({limit: '50mb'})); // for parsing application/json
 router.use(bodyParser.urlencoded({ extended: true, limit: '50mb' })); // for parsing application/x-www-form-urlencoded
 
 router.get('/:name/:id/:n', functions.getNfromId);
-router.get('/:name/tags', functions.getTags);
+router.get('/:name/categories', functions.getCategories);
 router.get('/:name/:id', functions.get);
 
 router.get('/:name', functions.getAll);

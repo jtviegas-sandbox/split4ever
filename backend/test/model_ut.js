@@ -17,18 +17,23 @@ var DB_CONF = {
 					      "_id": "_design/unittests"
 					      , "language": "javascript"
 					      , "views": {
-						      	"tags" : {
+						      	 "categories" : {
 						      		"map": "function(doc) { \
-						      					if(Array.isArray(doc.tags) && 0 < doc.tags.length) { \
-							      					doc.tags.forEach( \
-							      						function(e){ \
-							      							if(null != e.text){ \
-							      								emit(e.text, 1); \
-							      							} \
-							      						} \
-						      						) \
-						      					};  }"
-	      							, "reduce": "_count"
+						      					emit(doc.category, doc.subCategory); \
+						      					}"
+	      							, "reduce": "function (key, values, rereduce) { \
+	      											var result = []; \
+	      											if(Array.isArray(values)){ \
+	      												values.forEach(function(e){ \
+	      													if(Array.isArray(e)) \
+	      														Array.prototype.push.apply(result,e); \
+	      													else \
+	      														result.push(e); \
+	      												}); } \
+	      											else \
+	      												result.push(values); \
+													return result; \
+												}"
 						      	}
 					      } 
 					  	}
@@ -48,8 +53,18 @@ var getDummyId = function(){
 
 describe('model test - items', function() {
 
-	for(var i=0; i<numOfDummyItems; i++)
-		dummyItems.push(custom.createDummyItem(true, getDummyId()));
+	var previousCategory = null;
+	for(var i=0; i<numOfDummyItems; i++){
+		var newDummy = custom.createDummyItem(true, getDummyId());
+		if(null != previousCategory){
+			newDummy.category = previousCategory;
+			previousCategory = null;
+		}
+		else {
+			previousCategory = newDummy.category;
+		}
+		dummyItems.push(newDummy);
+	}
 
 	before(function(done) {
 	    // runs before all tests in this block
@@ -294,8 +309,16 @@ describe('model test - items', function() {
 	    		};
 	    		return { f: f };
 			};
+
+			var lastCategory = null;
 			for(var i=startIndex;  i < endIndex; i++){
 				var item = custom.createDummyItem(true, getDummyId());
+				if(null == lastCategory)
+					lastCategory = item.category;
+				else {
+					item.category = lastCategory;
+					lastCategory = null;
+				}
 				console.log('created dummy item %s', JSON.stringify(item));
 				dummyItems.push(item);
 				console.log("going to insert item: %s", JSON.stringify(item));
@@ -366,19 +389,24 @@ describe('model test - items', function() {
 				      "_id": "_design/unittests"
 				      , "language": "javascript"
 				      , "views": {
-				      	"tags" : {
-						      		"map": "function(doc) { \
-						      					if(Array.isArray(doc.tags) && 0 < doc.tags.length) { \
-							      					doc.tags.forEach( \
-							      						function(e){ \
-							      							if(null != e.text){ \
-							      								emit(e.text, 1); \
-							      							} \
-							      						} \
-						      						) \
-						      					};  }"
-	      							, "reduce": "_count"
-						}
+				      	"categories" : {
+				      		"map": "function(doc) { \
+				      					emit(doc.category, doc.subCategory); \
+				      					}"
+	      							, "reduce": "function (key, values, rereduce) { \
+	      											var result = []; \
+	      											if(Array.isArray(values)){ \
+	      												values.forEach(function(e){ \
+	      													if(Array.isArray(e)) \
+	      														Array.prototype.push.apply(result,e); \
+	      													else \
+	      														result.push(e); \
+	      												}); } \
+	      											else \
+	      												result.push(values); \
+													return result; \
+												}"
+				      	}
 				      	, "price" : {
 				      		"map": "function(doc) { emit(doc._id, doc.price); }"
 							, "reduce": "_count"
@@ -412,7 +440,7 @@ describe('model test - items', function() {
 				model.storeDesignDoc(NEW_CONF.designDoc, callback);
 		});
 
-		it('testing tags view', 
+		it('testing categories view', 
 	    	function(done){
 
 		    	var callback = function(err, o){
@@ -426,7 +454,7 @@ describe('model test - items', function() {
 						done();
 		    		}
 				};
-				model.readView(TEST_DB, 'tags', { reduce: true, group: true}, callback);
+				model.readView(TEST_DB, 'categories', { reduce: true, group: true}, callback);
 		});
 
 	});

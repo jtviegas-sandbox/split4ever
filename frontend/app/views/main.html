@@ -30,14 +30,17 @@
             </div>
           </uib-slide>
         </uib-carousel>
-        <div class=caption>
+        <div class="caption">
+
           <h4>{{part.name}}</h4>
           <p class="pull-right">{{part.price | currency : "€"}}</p>
-          <p>tags: {{tags2String(part.tags)}}</p>
+          <p>cat: {{part.category}}</p>
+          <p>subcat: {{part.subCategory}}</p>
           <p>notes: {{part.notes}}</p>
-          <p>
-            <a href="/part/{{part._id}}" class="btn btn-primary" role="button">View</a> 
-          </p> 
+          <p><a href="/part/{{part._id}}" class="btn btn-primary" role="button">View</a></p>
+          </div>
+
+          
         </div>
       </div>
     </div>

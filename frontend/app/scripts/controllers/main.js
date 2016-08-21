@@ -12,15 +12,13 @@ angular.module('frontendApp')
   	function ($scope, dscache, $timeout, config, api, app, $rootScope) {
 
   	$scope.literals = config.LITERALS;
-    $scope.tags2String = app.tags2String;
-
     $scope.datasource = function(){
 
     	var minIndex = 0;
     	var maxIndex = 0;
 
-    	var setTagsFilter = function(tf){
-    		dscache.setTagsFilter(tf);
+    	var setCategoryFilter = function(cf){
+    		dscache.setCategoryFilter(cf);
     	};
 
     	var resetIndexes = function(){
@@ -68,17 +66,18 @@ angular.module('frontendApp')
     		get: get
     		, minIndex: minIndex
     		, maxIndex: maxIndex
-    		, setTagsFilter: setTagsFilter
+    		, setCategoryFilter: setCategoryFilter
     		, resetIndexes: resetIndexes
     	};
 	}();
 
-    var tagsFilterHasChanged = $rootScope.$on('tagsFilterUpdate', function(event, data){
-        $scope.datasource.setTagsFilter(data);
+    var categoryFilterHasChanged = $rootScope.$on('categoryFilterUpdate', function(event, data){
+        console.log('[MainCtrl.categoryFilterHasChanged]: %s', JSON.stringify(data));
+        $scope.datasource.setCategoryFilter(data);
         $scope.datasource.resetIndexes();
         return $scope.scrollAdapter.reload(0);
     });
 
-    $scope.$on('$destroy', tagsFilterHasChanged);
+    $scope.$on('$destroy', categoryFilterHasChanged);
 
   }]);

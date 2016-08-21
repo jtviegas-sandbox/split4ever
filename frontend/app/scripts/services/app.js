@@ -1,7 +1,45 @@
 'use strict';
 
 angular.module('frontendApp').service( 'app', 
-  function ($alert, $timeout, config){
+  function ($alert, $timeout, config, $uibModal){
+
+    var showAppModal = function(size, title, callback){
+
+      var appModalInstance = $uibModal.open({
+        animation: true,
+        ariaLabelledBy: 'modal-title'
+        , ariaDescribedBy: 'modal-body'
+        , template: '<div class="modal-header"> \
+                  <h3 class="modal-title" id="modal-title">{{ title }}</h3> \
+              </div> \
+              <div class="modal-body" id="modal-body"> \
+                  <form name="modelform" novalidate> \
+                      <div class="form-group" ng-class="{\'has-error\': !modelform.value.$valid}"> \
+                      <input name="value" type="text" class="form-control" ng-model="value" required ng-minlength="3" ng-maxlength="64"> \
+                  </form> \
+              </div> \
+              <div class="modal-footer"> \
+                  <button ng-show="modelform.$valid" class="btn btn-primary" type="button" ng-click="ok()">OK</button> \
+                  <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button> \
+              </div>'
+        , controller: 'AppModalInstanceCtrl'
+        , size: size
+        , resolve: {
+            params: function(){
+               return {
+                  'title': title
+                     };
+                   }
+                }
+      });
+
+      appModalInstance.result.then(function (input) {
+        callback(null, input)
+      }, function () {
+        callback(null, null)
+      });
+
+    }
 
     var showAlert = function(title, type, msg, container, timeout, customClass) {
           
@@ -29,46 +67,13 @@ angular.module('frontendApp').service( 'app',
         config.ALERT.timeout,config.ALERT.customClass);
     };
 
-
-    var findTagIndexInArray = function(array, tag){
-        var r = -1;
-
-        for(var i = 0; i < array.length; i++){
-          var t = array[i];
-          if( t.text == tag.text){
-            r = i;
-            break;
-          }
-        }
-
-        return r;
-    };
-
-   var tags2String = function(t){
-      var r = null;
-      if(t){
-        if(Array.isArray(t)){
-          for(var i = 0; i < t.length; i++){
-            if(null == r)
-              r = t[i].text;
-            else
-              r = r + ', ' + t[i].text;
-          }
-        }
-        else
-          r = t.toString();
-      }
-      return r;
-    };
-
     var context = {};
 
     return { 
       showAlert: showAlert
       , showAppAlert: showAppAlert
       , context: context
-      , findTagIndexInArray:findTagIndexInArray
-      , tags2String: tags2String
+      , showAppModal: showAppModal
     };
 
   } 

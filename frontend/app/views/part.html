@@ -53,8 +53,29 @@
 	    </div>
   	</div>
   	<div class="row">
-	    <div class="col-sm-12">
 
+  		<div class="col-sm-6">
+  			<div class="form-group" ng-class="{'has-error': formErrors && !newpartform.category.$valid}">
+	  			<label for="category" class="control-label">category</label>
+
+	  			<select ng-if="session.AdminloggedIn" class="form-control" name="category" ng-model="item.category" ng-click="categoryClicked($event)" required>
+	  				<option ng-repeat="cat in categories">{{ cat.name }}</option>
+	  			</select>
+	  			<p ng-if="!session.AdminloggedIn" class="form-control-static">{{ item.category }}</p>
+	  		</div>
+  		</div>
+  		<div class="col-sm-6">
+  			<div class="form-group" ng-class="{'has-error': formErrors && !newpartform.subCategory.$valid}">
+	  			<label for="subCategory" class="control-label">sub category</label>
+	  			<select ng-if="session.AdminloggedIn" class="form-control" name="subCategory" ng-model="item.subCategory" ng-click="subCategoryClicked($event)" required>
+	  				<option selected>___new_sub_category___</option>
+	  				<option ng-if="null!=categories[item.category]" ng-repeat="subCat in categories[item.category].subs">{{ subCat }}</option>
+	  			</select>
+	  			<p ng-if="!session.AdminloggedIn" class="form-control-static">{{ item.subCategory }}</p>
+	  		</div>
+  		</div>
+
+	    <!-- <div class="col-sm-12">
 	      <div class="form-group" ng-class="{'has-error': formErrors && !newpartform.tags.$valid}">
 	        <label for="tags" class="control-label">tags</label>
 	        <tags-input ng-if="session.AdminloggedIn" name="tags" id="tags" ng-model="item.tags" add-on-paste="true" placeholder="...add multiple tags..." required>
@@ -62,8 +83,7 @@
 		    </tags-input>
 		    <input ng-if="!session.AdminloggedIn" name="tags" type="text" class="form-control" value="{{tags2string(item.tags)}}" readonly>
 	      </div>
-
-	    </div>
+	    </div> -->
   	</div>
   	<div class="row">
 	    <div class="col-sm-12">

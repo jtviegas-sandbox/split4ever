@@ -12,6 +12,8 @@ angular.module('frontendApp')
       , subCategory: null
     };
 
+    
+
     $scope.session = { loggedIn: false, AdminloggedIn: false };
 
     $scope.$watchCollection('categoryFilter', function ( newValue, oldValue ) {
@@ -50,6 +52,9 @@ angular.module('frontendApp')
     }
   });
 
+  session.get(function(err, r){
+        $scope.session  = r;
+    });
 
   }]);
 

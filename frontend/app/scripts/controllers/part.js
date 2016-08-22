@@ -10,8 +10,7 @@ angular.module('frontendApp')
 
       $scope.categoryClicked = function($event){
         if( 0 == $event.currentTarget.selectedOptions[0].index && $event.currentTarget.selectedOptions[0].innerText != ''){
-        //if('___new_category___' == $scope.item.category){
-          app.showAppModal('sm', 'add new category', function(err, o){
+          app.showAppModal('sm', 'add new category', null, 'TEXT_INPUT', function(err, o){
             if(null == err && null != o){
               var newcat = { 'name':o, subs:[] };
               $scope.categories[newcat.name] = newcat;
@@ -23,8 +22,7 @@ angular.module('frontendApp')
 
       $scope.subCategoryClicked = function($event){
         if( 0 == $event.currentTarget.selectedOptions[0].index && $event.currentTarget.selectedOptions[0].innerText != ''){
-        //if('___new_category___' == $scope.item.category){
-          app.showAppModal('sm', 'add new sub category', function(err, o){
+          app.showAppModal('sm', 'add new sub category', null, 'TEXT_INPUT', function(err, o){
             if(null == err && null != o){
               $scope.item.subCategory = o;
               $scope.categories[$scope.item.category].subs.push(o);
@@ -92,17 +90,22 @@ angular.module('frontendApp')
           return ;
       }
 
-      var callback = function(err, r){
-        if(err){
-          console.log(JSON.stringify(err));
-          app.showAppAlert(config.LITERALS.partDeleteFailed, 'danger', config.PART.partAlertArea); 
+      app.showAppModal('sm', 'part', 'really delete?', 'OK_CANCEL', function(err, o){
+        if(null == err && null != o && true == o){
+          var callback = function(err, r){
+            if(err){
+              console.log(JSON.stringify(err));
+              app.showAppAlert(config.LITERALS.partDeleteFailed, 'danger', config.PART.partAlertArea); 
+            }
+            else {
+              setNewItem();
+              app.showAppAlert(config.LITERALS.partDeleteOk, 'success', config.PART.partAlertArea);        
+            }
+          };
+          api.delItem($scope.item,callback);
         }
-        else {
-          setNewItem();
-          app.showAppAlert(config.LITERALS.partDeleteOk, 'success', config.PART.partAlertArea);        
-        }
-      };
-      api.delItem($scope.item,callback);
+      });
+      
     };
 
     // load the item

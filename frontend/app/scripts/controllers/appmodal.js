@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('frontendApp')
-  .controller('AppModalInstanceCtrl', function ($scope, $uibModalInstance, params) {
+  .controller('TextInputAppModalInstanceCtrl', function ($scope, $uibModalInstance, params) {
 	  $scope.value = null;
 	  $scope.title = params.title;
 	  
@@ -11,6 +11,20 @@ angular.module('frontendApp')
 
 	  $scope.cancel = function () {
 	    $uibModalInstance.dismiss('cancel');
+	  };
+
+  })
+  .controller('OkCancelAppModalInstanceCtrl', function ($scope, $uibModalInstance, params) {
+	  $scope.value = null;
+	  $scope.title = params.title;
+	  $scope.text = params.text;
+	  
+	  $scope.ok = function () {
+	    $uibModalInstance.close(true);
+	  };
+
+	  $scope.cancel = function () {
+	    $uibModalInstance.dismiss(false);
 	  };
 
   });

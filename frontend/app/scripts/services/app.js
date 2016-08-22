@@ -3,13 +3,7 @@
 angular.module('frontendApp').service( 'app', 
   function ($alert, $timeout, config, $uibModal){
 
-    var showAppModal = function(size, title, callback){
-
-      var appModalInstance = $uibModal.open({
-        animation: true,
-        ariaLabelledBy: 'modal-title'
-        , ariaDescribedBy: 'modal-body'
-        , template: '<div class="modal-header"> \
+    var textInputTemplate = '<div class="modal-header"> \
                   <h3 class="modal-title" id="modal-title">{{ title }}</h3> \
               </div> \
               <div class="modal-body" id="modal-body"> \
@@ -21,23 +15,43 @@ angular.module('frontendApp').service( 'app',
               <div class="modal-footer"> \
                   <button ng-show="modelform.$valid" class="btn btn-primary" type="button" ng-click="ok()">OK</button> \
                   <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button> \
-              </div>'
-        , controller: 'AppModalInstanceCtrl'
+              </div>';
+    var okCancelTemplate = '<div class="modal-header"> \
+                  <h3 class="modal-title" id="modal-title">{{ title }}</h3> \
+              </div> \
+              <div class="modal-body" id="modal-body"> \
+                  <p> {{ text }} </p> \
+              </div> \
+              <div class="modal-footer"> \
+                  <button class="btn btn-primary" type="button" ng-click="ok()">OK</button> \
+                  <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button> \
+              </div>';
+
+    //type: TEXT_INPUT | OK_CANCEL
+    var showAppModal = function(size, title, text, type, callback){
+
+      var appModalInstance = $uibModal.open({
+        animation: true,
+        ariaLabelledBy: 'modal-title'
+        , ariaDescribedBy: 'modal-body'
+        , template: (type == 'OK_CANCEL' ? okCancelTemplate : textInputTemplate)
+        , controller: (type == 'OK_CANCEL' ? 'OkCancelAppModalInstanceCtrl' : 'TextInputAppModalInstanceCtrl') 
         , size: size
         , resolve: {
             params: function(){
                return {
                   'title': title
+                  , 'text': text
                      };
                    }
                 }
       });
 
       appModalInstance.result.then(function (input) {
-        callback(null, input)
-      }, function () {
-        callback(null, null)
-      });
+            callback(null, input)
+          }, function () {
+            callback(null, null)
+          });
 
     }
 

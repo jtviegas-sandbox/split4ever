@@ -8,7 +8,7 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('MainCtrl', [ '$scope', 'dscache','$timeout', 'config', 'api','app','$rootScope',    
+  .controller('MainCtrl', [ '$scope', 'dscache','$timeout', 'config', 'api','app','$rootScope',
   	function ($scope, dscache, $timeout, config, api, app, $rootScope) {
 
   	$scope.literals = config.LITERALS;
@@ -17,8 +17,8 @@ angular.module('frontendApp')
     	var minIndex = 0;
     	var maxIndex = 0;
 
-    	var setCategoryFilter = function(cf){
-    		dscache.setCategoryFilter(cf);
+    	var setFilter = function(cf){
+    		dscache.setFilter(cf);
     	};
 
     	var resetIndexes = function(){
@@ -32,7 +32,7 @@ angular.module('frontendApp')
 	        if(null == r)
 	          r = a[i]._id;
 	        else
-	          r = r + ', ' + a[i]._id; 
+	          r = r + ', ' + a[i]._id;
 	      }
 	      return r;
 	    };
@@ -59,25 +59,25 @@ angular.module('frontendApp')
     				success(r);
     			}
     		}), 1000);
-  
+
     	};
 
     	return {
     		get: get
     		, minIndex: minIndex
     		, maxIndex: maxIndex
-    		, setCategoryFilter: setCategoryFilter
+    		, setFilter: setFilter
     		, resetIndexes: resetIndexes
     	};
 	}();
 
-    var categoryFilterHasChanged = $rootScope.$on('categoryFilterUpdate', function(event, data){
-        console.log('[MainCtrl.categoryFilterHasChanged]: %s', JSON.stringify(data));
-        $scope.datasource.setCategoryFilter(data);
+    var partsFilterHasChanged = $rootScope.$on('partsFilterUpdate', function(event, data){
+        console.log('[MainCtrl.partsFilterHasChanged]: %s', JSON.stringify(data));
+        $scope.datasource.setFilter(data);
         $scope.datasource.resetIndexes();
         return $scope.scrollAdapter.reload(0);
     });
 
-    $scope.$on('$destroy', categoryFilterHasChanged);
+    $scope.$on('$destroy', partsFilterHasChanged);
 
   }]);

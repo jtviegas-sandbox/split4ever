@@ -99,7 +99,7 @@ var Model = (function(){
 
 	var createDb = function(conf, callback){
 		logger.trace('[Model.createDb] IN');
-		console.log('cnx: %s', JSON.stringify(connection));
+		//console.log('cnx: %s', JSON.stringify(connection));
 		connection.db.create(conf.name,function(err, o){
 			if(err && err.message != "The database could not be created, the file already exists."){
 				logger.error(util.format("[Model.createDb] err: %s", err.message));

@@ -16,11 +16,11 @@
 	        </div>
 	      </uib-slide>
 	    </uib-carousel>
-	  </div> 
+	  </div>
 	<div class="panel-footer">
 		<div ng-if="session.AdminloggedIn" class="row">
 	 		<imagebase64input images="item.images" class="col-xs-3 col-xs-offset-9" />
-	 	</div> 
+	 	</div>
 	</div>
 </div>
 
@@ -53,8 +53,17 @@
 	    </div>
   	</div>
   	<div class="row">
-
-  		<div class="col-sm-6">
+      <div class="col-sm-4">
+        <div class="form-group" ng-class="{'has-error': formErrors && !newpartform.model.$valid}">
+          <label for="model" class="control-label">model</label>
+          <select ng-if="session.AdminloggedIn" class="form-control" name="model" ng-model="item.model" ng-click="modelClicked($event)" required>
+            <!--<option selected>___new_model___</option>-->
+            <option ng-repeat="model in models">{{ model }}</option>
+          </select>
+          <p ng-if="!session.AdminloggedIn" class="form-control-static">{{ item.subCategory }}</p>
+        </div>
+      </div>
+  		<div class="col-sm-4">
   			<div class="form-group" ng-class="{'has-error': formErrors && !newpartform.category.$valid}">
 	  			<label for="category" class="control-label">category</label>
 
@@ -64,7 +73,7 @@
 	  			<p ng-if="!session.AdminloggedIn" class="form-control-static">{{ item.category }}</p>
 	  		</div>
   		</div>
-  		<div class="col-sm-6">
+  		<div class="col-sm-4">
   			<div class="form-group" ng-class="{'has-error': formErrors && !newpartform.subCategory.$valid}">
 	  			<label for="subCategory" class="control-label">sub category</label>
 	  			<select ng-if="session.AdminloggedIn" class="form-control" name="subCategory" ng-model="item.subCategory" ng-click="subCategoryClicked($event)" required>
@@ -100,7 +109,7 @@
       	</div>
       	<div class="col-sm-6">
         	<input type="submit" class="btn btn-primary pull-right" value="submit" >
-      	</div> 
+      	</div>
   	</div>
   	<div class="row col-sm-12">
     	<div id="partAlert"> </div>

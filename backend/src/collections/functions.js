@@ -119,7 +119,7 @@ var CollectionsFunctions = function(){
   };
 
   var getCategories = function(req,res){
-    logger.trace('<IN>getTags');
+    logger.trace('<IN>getCategories');
     var collectionName = req.params.name;
     var callback = function(err, o){
       if(err){
@@ -139,7 +139,37 @@ var CollectionsFunctions = function(){
       }
     };
     model.readView(collectionName, 'categories', { reduce: true, group: true}, callback);
-    logger.trace('<OUT>getTags');
+    logger.trace('<OUT>getCategories');
+  };
+
+  var findNamePropertyIndexInArrayObj = function(arr, name){
+
+      for( var i=0; i<arr.length; i++){
+          var o = arr[i];
+          if(o.name == name){
+              return i;
+          }
+      }
+      return -1;
+  };
+
+  var getModels = function(req,res){
+    logger.trace('<IN>getModels');
+    var collectionName = req.params.name;
+    var callback = function(err, o){
+      if(err){
+        logger.error(err);
+        res.status(400).end();
+      }
+      else {
+          var r = [];
+          o.forEach(function(e){ r.push(e.key); });
+          res.status(200).json(r);
+          res.end();
+      }
+    };
+    model.readView(collectionName, 'models', { reduce: true, group: true}, callback);
+    logger.trace('<OUT>getModels');
   };
 
   var post = function(req,res){
@@ -190,6 +220,7 @@ var CollectionsFunctions = function(){
     , del: del
     , getNfromId: getNfromId
     , getCategories: getCategories
+    , getModels: getModels
   };
 
 }();

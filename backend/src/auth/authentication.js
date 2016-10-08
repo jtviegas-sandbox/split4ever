@@ -4,13 +4,13 @@ var logger = require('../common/utils').appLogger;
 var util = require('util');
 var cfenv = require('cfenv');
 var config = require('./config'); 
-
+var passport = require('passport');
 
 
 var Authentication = function(){
 
 	var appEnv = cfenv.getAppEnv();
-	var passport = require('passport');
+	
 
 	passport.serializeUser(function(user, done) {
 	   done(null, user);

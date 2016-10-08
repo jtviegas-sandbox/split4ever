@@ -8,7 +8,7 @@ angular.module('frontendApp')
         scope: {
             obj: '='
             , size: '='
-            , canvasid: '=' 
+            , canvasid: '='
         },
         link: function (scope, el, attrs) {
 
@@ -29,20 +29,34 @@ angular.module('frontendApp')
                 var canvas = document.getElementById(scope.canvasid);
                 canvas.width = scope.size.w;
                 canvas.height = scope.size.h;
-                var ctx = canvas.getContext('2d');
-               
 
-                var ratio = scope.size.w/curW;
-                if(ratio < 1){
+
+                var ratio;
+                if(curW > curH){
+                  // landscape -- limit the width
+                  ratio = scope.size.w/curW;
+                  canvas.width = scope.size.w;
+                  canvas.height = scope.size.h;
+                }
+                else {
+                  //portrait -- limit the height
+                  ratio = scope.size.w/curH;
+                  canvas.width = scope.size.h;
+                  canvas.height = scope.size.w;
+                }
+
+                if(ratio < 1){//if image width is bigger then config width
+                    //resize image to match the config width
                     endW = curW * ratio;
                     endH = curH * ratio;
-                    if(endH > scope.size.h){
+/*                    if(endH > scope.size.h){
                         ratio = scope.size.h/curH;
                         endW = curW * ratio;
                         endH = curH * ratio;
-                    }
+                    }*/
                 }
-                
+
+                //if image smaller than canvas, on width or height, locate it in the center
                 var xdiff = canvas.width - endW;
                 var ydiff = canvas.height - endH;
                 var xborder = 0;
@@ -54,6 +68,7 @@ angular.module('frontendApp')
                 if(0 < ydiff)
                     yborder = ydiff/2;
 
+                var ctx = canvas.getContext('2d');
                 ctx.drawImage(el[0], xborder, yborder, endW, endH);
                 scope.obj._resized = true;
                 scope.obj.data = canvas.toDataURL(scope.obj.type);

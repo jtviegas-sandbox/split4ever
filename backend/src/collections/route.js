@@ -12,6 +12,7 @@ router.use(bodyParser.urlencoded({ extended: true, limit: '50mb' })); // for par
 
 router.get('/:name/:id/:n', functions.getNfromId);
 router.get('/:name/categories', functions.getCategories);
+router.get('/:name/models', functions.getModels);
 router.get('/:name/:id', functions.get);
 
 router.get('/:name', functions.getAll);

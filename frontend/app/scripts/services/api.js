@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('frontendApp')
-  .service( 'api', 
+  .service( 'api',
     function ($http, config){
 
       var setItem = function(input, callback){
@@ -79,7 +79,7 @@ angular.module('frontendApp')
         };
         if(input.filter)
           options.params = { 'filter': input.filter };
-        
+
         $http(options).then(
             function success(response) {
               if(callback)
@@ -91,8 +91,6 @@ angular.module('frontendApp')
             }
         );
       };
-
-
 
       var getCategories = function(callback){
         $http({
@@ -109,6 +107,24 @@ angular.module('frontendApp')
               if(callback)
                 callback(response)
             }
+        );
+      };
+
+      var getModels = function(callback){
+        $http({
+          method: 'GET'
+          , url: config.API.url + '/collections/part/models'
+        }).then(
+          function success(response) {
+            console.log(response);
+            if(callback)
+              callback(null, response.data);
+          },
+          function error(response) {
+            console.log(response);
+            if(callback)
+              callback(response)
+          }
         );
       };
 
@@ -152,16 +168,17 @@ angular.module('frontendApp')
           );
       };
 
-      return { 
+      return {
         setItem: setItem
         , delItem: delItem
         , getItem: getItem
         , getCategories: getCategories
         , getDatasourceItems: getDatasourceItems
         , getSession: getSession
+        , getModels: getModels
       };
     }
-  ) 
+  )
 ;
 
 

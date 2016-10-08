@@ -17,15 +17,21 @@
 
       <form class="navbar-form navbar-right">
         <div class="form-group">
-          <select ng-if="pageIs('/')" class="form-control" ng-model="categoryFilter.category">
+          <select ng-if="pageIs('/')" class="form-control" ng-model="partsFilter.model">
+            <option value="" disabled selected>select Model</option>
+            <option ng-repeat="model in models">{{ model.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <select ng-if="pageIs('/')" class="form-control" ng-model="partsFilter.category">
             <option value="" disabled selected>select Category</option>
             <option ng-repeat="cat in categories">{{ cat.name }}</option>
           </select>
         </div>
         <div class="form-group">
-          <select ng-if="pageIs('/')" class="form-control" ng-model="categoryFilter.subCategory">
+          <select ng-if="pageIs('/')" class="form-control" ng-model="partsFilter.subCategory">
              <option value="" disabled selected>select Sub Category</option>
-             <option ng-if="null!=categories[categoryFilter.category]" ng-repeat="subCat in categories[categoryFilter.category].subs">{{ subCat }}</option>
+             <option ng-if="null!=categories[partsFilter.category]" ng-repeat="subCat in categories[partsFilter.category].subs">{{ subCat }}</option>
           </select>
         </div>
       </form>
@@ -44,7 +50,7 @@
     </div>
 
 
-    
+
 
   </div>
 

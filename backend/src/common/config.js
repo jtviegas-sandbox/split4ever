@@ -37,6 +37,13 @@ var Config = function() {
 											     	r.push(n); } } \
 											return r;}"
 						      	}
+						      	, "models" : {
+                                    "map": "function(doc) { \
+                                                    if(doc.model){ \
+                                                        emit(doc.model, 1); \
+                                                    }}"
+                                    , "reduce": "_count"
+							}
 					      } 
 					  	}
 					}

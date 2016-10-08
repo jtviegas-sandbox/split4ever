@@ -12,12 +12,12 @@ angular.module('frontendApp')
         , partDeleteFailed: 'failed to delete part'
         , partSubmitOk: 'successfully submitted part'
         , partDeleteOk: 'successfully deleted part'
-        
+
 
     	}
     	, PART: {
     		image: {
-    			dimension: { w: 400, h: 300}
+    			dimension: { w: 832, h: 624}
     		}
             , partAlertArea: '#partAlert'
     	}
@@ -25,7 +25,7 @@ angular.module('frontendApp')
     		url: '/api'
             , auth: {
                 url: '/auth'
-            } 
+            }
     	}
         , AUTH : {
             adminGroup: 'admin'

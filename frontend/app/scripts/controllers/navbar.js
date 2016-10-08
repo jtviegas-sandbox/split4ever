@@ -1,24 +1,26 @@
 'use strict';
 
 angular.module('frontendApp')
-  .controller('NavbarCtrl', [ '$scope', '$window', '$location', 'config', 'app', 
-  	'api', '$rootScope', 'session',
-  	function ($scope, $window, $location, config, app, api, $rootScope, session) {
-    
+  .controller('NavbarCtrl', [ '$scope', '$window', '$location', 'config', 'app',
+  	'api', '$rootScope', 'session', 'utils',
+  	function ($scope, $window, $location, config, app, api, $rootScope, session, utils) {
+
     $scope.literals = config.LITERALS;
+    $scope.models = {};
     $scope.categories = {};
-    $scope.categoryFilter = {
+    $scope.partsFilter = {
       category: null
       , subCategory: null
+      , model: null
     };
 
-    
+    $scope.utils = utils;
 
     $scope.session = { loggedIn: false, AdminloggedIn: false };
 
-    $scope.$watchCollection('categoryFilter', function ( newValue, oldValue ) {
-      $rootScope.$emit('categoryFilterUpdate', newValue);
-        }
+    $scope.$watchCollection('partsFilter', function (newValue, oldValue ) {
+        $rootScope.$emit('partsFilterUpdate', newValue);
+      }
     );
 
     $scope.pageIs = function(path){
@@ -51,6 +53,17 @@ angular.module('frontendApp')
       console.log('loaded categories cache with %d items', o.length);
     }
   });
+      api.getModels(function(err, o){
+        if(err){
+          console.log('couldn\'t load models: %j', err);
+        }
+        else{
+          if(0 < o.length)
+            Array.prototype.push.apply($scope.models, o);
+
+          console.log('loaded models cache with %d items', o.length);
+        }
+      });
 
   session.get(function(err, r){
         $scope.session  = r;
@@ -74,7 +87,7 @@ angular.module('frontendApp')
           tagsCache.forEach(function(value, index, array){
 
             if(0 > app.findTagIndexInArray(state, value))
-              r.push(value); 
+              r.push(value);
 
           });
           return r;

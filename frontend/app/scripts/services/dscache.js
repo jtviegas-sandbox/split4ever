@@ -1,13 +1,13 @@
 'use strict';
 
-angular.module('frontendApp').service( 'dscache', 
+angular.module('frontendApp').service( 'dscache',
   function (api){
 
     var os = [];
-    var categoryFilter = {};
+    var partsFilter = {};
 
-    var setCategoryFilter = function(cf){
-        categoryFilter = cf;
+    var setFilter = function(cf){
+        partsFilter = cf;
         os = [];
     };
 
@@ -33,7 +33,7 @@ angular.module('frontendApp').service( 'dscache',
         if(null == r)
           r = a[i]._id;
         else
-          r = r + ', ' + a[i]._id; 
+          r = r + ', ' + a[i]._id;
       }
       return null == r ? "" : r;
     };
@@ -41,7 +41,7 @@ angular.module('frontendApp').service( 'dscache',
     var assureIndexRange = function(i1, i2, callback){
 
       console.log('[dscache.assureIndexRange] IN (%d,%d, ...)', i1, i2 );
-      
+
       if(i1 > i2)
         throw "first range index can not be higher than the last range index";
 
@@ -74,7 +74,7 @@ angular.module('frontendApp').service( 'dscache',
 
           return {func: func};
         }(callback);
-       
+
         load(firstIndex2retrieve, secondIndex2retrieve, loadCallback.func)
       }
       else {
@@ -99,9 +99,8 @@ angular.module('frontendApp').service( 'dscache',
         id = os[idx1-1]._id;
 
       n = idx2 - idx1 + 1;
-
       api.getDatasourceItems(
-        {'_id': id,  'n': n , 'filter': categoryFilter}, 
+        {'_id': id,  'n': n , 'filter': partsFilter},
         function(err, o){
           if(err){
             console.log(err)
@@ -116,12 +115,12 @@ angular.module('frontendApp').service( 'dscache',
       });
     }
 
-    return { 
+    return {
       getByIndex: getByIndex
-      , setCategoryFilter: setCategoryFilter
+      , setFilter: setFilter
     };
 
-  } 
+  }
 );
 
 

@@ -5,10 +5,10 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 
-var logger = require('../common/utils').appLogger;
+var logger = require('./../common/apputils').logger;
 var authentication = require('./authentication')
 
-logger.trace('[auth.route] started loading...');
+logger.debug('[auth.route] started loading...');
 var router = express.Router();
 
 router.use(bodyParser.json({limit: '50mb'})); // for parsing application/json
@@ -26,6 +26,6 @@ router.get('/logout', authentication.logout);
 
 router.get('/session', authentication.session);
 
-logger.trace('[auth.route] ...finished loading.');
+logger.debug('[auth.route] ...finished loading.');
 
 module.exports = router;

@@ -1,24 +1,27 @@
+"use strict";
+
 var express = require('express');
 var bodyParser = require('body-parser');
-var logger = require('../common/utils').appLogger;
+var logger = require('./../common/apputils').logger;
 var authentication = require('../auth/authentication');
 
 var functions = require('./functions');
-logger.trace('started loading...');
+logger.debug('started loading...');
 var router = express.Router();
 
 router.use(bodyParser.json({limit: '50mb'})); // for parsing application/json
 router.use(bodyParser.urlencoded({ extended: true, limit: '50mb' })); // for parsing application/x-www-form-urlencoded
 
-router.get('/:name/:id/:n', functions.getNfromId);
-router.get('/:name/categories', functions.getCategories);
-router.get('/:name/models', functions.getModels);
-router.get('/:name/:id', functions.get);
+router.get('/part/categories', functions.getCategories);
+router.get('/part/models', functions.getModels);
+router.get('/part/spotlights', functions.getSpotlights);
+router.get('/part/n', functions.numOfParts);
+router.get('/part/all', functions.getAllParts);
+router.get('/part/:id/:n', functions.getNPartsFromId);
+router.get('/part/:id', functions.getPart);
 
-router.get('/:name', functions.getAll);
-router.delete('/:name/:id/:rev', authentication.verifyAuth, functions.del);
+router.post('/part', authentication.verifyAuth, functions.setPart);
+router.delete('/part/:id/:rev', authentication.verifyAuth, functions.delPart);
 
-router.post('/:name', authentication.verifyAuth, functions.post);
-
-logger.trace('...finished loading.');
+logger.debug('...finished loading.');
 module.exports = router;

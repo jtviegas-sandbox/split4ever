@@ -1,49 +1,73 @@
-<!-- <div class="jumbotron">
-  <h1>'Allo, 'Allo!</h1>
-  <p class="lead">
-    <img src="images/yeoman.png" alt="I'm Yeoman"><br>
-    Always a pleasure scaffolding your apps.
-  </p>
-  <p><a class="btn btn-lg btn-success" ng-href="#/">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
-</div> -->
 
-<!--   <div class="container">
-    <div class="col-xs-12 col-sm-6 col-md-6">
-      <em>{{literals.subTitle2}}</em>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
-          <tags-input ng-model="tagsFilter" add-on-paste="true" placeholder="{{literals.tagsFilterPlaceholder}}" required>
-          <auto-complete source="getTags($query)" min-length="0"></auto-complete>
-        </tags-input>
-    </div>
+<!-- start of carousel -->
+<div class="row">
+  <div class="jumbotron xjumbotron">
 
-    <hr class="col-xs-12 col-sm-12 col-md-12">
-  </div> -->
-  <div class="row">
-    <div class="col-xs-6 col-sm-4 col-md-4" ui-scroll="part in datasource" start-index="0" buffer-size="6" adapter="scrollAdapter">
-      <div class="thumbnail">
-
-        <uib-carousel interval="0" no-wrap="false">
-          <uib-slide ng-repeat="image in part.images" >
-            <div class="row">
-               <img class="img-responsive img-rounded" ng-src="{{image.data}}">
-            </div>
-          </uib-slide>
-        </uib-carousel>
-        <div class="caption">
-
-          <h4>{{part.name}}</h4>
-          <p class="pull-right">{{part.price | currency : "€"}}</p>
-          <p>cat: {{part.category}}</p>
-          <p>subcat: {{part.subCategory}}</p>
-          <p>notes: {{part.notes}}</p>
-          <p><a href="/part/{{part._id}}" class="btn btn-primary" role="button">View</a></p>
-          </div>
-
-          
+    <div uib-carousel interval="5000" no-wrap="false">
+      <div uib-slide ng-repeat="item in spotlights" >
+        <a href="/part/{{item._id}}">
+          <img class="img-responsive img-rounded center-block" ng-src="{{item.images[0].data}}">
+        </a>
+        <div class="carousel-caption xcarousel-caption">
+          <p> {{item.name}} | {{item.price}} €</p>
         </div>
       </div>
     </div>
+
+  </div> <!-- end of jumbotron -->
+</div>
+<!-- end of carousel -->
+
+<!-- start of parts filter -->
+<div class="row mainFilterRow">
+  <div class="col-sm-6">
+    <div class="form-group">
+      <select class="form-control" ng-model="filter.model">
+        <option value="" disabled selected>select Model</option>
+        <option ng-repeat="model in models">{{ model }}</option>
+      </select>
+    </div>
   </div>
- 
+  <div class="col-sm-6">
+    <div class="form-group">
+      <select class="form-control" ng-model="filter.category">
+        <option value="" disabled selected>select Category</option>
+        <option ng-repeat="cat in categories">{{ cat }}</option>
+      </select>
+    </div>
+  </div>
+</div>
+<!-- end of parts filter -->
+<!-- start of parts list -->
+<div class="row">
+  <div class="col-xs-6 col-sm-4 col-md-4" ui-scroll="part in datasource" start-index="0" buffer-size="6" adapter="scrollAdapter">
+    <div class="thumbnail">
+
+      <uib-carousel interval="0" no-wrap="false">
+        <uib-slide ng-repeat="image in part.images" >
+          <div class="row">
+            <img class="img-responsive img-rounded" ng-src="{{image.data}}">
+          </div>
+        </uib-slide>
+      </uib-carousel>
+
+      <div class="caption">
+
+        <h4>{{part.name}}</h4>
+        <p class="pull-right">{{part.price | currency : "€"}}</p>
+        <p>model: {{part.model}}</p>
+        <p>cat: {{part.category}}</p>
+        <p>notes: {{part.notes}}</p>
+        <p><a href="/part/{{part._id}}" class="btn btn-primary" role="button">View</a></p>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+<!-- end of parts list -->
+
+
+
+
 

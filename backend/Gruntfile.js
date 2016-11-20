@@ -17,19 +17,27 @@ module.exports = function(grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json')
-        , env : {
+/*        , env : {
             dev : {
               src : '../devops/env.json'
             }
-        }
+        }*/
         , cafemocha: {
-            all: { 
-                src: 'test/*.js', 
-                options: { 
-                    ui: 'tdd' 
+            unit: {
+                src: 'test/*_unit.js',
+                options: {
+                    ui: 'tdd'
                     , reporter: 'spec'
                     , bail: false
-                }, 
+                }
+            }
+            , integration: {
+                src: 'test/*_integration.js',
+                options: {
+                    ui: 'tdd'
+                    , reporter: 'spec'
+                    , bail: false
+                }
             }
         }
         , clean: {
@@ -71,18 +79,19 @@ module.exports = function(grunt) {
 
     // Default task(s).
     grunt.registerTask('default', [ 'copy', 'watch', 
-        'jshint', 'clean', 'cafemocha' ]);
+        'jshint', 'clean', 'cafemocha:unit' ]);
 
     grunt.registerTask('test', [
-        'env:dev',
-        'cafemocha'
+        //'env:dev'
+        'cafemocha:unit'
+        , 'cafemocha:integration'
       ]);
 
     grunt.registerTask('build', [
-        'env:dev',
-        'clean',
-        'copy'
-        //, 'cafemocha'
+        //'env:dev'
+        'clean'
+        , 'copy'
+        , 'cafemocha:unit'
       ]);
 
 };

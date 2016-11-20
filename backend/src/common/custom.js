@@ -1,6 +1,5 @@
 "use strict";
 
-var PragmaLogger = require('pragma-logger');
 var _ = require('underscore');
 
 var Custom = function() {

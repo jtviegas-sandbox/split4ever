@@ -5,7 +5,7 @@ applications:
   domain: mybluemix.net
   name: split4ever
   host: split4ever
-  command: node index.js 
+  command: node index.js
   disk_quota: 512M
   services:
     - cloudant

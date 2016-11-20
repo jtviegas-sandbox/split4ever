@@ -26,30 +26,32 @@
 
 <form name="newpartform" novalidate ng-submit="submit()">
 	<div ng-if="session.AdminloggedIn" class="row">
-	    <div class="col-sm-6">
-	    	<p ng-if="item._id">id: {{item._id}}</p>
+	    <div class="col-sm-6 pull-left">
+	    	<p ng-if="item._id" >id: {{item._id}} rev: {{item._rev}}</p>
 	    </div>
-	    <div class="col-sm-6">
-	    	<p ng-if="item._rev">rev: {{item._rev}}</p>
-	    </div>
+      <div class="col-sm-6">
+        <button type="button" name="spotlight" class="btn pull-right" ng-class="{ 'btn-default': item.spotlight!=1, 'btn-success': item.spotlight==1 }" ng-model="item.spotlight" uib-btn-checkbox btn-checkbox-true="1" btn-checkbox-false="0">
+          spotlight
+        </button>
+      </div>
   	</div>
-	<div class="row">
-	    <div class="col-sm-6">
+	  <div class="row">
+	    <div class="col-sm-8">
 	      <div class="form-group" ng-class="{'has-error': formErrors && !newpartform.name.$valid}">
 	        <label for="name" class="control-label">name</label>
 	        <input ng-if="session.AdminloggedIn" name="name" type="text" class="form-control" placeholder="provide a part name..." ng-model='item.name' required ng-minlength="6" ng-maxlength="64">
 	        <input ng-if="!session.AdminloggedIn" name="name" type="text" class="form-control" placeholder="provide a part name..." ng-model='item.name' required ng-minlength="6" ng-maxlength="64" readonly>
 	      </div>
 	    </div>
-	    <div class="col-sm-6">
+	    <div class="col-sm-4">
 	      <div class="form-group" ng-class="{'has-error': formErrors && !newpartform.price.$valid}">
 	        <label for="price" class="control-label">price</label>
 	        <div class="input-group">
-			  <span class="input-group-addon" id="sizing-addon">€</span>
-			  <input ng-if="session.AdminloggedIn" type="number" name="price" class="form-control" placeholder="0.0" aria-describedby="sizing-addon" ng-model='item.price' required ng-min="1" ng-max="999999" />
-			  <input ng-if="!session.AdminloggedIn" type="number" name="price" class="form-control" placeholder="0.0" aria-describedby="sizing-addon" ng-model='item.price' required ng-min="1" ng-max="999999" readonly/>
-			</div>
-	       </div>
+			      <span class="input-group-addon" id="sizing-addon">€</span>
+			      <input ng-if="session.AdminloggedIn" type="number" name="price" class="form-control" placeholder="0.0" aria-describedby="sizing-addon" ng-model='item.price' required ng-min="1" ng-max="999999" />
+			      <input ng-if="!session.AdminloggedIn" type="number" name="price" class="form-control" placeholder="0.0" aria-describedby="sizing-addon" ng-model='item.price' required ng-min="1" ng-max="999999" readonly/>
+			    </div>
+        </div>
 	    </div>
   	</div>
   	<div class="row">

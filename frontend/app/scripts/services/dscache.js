@@ -4,10 +4,10 @@ angular.module('frontendApp').service( 'dscache',
   function (api){
 
     var os = [];
-    var partsFilter = {};
+    var filter = {};
 
     var setFilter = function(cf){
-        partsFilter = cf;
+        filter = cf;
         os = [];
     };
 
@@ -22,6 +22,8 @@ angular.module('frontendApp').service( 'dscache',
 
       var index1 = index;
       var index2 = index + buffer -1;
+      if(index1 > index2)
+        throw "first range index can not be higher than the last range index";
 
       assureIndexRange(index1, index2, callback);
 
@@ -39,11 +41,7 @@ angular.module('frontendApp').service( 'dscache',
     };
 
     var assureIndexRange = function(i1, i2, callback){
-
       console.log('[dscache.assureIndexRange] IN (%d,%d, ...)', i1, i2 );
-
-      if(i1 > i2)
-        throw "first range index can not be higher than the last range index";
 
       var mustLoad = false;
       var firstIndex2retrieve = null;
@@ -91,16 +89,14 @@ angular.module('frontendApp').service( 'dscache',
     var load = function(idx1, idx2, callback){
       console.log('[dscache.load] IN (%d,%d, ...)', idx1, idx2 );
       var id = null;
-      var n = null;
 
       if(0 == idx1)
         id = 0;
       else
         id = os[idx1-1]._id;
 
-      n = idx2 - idx1 + 1;
       api.getDatasourceItems(
-        {'_id': id,  'n': n , 'filter': partsFilter},
+        {'_id': id,  'n': (idx2 - idx1 + 1) , 'filter': filter},
         function(err, o){
           if(err){
             console.log(err)

@@ -1,6 +1,6 @@
 "use strict";
 
-var logger = require('../common/utils').appLogger;
+var logger = require('./../common/apputils').logger;
 var util = require('util');
 var cfenv = require('cfenv');
 var config = require('./config'); 
@@ -66,7 +66,7 @@ var Authentication = function(){
 
 	var requestAuth = function(req, res, next) {
 		logger.debug('[Authentication.requestAuth] IN');
-		if (process.env.MODE == 'TEST')   
+		if (process.env.MODE == 'TEST' || process.env.MODE == 'DEV')
 		  return next();
 
 		if(!req.isAuthenticated()) {
@@ -81,7 +81,7 @@ var Authentication = function(){
 
 	var verifyAuth = function(req, res, next) {
 		logger.debug('[Authentication.verifyAuth] IN');
-	  if (process.env.MODE == 'TEST')   
+	  if (process.env.MODE == 'TEST' || process.env.MODE == 'DEV')
 	      return next();
 
 	  if(!req.isAuthenticated())
@@ -101,7 +101,7 @@ var Authentication = function(){
 		logger.debug('[Authentication.session] IN');
 		var r = {};
 		
-		if (process.env.MODE == 'TEST'){
+		if (process.env.MODE == 'TEST' || process.env.MODE == 'DEV'){
 	     	 r.user = {
 					id: '******DUMMY*********'
 					, groups: ['DUMMYGROUP', 'admin']

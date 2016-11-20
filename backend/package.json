@@ -34,11 +34,11 @@
     "multer": "^0.1.8",
     "passport": "^0.3.2",
     "passport-idaas-openidconnect": "^1.1.2",
-    "pragma-logger": "^0.2.5",
     "serve-favicon": "^2.3.0",
     "underscore": "^1.8.3",
     "util": "^0.10.3",
-    "uuid": "^2.0.1"
+    "uuid": "^2.0.1",
+    "winston": "^2.2.0"
   },
   "devDependencies": {
     "chai": "~3.5.0",
@@ -55,8 +55,10 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-env": "^0.4.4",
     "grunt-exec": "^0.4.7",
+    "grunt-nodemon": "^0.4.2",
     "jit-grunt": "^0.9.1",
     "mocha": "~2.4.5",
+    "supertest": "^2.0.0",
     "time-grunt": "^1.0.0",
     "zombie": "~4.2.1"
   }

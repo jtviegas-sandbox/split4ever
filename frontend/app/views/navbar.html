@@ -14,31 +14,12 @@
     </div>
 
     <div class="navbar-collapse collapse" id="js-navbar-collapse">
-
-      <form class="navbar-form navbar-right">
-        <div class="form-group">
-          <select ng-if="pageIs('/')" class="form-control" ng-model="partsFilter.model">
-            <option value="" disabled selected>select Model</option>
-            <option ng-repeat="model in models">{{ model.name }}</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <select ng-if="pageIs('/')" class="form-control" ng-model="partsFilter.category">
-            <option value="" disabled selected>select Category</option>
-            <option ng-repeat="cat in categories">{{ cat.name }}</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <select ng-if="pageIs('/')" class="form-control" ng-model="partsFilter.subCategory">
-             <option value="" disabled selected>select Sub Category</option>
-             <option ng-if="null!=categories[partsFilter.category]" ng-repeat="subCat in categories[partsFilter.category].subs">{{ subCat }}</option>
-          </select>
-        </div>
-      </form>
-
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ userService.logged ? 'hello, ' + userService.firstName : 'user'  }}<span class="caret"></span></a>
+          <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+            {{ userService.logged ? 'hello, ' + userService.firstName : 'user'  }}
+            <span class="caret"></span>
+          </a>
           <ul class="dropdown-menu">
             <li ng-if="!session.loggedIn"><a ng-click="login()">login</a></li>
             <li ng-if="session.loggedIn"><a ng-click="logout()">logout</a></li>

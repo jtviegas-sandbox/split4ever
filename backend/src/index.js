@@ -1,22 +1,22 @@
 var express = require('express');
 var util = require('util');
-var path = require('path')
-var favicon = require('serve-favicon');
 var cookieSession = require('cookie-session');
-var uuid = require('uuid');
 var cookieParser = require('cookie-parser');
-var logger = require('./common/utils').appLogger;
+var logger = require('./common/apputils').logger;
 
 //CONSTANTS
-var PORT=3000;
-var BODY_MAX_SIZE = '10240kb';
+const PORT=3000;
+var frontendDir = __dirname + '/public';
 
-
-process.env.MODE = 'PROD';
-if ( process.argv.indexOf("--test") > -1 ) {
-  process.env.MODE = 'TEST';
-  console.log('Starting in test mode');
+if(!process.env.MODE)
+    process.env.MODE = 'PROD';
+else {
+    if('DEV' == process.env.MODE){
+        frontendDir = __dirname + '/../../dist/public'
+    }
 }
+
+logger.info('[index.js] starting in mode: %s', process.env.MODE);
 
 var cookieSessionProps = {
   name: 'session',
@@ -39,7 +39,6 @@ app.use(authentication.passport.initialize());
 app.use(authentication.passport.session()); 
 app.set('port', process.env.PORT || PORT);
 
-
 var options = {
   dotfiles: 'ignore',
   etag: false,
@@ -47,15 +46,14 @@ var options = {
   //index: false,
   redirect: false
 };
-app.use('/', express.static('public', options));
 
-
+app.use('/', express.static(frontendDir, options));
 app.use('/auth', authenticationRoute);
 app.use('/api/collections', collections);
 
 // custom 404 page
 app.use(function(req, res){
-	//logger.info(util.format('reached 404: %s', util.inspect(req)));
+	logger.info(util.format('reached 404'));
 	res.type('text/plain');
 	res.status(404);
 	res.send('404 - Not Found');
@@ -69,9 +67,8 @@ app.use(function(err, req, res, next){
 	res.send('500 - Server Error');
 });
 
-var server = app.listen(app.get('port'), function () {
-  var host = server.address().address;
-  var port = server.address().port;
-  logger.info(util.format('split4ever listening at http://%s:%s', host, port));
-
+app.listen(app.get('port'), function() {
+  logger.info(util.format('split4ever started on http://localhost:%s', app.get('port')));
 });
+
+module.exports = app;

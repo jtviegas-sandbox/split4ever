@@ -11,7 +11,7 @@ echo "...retriving modules..."
 npm install --production
 
 echo "...starting..."
-MODE==TEST node index.js --test
+MODE=DEV node index.js
 cd $_pwd
 echo "...done."
 

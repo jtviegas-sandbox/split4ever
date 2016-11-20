@@ -33,7 +33,7 @@ cd $FRONTEND
 
 npm install
 bower install
-grunt build
+grunt -vd build
 if [ "0" != "$?" ]; then
 	echo "...frontend build failed...leaving!!!"
 	cd $_pwd
@@ -44,7 +44,7 @@ cd $_pwd
 echo "...moving to $BACKEND..."
 cd $BACKEND
 npm install
-grunt build
+grunt -vd build
 if [ "0" != "$?" ]; then
 	echo "...backend build failed...leaving!!!"
 	cd $_pwd

@@ -15,7 +15,7 @@ angular.module('frontendApp')
             function success(response) {
               console.log(response);
               if(callback)
-                callback(null, response.data);
+                callback(null, response.data.result);
             },
             function error(response) {
               console.log(response);
@@ -76,14 +76,16 @@ angular.module('frontendApp')
           method: 'GET'
           , url: config.API.url + '/collections/part/' + id + '/' + n
           , withCredentials : true
+          , headers: { 'Content-Type': 'application/json' }
         };
+
         if(input.filter)
-          options.params = { 'filter': input.filter };
+          options.params = input.filter;
 
         $http(options).then(
             function success(response) {
               if(callback)
-                callback(null, response.data);
+                callback(null, response.data.result);
             },
             function error(response) {
               if(callback)
@@ -100,7 +102,7 @@ angular.module('frontendApp')
             function success(response) {
               console.log(response);
               if(callback)
-                callback(null, response.data);
+                callback(null, response.data.result);
             },
             function error(response) {
               console.log(response);
@@ -118,7 +120,7 @@ angular.module('frontendApp')
           function success(response) {
             console.log(response);
             if(callback)
-              callback(null, response.data);
+              callback(null, response.data.result);
           },
           function error(response) {
             console.log(response);
@@ -168,6 +170,24 @@ angular.module('frontendApp')
           );
       };
 
+      var getSpotlights = function(callback){
+        $http({
+          method: 'GET'
+          , url: config.API.url + '/collections/part/spotlights'
+        }).then(
+          function success(response) {
+            console.log(response);
+            if(callback)
+              callback(null, response.data.result);
+          },
+          function error(response) {
+            console.log(response);
+            if(callback)
+              callback(response)
+          }
+        );
+      };
+
       return {
         setItem: setItem
         , delItem: delItem
@@ -176,6 +196,7 @@ angular.module('frontendApp')
         , getDatasourceItems: getDatasourceItems
         , getSession: getSession
         , getModels: getModels
+        , getSpotlights: getSpotlights
       };
     }
   )

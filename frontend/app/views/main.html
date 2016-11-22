@@ -7,10 +7,11 @@
       <div uib-slide ng-repeat="item in spotlights" >
         <a href="/part/{{item._id}}">
           <img class="img-responsive img-rounded center-block" ng-src="{{item.images[0].data}}">
+          <div class="carousel-caption xcarousel-caption">
+            <p> {{item.name}} | {{item.price}} €</p>
+          </div>
         </a>
-        <div class="carousel-caption xcarousel-caption">
-          <p> {{item.name}} | {{item.price}} €</p>
-        </div>
+
       </div>
     </div>
 
@@ -23,7 +24,7 @@
   <div class="col-sm-6">
     <div class="form-group">
       <select class="form-control" ng-model="filter.model">
-        <option value="" disabled selected>select Model</option>
+        <option value="" selected>select Model</option>
         <option ng-repeat="model in models">{{ model }}</option>
       </select>
     </div>
@@ -31,7 +32,7 @@
   <div class="col-sm-6">
     <div class="form-group">
       <select class="form-control" ng-model="filter.category">
-        <option value="" disabled selected>select Category</option>
+        <option value="" selected>select Category</option>
         <option ng-repeat="cat in categories">{{ cat }}</option>
       </select>
     </div>
@@ -39,7 +40,7 @@
 </div>
 <!-- end of parts filter -->
 <!-- start of parts list -->
-<div class="row">
+<div class="row x-parts-list">
   <div class="col-xs-6 col-sm-4 col-md-4" ui-scroll="part in datasource" start-index="0" buffer-size="6" adapter="scrollAdapter">
     <div class="thumbnail">
 

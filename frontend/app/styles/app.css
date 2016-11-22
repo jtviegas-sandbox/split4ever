@@ -11,7 +11,7 @@ html {
 }
 
 body {
-  min-height: auto;
+ /* min-height: auto;*/
   padding-top: 70px;
 }
 
@@ -131,7 +131,7 @@ a[ng-click]{
     max-width: 80%;
   }
 
-  // Remove the padding we set earlier 
+   /*Remove the padding we set earlier */
   .header,
   .marketing,
   .footer {
@@ -146,16 +146,16 @@ a[ng-click]{
 }
 
 /* ----------- laptop Non-Retina Screens ----------- */
-/*@media screen 
-  and (min-device-width: 1200px) 
-  and (max-device-width: 1600px) 
-  and (-webkit-min-device-pixel-ratio: 1) { 
+/*@media screen
+  and (min-device-width: 1200px)
+  and (max-device-width: 1600px)
+  and (-webkit-min-device-pixel-ratio: 1) {
 }*/
 
 /* ----------- laptop Retina Screens ----------- */
-/*@media screen 
-  and (min-device-width: 1200px) 
-  and (max-device-width: 1600px) 
+/*@media screen
+  and (min-device-width: 1200px)
+  and (max-device-width: 1600px)
   and (-webkit-min-device-pixel-ratio: 2)
-  and (min-resolution: 192dpi) { 
+  and (min-resolution: 192dpi) {
 }*/

@@ -6,41 +6,25 @@ angular.module('frontendApp')
     function ($scope, $routeParams, config, api, app, $location, $window, $log, session, utils) {
 
       $scope.session = { loggedIn: false, AdminloggedIn: false };
-      $scope.categories = { '___new_category___': { 'name': '___new_category___', subs:[]}};
-      $scope.models = [ '___new_model___' ];
+      $scope.categories = [];
+      $scope.models = [];
 
       $scope.modelClicked = function($event){
-        if( 0 == $event.currentTarget.selectedOptions[0].index && $event.currentTarget.selectedOptions[0].innerText != ''){
           app.showAppModal('sm', 'add new model', null, 'TEXT_INPUT', function(err, o){
             if(null == err && null != o){
               $scope.models.push(o);
               $scope.item.model = o;
             }
           });
-        }
       };
 
       $scope.categoryClicked = function($event){
-        if( 0 == $event.currentTarget.selectedOptions[0].index && $event.currentTarget.selectedOptions[0].innerText != ''){
           app.showAppModal('sm', 'add new category', null, 'TEXT_INPUT', function(err, o){
             if(null == err && null != o){
-              var newcat = { 'name':o, subs:[] };
-              $scope.categories[newcat.name] = newcat;
-              $scope.item.category = newcat.name;
+              $scope.categories.push(o);
+              $scope.item.category = o;
             }
           });
-        }
-      };
-
-      $scope.subCategoryClicked = function($event){
-        if( 0 == $event.currentTarget.selectedOptions[0].index && $event.currentTarget.selectedOptions[0].innerText != ''){
-          app.showAppModal('sm', 'add new sub category', null, 'TEXT_INPUT', function(err, o){
-            if(null == err && null != o){
-              $scope.item.subCategory = o;
-              $scope.categories[$scope.item.category].subs.push(o);
-            }
-          });
-        }
       };
 
       api.getCategories(function(err, o){
@@ -48,11 +32,8 @@ angular.module('frontendApp')
           console.log('couldn\'t load categories: %j', err);
         }
         else{
-          if(0 < o.length){
-            o.forEach(function(e){
-              $scope.categories[e.name] = e;
-            });
-          }
+          if(0 < o.length)
+              Array.prototype.push.apply($scope.categories, o);
           console.log('loaded categories cache with %d items', o.length);
         }
       });

@@ -13,3 +13,8 @@
 .xjumbotron{
   background-color: transparent;
 }
+
+.x-parts-list {
+  height: 200px;
+  min-height: 200px;
+}

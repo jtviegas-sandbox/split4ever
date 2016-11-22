@@ -102,6 +102,8 @@ angular.module('frontendApp')
       $scope.$on('$destroy', filterHasChanged);
 
       $scope.$watchCollection('filter', function (newValue, oldValue ) {
+          if (newValue.category == "") newValue.category = null;
+          if (newValue.model == "") newValue.model = null;
           $rootScope.$emit('filterUpdate', newValue);
         }
       );

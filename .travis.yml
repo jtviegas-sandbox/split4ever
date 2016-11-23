@@ -3,7 +3,7 @@ node_js:
   - "4.1"
 before_install: 
   - ./devops/travis_build.sh
-install: ./devops/travis_install.sh
+install: ./devops/travis_deploy.sh
 script:
   - echo "ok"
 

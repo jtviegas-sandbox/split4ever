@@ -4,6 +4,7 @@ node_js:
 before_install: 
   - ./devops/travis_install.sh
 install:
-  - ./devops/travis_build.sh && ./devops/travis_deploy.sh
+  - ./devops/travis_build.sh
+  - ./devops/travis_deploy.sh
 
 

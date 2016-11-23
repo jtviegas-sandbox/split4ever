@@ -1,13 +1,8 @@
 #!/bin/sh
 
-echo "running..."
+echo "[@build]...running..."
 folder=$(dirname $(readlink -f $0))
-base=$(dirname $folder)
-
-npm -g install bower
-npm -g install grunt-cli
 $folder/build.sh
-
-echo "...done."
+echo "[@build]...done."
 
 

@@ -3,8 +3,8 @@
 <div class="row">
   <div class="jumbotron xjumbotron">
 
-    <div uib-carousel interval="5000" no-wrap="false">
-      <div uib-slide ng-repeat="item in spotlights" >
+    <div uib-carousel interval="5000" no-wrap="false" class="x-carousel center-block">
+      <div uib-slide ng-repeat="item in spotlights">
         <a href="/part/{{item._id}}">
           <img class="img-responsive img-rounded center-block" ng-src="{{item.images[0].data}}">
           <div class="carousel-caption xcarousel-caption">

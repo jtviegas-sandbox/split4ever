@@ -12,8 +12,6 @@ angular.module('frontendApp')
         , partDeleteFailed: 'failed to delete part'
         , partSubmitOk: 'successfully submitted part'
         , partDeleteOk: 'successfully deleted part'
-
-
     	}
     	, PART: {
     		image: {

@@ -9,6 +9,10 @@
   left: 0;
   right: 0;
 }
+.x-carousel {
+  max-width: 832px;
+  max-height: 624px;
+}
 
 .xjumbotron{
   background-color: transparent;

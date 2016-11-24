@@ -1,4 +1,7 @@
 "use strict";
+
+var fs = require('fs');
+
 var Config = function() {
 
     var app = {
@@ -57,7 +60,16 @@ var Config = function() {
         }
 
     };
-    database.credentials = require(__dirname + "/credentials.PWD");
+
+    if(fs.existsSync(__dirname + "/credentials.PWD")) {
+        database.credentials = require(__dirname + "/credentials.PWD");
+    }
+    else  {
+        database.credentials = {
+            "user": process.env.DB_USER
+            , "pswd": process.env.DB_PASSWD
+        }
+    }
 
     var log = {
         dir: process.env.LOG_DIR || './logs'

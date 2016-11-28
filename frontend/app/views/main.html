@@ -1,13 +1,13 @@
 
 <!-- start of carousel -->
 <div class="row">
-  <div class="jumbotron xjumbotron">
+  <div class="jumbotron x-jumbotron">
 
     <div uib-carousel interval="5000" no-wrap="false" class="x-carousel center-block">
       <div uib-slide ng-repeat="item in spotlights">
         <a href="/part/{{item._id}}">
           <img class="img-responsive img-rounded center-block" ng-src="{{item.images[0].data}}">
-          <div class="carousel-caption xcarousel-caption">
+          <div class="carousel-caption x-carousel-caption">
             <p> {{item.name}} | {{item.price}} €</p>
           </div>
         </a>

@@ -1,3 +1,4 @@
+require('newrelic');
 var express = require('express');
 var util = require('util');
 var cookieSession = require('cookie-session');
@@ -12,11 +13,11 @@ if(!process.env.MODE)
     process.env.MODE = 'PROD';
 else {
     if('DEV' == process.env.MODE){
-        frontendDir = __dirname + '/../../dist/public'
+        frontendDir = __dirname + '../../dist/public'
     }
 }
 
-logger.info('[index.js] starting in mode: %s', process.env.MODE);
+logger.info('[index.js] starting in mode: %s [%s]', process.env.MODE, frontendDir);
 
 var cookieSessionProps = {
   name: 'session',

@@ -17,7 +17,8 @@ angular.module('frontendApp')
     		image: {
     			dimension: { w: 832, h: 624}
     		}
-            , partAlertArea: '#partAlert'
+        , shortenedTextMaxLength: 64
+        , partAlertArea: '#partAlert'
     	}
     	, API : {
     		url: '/api'

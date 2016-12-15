@@ -15,6 +15,7 @@ angular.module('frontendApp')
       $scope.spotlights = [];
       $scope.models = [];
       $scope.categories = {};
+      $scope.appFunctions = app;
       $scope.filter = {
         category: null
         , model: null

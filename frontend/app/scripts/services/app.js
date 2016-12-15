@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('frontendApp').service( 'app', 
+angular.module('frontendApp').service( 'app',
   function ($alert, $timeout, config, $uibModal){
 
     var textInputTemplate = '<div class="modal-header"> \
@@ -35,7 +35,7 @@ angular.module('frontendApp').service( 'app',
         ariaLabelledBy: 'modal-title'
         , ariaDescribedBy: 'modal-body'
         , template: (type == 'OK_CANCEL' ? okCancelTemplate : textInputTemplate)
-        , controller: (type == 'OK_CANCEL' ? 'OkCancelAppModalInstanceCtrl' : 'TextInputAppModalInstanceCtrl') 
+        , controller: (type == 'OK_CANCEL' ? 'OkCancelAppModalInstanceCtrl' : 'TextInputAppModalInstanceCtrl')
         , size: size
         , resolve: {
             params: function(){
@@ -56,9 +56,9 @@ angular.module('frontendApp').service( 'app',
     }
 
     var showAlert = function(title, type, msg, container, timeout, customClass) {
-          
-      var options = { 'title': title, 
-            'content': msg, 
+
+      var options = { 'title': title,
+            'content': msg,
             'container': container,
             'type': type,
             'show': true
@@ -75,22 +75,31 @@ angular.module('frontendApp').service( 'app',
     //success(green), info(blue), warning(yellow), danger(red)
     var showAppAlert = function(msg, type, container){
 
-      showAlert(config.LITERALS.appTitle + ': ', 
-        (type ? type : 'info'), msg, 
-        (container ? container : config.ALERT.container), 
+      showAlert(config.LITERALS.appTitle + ': ',
+        (type ? type : 'info'), msg,
+        (container ? container : config.ALERT.container),
         config.ALERT.timeout,config.ALERT.customClass);
+    };
+
+    var shortenText2Ellipsis = function(t){
+      var ret = t;
+      if (ret.length > config.PART.shortenedTextMaxLength) {
+        ret = ret.substr(0,config.PART.shortenedTextMaxLength-3) + "...";
+      }
+      return ret;
     };
 
     var context = {};
 
-    return { 
+    return {
       showAlert: showAlert
       , showAppAlert: showAppAlert
       , context: context
       , showAppModal: showAppModal
+      , shortenText2Ellipsis: shortenText2Ellipsis
     };
 
-  } 
+  }
 );
 
 

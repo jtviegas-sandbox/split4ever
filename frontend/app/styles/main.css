@@ -33,6 +33,10 @@
   margin: 5px;
 }
 
+.x-text{
+  text-overflow:ellipsis;
+}
+
 
 /* Responsive: small devices , portrait tablets and up */
 @media screen and (max-width: 767px) {

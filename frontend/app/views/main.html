@@ -6,9 +6,9 @@
     <div uib-carousel interval="5000" no-wrap="false" class="x-carousel center-block">
       <div uib-slide ng-repeat="item in spotlights">
         <a href="/part/{{item._id}}">
-          <img class="img-responsive img-rounded center-block" ng-src="{{item.images[0].data}}">
+          <img class="img-responsive center-block" ng-src="{{item.images[0].data}}">
           <div class="carousel-caption x-carousel-caption">
-            <p> {{item.name}} | {{item.price}} €</p>
+            <p> {{item.name}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{item.price}} €</p>
           </div>
         </a>
 
@@ -58,7 +58,8 @@
         <p class="pull-right">{{part.price | currency : "€"}}</p>
         <p>model: {{part.model}}</p>
         <p>cat: {{part.category}}</p>
-        <p>notes: {{part.notes}}</p>
+
+        <p class="x-text">notes: {{ appFunctions.shortenText2Ellipsis(part.notes) }}</p>
         <p><a href="/part/{{part._id}}" class="btn btn-primary" role="button">View</a></p>
       </div>
 

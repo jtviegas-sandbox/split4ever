@@ -19,17 +19,24 @@
 
     <div class="navbar-collapse collapse" id="js-navbar-collapse">
       <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
+        <li>
+          <a><img src="images/blank.gif" class="flag flag-pt" alt="portuguese" ng-click="changeLanguage('pt')"/>
+            <img src="images/blank.gif" class="flag flag-gb" alt="portuguese" ng-click="changeLanguage('en')"/></a>
+        </li>
+
+        <li ng-if="!session.loggedIn"><a ng-click="login()">login</a></li>
+
+        <li ng-if="session.loggedIn" class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-            {{ userService.logged ? 'hello, ' + userService.firstName : 'user'  }}
+            {{ 'HELLO' | translate }}, {{ userService.firstName }}
             <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
-            <li ng-if="!session.loggedIn"><a ng-click="login()">login</a></li>
-            <li ng-if="session.loggedIn"><a ng-click="logout()">logout</a></li>
-            <li ng-if="session.AdminloggedIn"><a ng-href="/part/0">new part</a></li>
+            <li><a ng-click="logout()">logout</a></li>
+            <li ng-if="session.AdminloggedIn"><a ng-href="/part/0">{{ 'NEW_PART' | translate }}</a></li>
           </ul>
         </li>
+
       </ul>
 
     </div>

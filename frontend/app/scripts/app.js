@@ -18,10 +18,12 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngTouch',
+    'ngLocale',
     'ui.bootstrap'
     , 'ngTagsInput'
     , 'mgcrea.ngStrap'
     , 'ui.scroll'
+    , 'pascalprecht.translate'
     //, 'ui.scroll.jqlite'
   ])
   .config(function ($routeProvider, $locationProvider, tagsInputConfigProvider) {
@@ -54,7 +56,7 @@ angular
 
      //check browser support
       if(window.history && window.history.pushState){
-          //$locationProvider.html5Mode(true); will cause an error $location in HTML5 mode requires a  tag to be present! 
+          //$locationProvider.html5Mode(true); will cause an error $location in HTML5 mode requires a  tag to be present!
           //Unless you set baseUrl tag after head tag like so: <head> <base href="/">
 
        // to know more about setting base URL visit: https://docs.angularjs.org/error/$location/nobase
@@ -63,7 +65,7 @@ angular
        $locationProvider.html5Mode(true);
       }
   })
-  .controller( 'AppCtrl', 
+  .controller( 'AppCtrl',
     function($scope, $location, $http){
 
     }

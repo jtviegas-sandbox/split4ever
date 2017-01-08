@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('frontendApp')
-  .controller('NavbarCtrl', [ '$scope', '$window', '$location', 'config', 'session',
-    function ($scope, $window, $location, config, session) {
+  .controller('NavbarCtrl', [ '$scope', '$window', '$location', 'config', 'session', '$translate',
+    function ($scope, $window, $location, config, session, $translate) {
 
       $scope.literals = config.LITERALS;
       $scope.session = { loggedIn: false, AdminloggedIn: false };
@@ -26,6 +26,10 @@ angular.module('frontendApp')
       session.get(function(err, r){
         $scope.session  = r;
       });
+
+      $scope.changeLanguage = function (langKey) {
+        $translate.use(langKey);
+      };
 
     }]);
 

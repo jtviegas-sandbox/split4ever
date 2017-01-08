@@ -24,7 +24,7 @@
   <div class="col-sm-6">
     <div class="form-group">
       <select class="form-control" ng-model="filter.model">
-        <option value="" selected>select Model</option>
+        <option value="" selected>{{ 'SELECT_MODEL' | translate }}</option>
         <option ng-repeat="model in models">{{ model }}</option>
       </select>
     </div>
@@ -32,7 +32,7 @@
   <div class="col-sm-6">
     <div class="form-group">
       <select class="form-control" ng-model="filter.category">
-        <option value="" selected>select Category</option>
+        <option value="" selected>{{ 'SELECT_CATEGORY' | translate }}</option>
         <option ng-repeat="cat in categories">{{ cat }}</option>
       </select>
     </div>
@@ -56,11 +56,11 @@
 
         <h4>{{part.name}}</h4>
         <p class="pull-right">{{part.price | currency : "€"}}</p>
-        <p>model: {{part.model}}</p>
-        <p>cat: {{part.category}}</p>
+        <p><strong>{{ 'MODEL' | translate }}</strong>: {{part.model}}</p>
+        <p><strong>{{ 'CATEGORY' | translate }}</strong>: {{part.category}}</p>
 
-        <p class="x-text">notes: {{ appFunctions.shortenText2Ellipsis(part.notes) }}</p>
-        <p><a href="/part/{{part._id}}" class="btn btn-primary" role="button">View</a></p>
+        <p class="x-text"><strong>{{ 'NOTES' | translate }}:</strong> {{ appFunctions.shortenText2Ellipsis(part.notes) }}</p>
+        <p><a href="/part/{{part._id}}" class="btn btn-primary" role="button">{{ 'VIEW' | translate }}</a></p>
       </div>
 
 

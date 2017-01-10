@@ -240,9 +240,11 @@ var Persistence = function(){
                         return callback(err);
                 }
                 var results=[];
-                if(Array.isArray(o) && 0 < o.length)
-                    results = o;
-
+                if(Array.isArray(o) && 0 < o.length){
+                    o.forEach(function(m){
+                        results.push(m.key);
+                    });
+                }
                 callback(null, results);
             }
         );
@@ -250,27 +252,31 @@ var Persistence = function(){
         logger.debug('[persistence.getCategories] OUT');
     };
 
-    var getNPartsFromId = function(params, callback){
+    var getNPartsFromId = function(params, callback) {
         logger.debug('[persistence.getNPartsFromId] IN');
 
-        if(checkInitialization(getNPartsFromId, [ params, callback ], callback) ) return;
+        if (checkInitialization(getNPartsFromId, [params, callback], callback)) return;
 
-        if("0" == params.id || 0 == params.id)
-            params.id=0;
+        if ("0" == params.id || 0 == params.id)
+            params.id = 0;
 
-        var options =  { "selector": {
-                                "_id": { "$gt": params.id }
-                                ,  "$not":{ "_id": { "$regex": "_design/.*" } }
-                            }
-                            , "sort": [ { "_id": "asc" } ]
-                            , "limit": params.n
-                        };
+        var options = {
+            "selector": {
+                "_id": {"$gt": params.id}
+                , "$not": {"_id": {"$regex": "_design/.*"}}
+            }
+            , "sort": [{"_id": "asc"}]
+            , "limit": params.n
+        };
 
-        if(null != params.category)
-            options.selector.category = params.category;
-        if(null != params.model)
-            options.selector.model = params.model;
-
+        if (null != params.category) {
+            //options.selector.category = params.category;
+            options.selector.category = {"$elemMatch": { "$eq": params.category} }
+        }
+        if (null != params.model) {
+            //options.selector.model = params.model;
+            options.selector.model = {"$elemMatch": { "$eq": params.model} }
+        }
         db.getSome(config.database.instances.part.name, options,
             function(err, r){
                 if(err){

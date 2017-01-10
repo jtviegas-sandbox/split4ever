@@ -17,14 +17,7 @@ var CollectionsFunctions = function(){
                 res.status(400).end();
             }
             else {
-                var r = [];
-                if(o && Array.isArray(o)){
-                    o.forEach(function(e){
-                        if(null != e.key)
-                            r.push( e.key )
-                    });
-                }
-                res.status(200).json({"result": r});
+                res.status(200).json({"result": o});
                 res.end();
             }
         };

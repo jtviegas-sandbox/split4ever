@@ -56,8 +56,8 @@
 
         <h4>{{part.name}}</h4>
         <p class="pull-right">{{part.price | currency : "€"}}</p>
-        <p><strong>{{ 'MODEL' | translate }}</strong>: {{part.model}}</p>
-        <p><strong>{{ 'CATEGORY' | translate }}</strong>: {{part.category}}</p>
+        <p><strong>{{ 'MODEL' | translate }}</strong>: {{part.model.join(', ')}}</p>
+        <p><strong>{{ 'CATEGORY' | translate }}</strong>: {{part.category.join(', ')}}</p>
 
         <p class="x-text"><strong>{{ 'NOTES' | translate }}:</strong> {{ appFunctions.shortenText2Ellipsis(part.notes) }}</p>
         <p><a href="/part/{{part._id}}" class="btn btn-primary" role="button">{{ 'VIEW' | translate }}</a></p>

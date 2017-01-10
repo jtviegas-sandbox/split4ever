@@ -136,7 +136,7 @@ describe('collections endpoints tests', function() {
             });
     });
 
-    it('5* should have 2 models', function(done) {
+    it('5* should have 4 models', function(done) {
         request(app).get(ENDPOINT + '/part/models')
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json')
@@ -146,12 +146,12 @@ describe('collections endpoints tests', function() {
                     console.log(err);
                     return done(err);
                 }
-                assert.equal( res.body.result.length, 2);
+                assert.equal( res.body.result.length, 4);
                 done();
             });
     });
 
-    it('6.0* should have 2 categories', function(done) {
+    it('6.0* should have 4 categories', function(done) {
         request(app).get(ENDPOINT + '/part/categories')
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json')
@@ -161,7 +161,7 @@ describe('collections endpoints tests', function() {
                     console.log(err);
                     return done(err);
                 }
-                assert.equal( res.body.result.length, 2);
+                assert.equal( res.body.result.length, 4);
                 done();
             });
     });
@@ -235,7 +235,7 @@ describe('collections endpoints tests', function() {
             });
     });
 
-    it('5* should have 1 model', function(done) {
+    it('5* should have 2 models', function(done) {
         request(app).get(ENDPOINT + '/part/models')
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json')
@@ -245,12 +245,12 @@ describe('collections endpoints tests', function() {
                     console.log(err);
                     return done(err);
                 }
-                assert.equal( res.body.result.length, 1);
+                assert.equal( res.body.result.length, 2);
                 done();
             });
     });
 
-    it('6.0* should have 1 category', function(done) {
+    it('6.0* should have 2 categories', function(done) {
         request(app).get(ENDPOINT + '/part/categories')
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json')
@@ -260,7 +260,7 @@ describe('collections endpoints tests', function() {
                     console.log(err);
                     return done(err);
                 }
-                assert.equal( res.body.result.length, 1);
+                assert.equal( res.body.result.length, 2);
                 done();
             });
     });

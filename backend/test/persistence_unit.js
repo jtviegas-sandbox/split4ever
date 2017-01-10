@@ -57,25 +57,25 @@ describe('running persistence unit tests', function() {
                 });
         });
 
-        it('2* should have one model', function(done) {
+        it('2* should have 2 model2', function(done) {
             persistence.getModels(
                 function(err, o){
                     if(err)
                         done(err);
                     else {
-                        assert.equal(o.length, 1);
+                        assert.equal(o.length, 2);
                         done();
                     }
                 });
         });
 
-        it('3* should have one category', function(done) {
+        it('3* should have 2 categories', function(done) {
             persistence.getCategories(
                 function(err, o){
                     if(err)
                         done(err);
                     else {
-                        assert.equal(o.length, 1);
+                        assert.equal(o.length, 2);
                         done();
                     }
                 });
@@ -98,25 +98,25 @@ describe('running persistence unit tests', function() {
                 });
         });
 
-        it('5* should have 2 models', function(done) {
+        it('5* should have 4 models', function(done) {
             persistence.getModels(
                 function(err, o){
                     if(err)
                         done(err);
                     else {
-                        assert.equal(o.length, 2);
+                        assert.equal(o.length, 4);
                         done();
                     }
                 });
         });
 
-        it('6.0* should have 2 categories', function(done) {
+        it('6.0* should have 4 categories', function(done) {
             persistence.getCategories(
                 function(err, o){
                     if(err)
                         done(err);
                     else {
-                        assert.equal(o.length, 2);
+                        assert.equal(o.length, 4);
                         done();
                     }
                 });
@@ -126,8 +126,8 @@ describe('running persistence unit tests', function() {
             var params = {
                 "id": 0
                 , "n": 2
-                , "category": parts[0].category
-                , "subCategory": parts[0].subCategory
+                , "category": parts[0].category[0]
+
             };
             persistence.getNPartsFromId(params,
                 function(err, o){
@@ -209,25 +209,25 @@ describe('running persistence unit tests', function() {
                 });
         });
 
-        it('12* should have 1 models', function(done) {
+        it('12* should have 2 models', function(done) {
             persistence.getModels(
                 function(err, o){
                     if(err)
                         done(err);
                     else {
-                        assert.equal(o.length, 1);
+                        assert.equal(o.length, 2);
                         done();
                     }
                 });
         });
 
-        it('13* should have 1 categories', function(done) {
+        it('13* should have 2 categories', function(done) {
             persistence.getCategories(
                 function(err, o){
                     if(err)
                         done(err);
                     else {
-                        assert.equal(o.length, 1);
+                        assert.equal(o.length, 2);
                         done();
                     }
                 });

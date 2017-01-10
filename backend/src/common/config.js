@@ -18,7 +18,7 @@ var Config = function() {
                     "_id": "_design/" + "part" + dbNameSuffix
                     , "language": "javascript"
                     , "views": {
-                        "categories" : {
+                        /*"categories" : {
                             "map": "function(doc) { \
                                 emit(doc.category, doc.subCategory); \
                                 }"
@@ -39,12 +39,19 @@ var Config = function() {
                                                 if(0 > r.indexOf(n)){ \
                                                     r.push(n); } } \
                                             return r;}"
+                        }*/
+                        "categories" : {
+                            "map": "function(doc) { \
+                                if(doc.category && Array.isArray(doc.category)){ \
+                                    for(var i=0; i<doc.category.length; i++){ \
+                                        emit(doc.category[i], 1); } }}"
+                            , "reduce": "_count"
                         }
                         , "models" : {
                             "map": "function(doc) { \
-                                if(doc.model){ \
-                                    emit(doc.model, 1); \
-                                }}"
+                                if(doc.model && Array.isArray(doc.model)){ \
+                                    for(var i=0; i<doc.model.length; i++){ \
+                                        emit(doc.model[i], 1); } }}"
                             , "reduce": "_count"
                         }
                         , "numOf" : {

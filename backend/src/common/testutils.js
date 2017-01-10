@@ -16,16 +16,21 @@ var TestUtils = (function(){
             n = numOf;
 
         for(var i=0; i<n; i++){
-            result.push({
+            var o = {
                 spotlight : (isSpotlight ? 1 : 0)
                 , name: customUtils.randomString(12)
                 , price: customUtils.randomNumber(25)
-                , model: customUtils.randomString(12)
-                , category: customUtils.randomString(12)
-                , subCategory: customUtils.randomString(12)
+                , model: []
+                , category: []
                 , notes: customUtils.randomString(36)
                 , images: []
-            });
+            };
+            o.model.push(customUtils.randomString(12));
+            o.model.push(customUtils.randomString(12));
+            o.category.push(customUtils.randomString(12));
+            o.category.push(customUtils.randomString(12));
+
+            result.push(o);
         }
         if(1 == n)
             return result[0];

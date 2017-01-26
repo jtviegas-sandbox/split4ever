@@ -17,6 +17,7 @@ router.get('/part/models', functions.getModels);
 router.get('/part/spotlights', functions.getSpotlights);
 router.get('/part/n', functions.numOfParts);
 router.get('/part/all', functions.getAllParts);
+router.get('/part/download', functions.downloadParts);
 router.get('/part/:id/:n', functions.getNPartsFromId);
 router.get('/part/:id', functions.getPart);
 

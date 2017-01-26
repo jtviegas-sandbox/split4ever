@@ -26,7 +26,8 @@ var Persistence = function(){
                         callback(err);
                 }
                 else {
-                    logger.debug('[persistence.checkInitialization] ...initialized!');
+                    logger.debug('[persistence.checkInitialization] ...initialized! going to setup replication jobs');
+                    setInterval(replicate, config.database.replicationDelay)
                     func.apply(this, args || []);
                 }
             };
@@ -36,29 +37,6 @@ var Persistence = function(){
         logger.debug('[persistence.checkInitialization] OUT');
     };
 
-    var numOf = function(dbName, callback){
-        logger.debug('[persistence.numOf] IN');
-
-        if(checkInitialization(numOf, [ dbName, callback ], callback) ) return;
-        var options = { reduce: true, group: false};
-
-        db.getView(config.database.instances.part.name, 'numOf', options,
-            function(err, o){
-                if(err){
-                    logger.error(err);
-                    if(callback)
-                        return callback(err);
-                }
-                var result = 0;
-                if(Array.isArray(o) && 0 < o.length)
-                    result = o[0].value;
-
-                callback(null, result);
-            }
-        );
-
-        logger.debug('[persistence.numOf] OUT');
-    };
     // ---------------------------------------------------------------------------
     // ----------------------------------PUBLIC  METHODS--------------------------
 
@@ -117,7 +95,7 @@ var Persistence = function(){
             }
             else {
                 if(callback)
-                    callback(null, r.result);
+                    callback(null, r);
             }
         });
         logger.debug('[persistence.setPart] OUT');
@@ -185,7 +163,7 @@ var Persistence = function(){
 
         if(checkInitialization(numOfParts, [ callback ], callback) ) return;
 
-        numOf(config.database.instances.part.name,
+        db.numOf(config.database.instances.part.name,
             function(err, o){
                 if(err){
                     logger.error(err);
@@ -322,6 +300,7 @@ var Persistence = function(){
                 else
                     callback(null, o);
             }
+            , {"include_docs": true}
         );
         logger.debug('[persistence.getAllParts] OUT');
     };
@@ -343,22 +322,74 @@ var Persistence = function(){
         logger.debug('[persistence.delPart] OUT');
     };
 
-    var setPart = function(o, callback){
-        logger.debug('[persistence.setPart] IN');
-        if(checkInitialization(setPart, [ o, callback ], callback) ) return;
-        db.post(config.database.instances.part.name, o,
-            function(err, o){
-                if(err){
-                    logger.error(err);
-                    if(callback)
-                        return callback(err);
-                }
-                else
-                    callback(null, o);
+    var replicate = function(callback){
+        logger.debug('[persistence.replicate] IN');
+
+        if(checkInitialization(replicate, [ callback ], callback) ) return;
+        db.getDbNames(function(err,r){
+            if(err){
+                logger.error(err);
+                if(callback)
+                    return callback(err);
             }
-        );
-        logger.debug('[persistence.setPart] OUT');
+            else {
+                var toReplicate = r.filter(function (value) {
+                    return (null != value.match('.*_prod'))
+                });
+
+                if (0 < toReplicate.length){
+                    toReplicate.forEach(function (el, index, array) {
+                        logger.debug(util.format("[persistence.replicate] replicating db %s", el));
+                        var handler = function (isLast, cback, name) {
+                            var f = function (err, r) {
+                                if (err) {
+                                    logger.error(err);
+                                    if (cback)
+                                        cback(err);
+                                }
+                                else {
+                                    logger.debug(util.format("[persistence.replicate] successfully replicated db %s", name));
+                                    if (isLast && cback)
+                                        cback(null, true);
+                                }
+                            };
+                            return {func: f};
+                        }((index == (array.length - 1)), callback, el);
+
+                        var target = el + '_replica_' + new Date().getDay();
+                        logger.debug(util.format("[persistence.replicate] going to replicate db %s to %s", el, target));
+                        db.replicateDb(el, target, handler.func);
+
+                    });
+                }
+                else {
+                    if (callback)
+                        callback(null, true);
+                }
+            }
+
+        });
+
+        logger.debug('[persistence.replicate] OUT');
     };
+
+/*    var backup = function(callback){
+        logger.debug('[persistence.backup] IN');
+
+        getAllParts(function(err, r){
+            if (err) {
+                logger.error(err);
+                if (callback)
+                    callback(err);
+            }
+            else {
+                if (callback)
+                    callback(null, r.result);
+            }
+        });
+
+        logger.debug('[persistence.backup] OUT');
+    };*/
 
     // ---------------------------------------------------------------------------
 
@@ -375,6 +406,7 @@ var Persistence = function(){
         , getNPartsFromId: getNPartsFromId
         , getPart: getPart
         , getAllParts: getAllParts
+        , replicate: replicate
     };
 
 }();

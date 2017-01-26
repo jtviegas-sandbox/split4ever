@@ -281,6 +281,20 @@ describe('running persistence unit tests', function() {
                 });
         });
 
+        it('18* should replicate dbs', function(done) {
+            this.timeout(30000);
+            persistence.replicate(
+                function(err, o){
+                    if(err)
+                        done(err);
+                    else {
+                        assert.equal(true, o);
+                        done();
+                    }
+                });
+        });
+
+
     });
 });
 

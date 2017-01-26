@@ -108,6 +108,31 @@ var CollectionsFunctions = function(){
         logger.debug('[CollectionsFunctions.numOfParts] OUT');
     };
 
+    var downloadParts = function(req,res){
+        logger.debug('[CollectionsFunctions.numOfParts] IN');
+
+        persistence.getAllParts(function(err, o){
+            if(err){
+                logger.error(err);
+                res.status(400).end();
+            }
+            else {
+                if(err){
+                    logger.error(err);
+                    res.status(400).end();
+                }
+                else {
+                    res.setHeader('Content-Type', 'application/parts-download');
+                    res.setHeader('Content-disposition', 'attachment; filename=parts.json');
+                    res.write(Buffer.from(JSON.stringify(o.result)));
+                    res.end();
+                }
+            }
+        });
+
+        logger.debug('[CollectionsFunctions.numOfParts] OUT');
+    };
+
     var getPart = function(req,res){
         logger.debug('[CollectionsFunctions.getPart] IN');
 
@@ -144,6 +169,7 @@ var CollectionsFunctions = function(){
         logger.debug('[CollectionsFunctions.getAllParts] OUT');
     };
 
+    //curl -vX POST http://localhost:3000/api/collections/part -d @parts.json --header "Content-Type: application/json"
     var setPart = function(req,res){
         logger.debug('[CollectionsFunctions.setPart] IN');
 
@@ -185,9 +211,6 @@ var CollectionsFunctions = function(){
     };
 
 
-
-
-
     return {
         getAllParts: getAllParts
         , getPart: getPart
@@ -198,6 +221,7 @@ var CollectionsFunctions = function(){
         , getModels: getModels
         , getSpotlights: getSpotlights
         , numOfParts: numOfParts
+        , downloadParts: downloadParts
     };
 
 }();

@@ -18,28 +18,6 @@ var Config = function() {
                     "_id": "_design/" + "part" + dbNameSuffix
                     , "language": "javascript"
                     , "views": {
-                        /*"categories" : {
-                            "map": "function(doc) { \
-                                emit(doc.category, doc.subCategory); \
-                                }"
-                            , "reduce": "function(key, values, rereduce) { \
-                                        var r = []; \
-                                        var flatten = function(arr){ \
-                                            var result = []; \
-                                              for(var i=0; i<arr.length; i++){ \
-                                                var o = arr[i]; \
-                                                if( Array.isArray(o) ) \
-                                                    Array.prototype.push.apply(result, flatten(o)); \
-                                                else \
-                                                    result.push(o); } \
-                                                return result; }; \
-                                            var flattened = flatten(values); \
-                                            for(var i=0; i<flattened.length; i++){ \
-                                                var n = flattened[i]; \
-                                                if(0 > r.indexOf(n)){ \
-                                                    r.push(n); } } \
-                                            return r;}"
-                        }*/
                         "categories" : {
                             "map": "function(doc) { \
                                 if(doc.category && Array.isArray(doc.category)){ \
@@ -65,6 +43,7 @@ var Config = function() {
                 }
             }
         }
+        , "replicationDelay": 24*60*60*1000
 
     };
 

@@ -10,6 +10,7 @@ cd $base/dist
 
 APP_NAME=split4ever
 
+cf enable-diego $APP_NAME
 #cf delete --f --r $APP_NAME
 sleep 16 
 cf push $APP_NAME --no-start

@@ -172,6 +172,7 @@ var Db = function(){
                         callback(err);
                 }
                 logger.info('[Db.scaffolding] ...created db...');
+
                 if(dbc.designDoc){
                     storeDesignDoc(dbc.name, dbc.designDoc, function(err){
                         if(err){
@@ -185,9 +186,11 @@ var Db = function(){
                     });
                 }
                 else {
-                    if( ++doneCounter == dbs.length)
+                    if( ++doneCounter == dbs.length){
                         if(callback)
                             callback(null);
+                    }
+
                 }
 
             });
@@ -476,6 +479,70 @@ var Db = function(){
         logger.debug('[Db.getView] OUT');
     };
 
+    var getDbNames = function(callback) {
+        logger.debug('[Db.getDbNames] IN');
+        connection.db.list(function(err, body) {
+            if(err){
+                logger.error(err);
+                if(callback)
+                    callback(err);
+            }
+            else {
+                var results=[];
+                // body is an array
+                body.forEach(function(db) {
+                    results.push(db);
+                });
+                logger.debug(util.format("[Db.getDbNames] got %d dbs", results.length));
+                if(callback)
+                    callback(null, results);
+            }
+        });
+        logger.debug('[Db.getDbNames] OUT');
+    };
+
+    var replicateDb = function(dbSrc, dbTarget, callback) {
+        logger.debug('[Db.replicateDb] IN');
+
+        connection.db.replicate(dbSrc, dbTarget, { create_target:true }, function(err, body) {
+            if(err){
+                logger.error(err);
+                if(callback)
+                    callback(err);
+            }
+            else {
+                logger.debug(util.format("[Db.replicateDb] success %s", body.toString()));
+                if(callback)
+                    callback(null, body);
+            }
+        });
+
+        logger.debug('[Db.replicateDb] OUT');
+    };
+
+    var numOf = function(dbName, callback){
+        logger.debug('[Db.numOf] IN');
+
+        var options = { reduce: true, group: false};
+        getView(dbName, 'numOf', options,
+            function(err, o){
+                if(err){
+                    logger.error(err);
+                    if(callback)
+                        return callback(err);
+                }
+                var result = 0;
+                if(Array.isArray(o) && 0 < o.length)
+                    result = o[0].value;
+
+                callback(null, result);
+            }
+        );
+
+        logger.debug('[Db.numOf] OUT');
+    };
+
+
 // ---------------------------------------------------------------------------
 
     return {
@@ -490,6 +557,9 @@ var Db = function(){
         , post: post
         , getSome: getSome
         , getView: getView
+        , getDbNames: getDbNames
+        , replicateDb: replicateDb
+        , numOf: numOf
     };
 
 }();

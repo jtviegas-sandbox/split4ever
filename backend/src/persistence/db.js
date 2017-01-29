@@ -649,7 +649,6 @@ var Db = function(){
         , getDbNames: getDbNames
         , replicateDb: replicateDb
         , numOf: numOf
-        , getAll2: getAll2
     };
 
 }();

@@ -373,23 +373,58 @@ var Persistence = function(){
         logger.debug('[persistence.replicate] OUT');
     };
 
-/*    var backup = function(callback){
-        logger.debug('[persistence.backup] IN');
 
-        getAllParts(function(err, r){
-            if (err) {
+    var replicate = function(callback){
+        logger.debug('[persistence.replicate] IN');
+
+        if(checkInitialization(replicate, [ callback ], callback) ) return;
+        db.getDbNames(function(err,r){
+            if(err){
                 logger.error(err);
-                if (callback)
-                    callback(err);
+                if(callback)
+                    return callback(err);
             }
             else {
-                if (callback)
-                    callback(null, r.result);
+                var toReplicate = r.filter(function (value) {
+                    return (null != value.match('.*_prod'))
+                });
+
+                if (0 < toReplicate.length){
+                    toReplicate.forEach(function (el, index, array) {
+                        logger.debug(util.format("[persistence.replicate] replicating db %s", el));
+                        var handler = function (isLast, cback, name) {
+                            var f = function (err, r) {
+                                if (err) {
+                                    logger.error(err);
+                                    if (cback)
+                                        cback(err);
+                                }
+                                else {
+                                    logger.debug(util.format("[persistence.replicate] successfully replicated db %s", name));
+                                    if (isLast && cback)
+                                        cback(null, true);
+                                }
+                            };
+                            return {func: f};
+                        }((index == (array.length - 1)), callback, el);
+
+                        var target = el + '_replica_' + new Date().getDay();
+                        logger.debug(util.format("[persistence.replicate] going to replicate db %s to %s", el, target));
+                        db.replicateDb(el, target, handler.func);
+
+                    });
+                }
+                else {
+                    if (callback)
+                        callback(null, true);
+                }
             }
+
         });
 
-        logger.debug('[persistence.backup] OUT');
-    };*/
+        logger.debug('[persistence.replicate] OUT');
+    };
+
 
     // ---------------------------------------------------------------------------
 

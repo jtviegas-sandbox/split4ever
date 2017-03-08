@@ -20,6 +20,7 @@
 
 .x-parts-list {
   min-height: 624px;
+  max-height: 1248px;
 }
 
 .x-parts-list-part-carousel {

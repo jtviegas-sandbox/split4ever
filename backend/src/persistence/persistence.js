@@ -62,26 +62,7 @@ var Persistence = function(){
         logger.debug('[persistence.getSpotlightParts] OUT');
     };
 
-    var getParts = function(options, callback){
-        logger.debug('[persistence.getParts] IN');
 
-        if(checkInitialization(getParts, [ options, callback ], callback) ) return;
-
-        db.getAll(config.database.instances.part.name,
-            function(err, o){
-                if(err){
-                    logger.error(err);
-                    if(callback)
-                        return callback(err);
-                }
-
-                callback(null, o.result);
-            }
-            , options
-        );
-
-        logger.debug('[persistence.getParts] OUT');
-    };
 
     var setPart = function(part, callback){
         logger.debug('[persistence.setPart] IN');
@@ -139,6 +120,61 @@ var Persistence = function(){
         logger.debug('[persistence.dropPartsDb] OUT');
     };
 
+    var dropReplicas = function(dbName, callback){
+        logger.debug('[persistence.dropReplicas] IN');
+        if(checkInitialization(dropReplicas, [ dbName, callback ], callback) ) return;
+
+        db.getDbNames(function(err, os){
+            if(err){
+                logger.error(err);
+                if(callback)
+                    callback(err);
+            }
+            else {
+                if(0 < os.length){
+                    var toDelete = [];
+                    os.forEach(function(value, index, array){
+                        if(value.match(dbName + '.*_replica_.*'))
+                            toDelete.push(value);
+                    });
+
+                    if(0 < toDelete.length){
+                        toDelete.forEach(function(value, index, array) {
+                            logger.debug('going to drop %s replica db', value);
+                            if (index == (array.length - 1)) {
+                                db.deleteDb(value, function (err, r) {
+                                    if (err) {
+                                        logger.error(err);
+                                        if (callback)
+                                            callback(err);
+                                    }
+                                    else {
+                                        logger.debug('dropped %s db', value);
+                                        if (callback)
+                                            callback(null, r.ok);
+                                    }
+                                });
+                            }
+                            else {
+                                db.deleteDb(value);
+                            }
+                        });
+                    }
+                    else {
+                        if(callback)
+                            callback(null, true);
+                    }
+                }
+                else {
+                    if(callback)
+                        callback(null, true);
+                }
+
+            }
+        });
+        logger.debug('[persistence.dropReplicas] OUT');
+    };
+
     var delPart = function(o, callback){
         logger.debug('[persistence.delPart] IN');
 
@@ -158,25 +194,7 @@ var Persistence = function(){
         logger.debug('[persistence.delPart] OUT');
     };
 
-    var numOfParts = function(callback){
-        logger.debug('[persistence.numOfParts] IN');
 
-        if(checkInitialization(numOfParts, [ callback ], callback) ) return;
-
-        db.numOf(config.database.instances.part.name,
-            function(err, o){
-                if(err){
-                    logger.error(err);
-                    if(callback)
-                        return callback(err);
-                }
-
-                callback(null, o);
-            }
-        );
-
-        logger.debug('[persistence.numOfParts] OUT');
-    };
 
     var getModels = function(callback){
         logger.debug('[persistence.getModels] IN');
@@ -287,25 +305,7 @@ var Persistence = function(){
         logger.debug('[persistence.getPart] OUT');
     };
 
-    var getAllParts = function(callback){
-        logger.debug('[persistence.getAllParts] IN');
-        if(checkInitialization(getAllParts, [ callback ], callback) ) return;
-        db.getAll(config.database.instances.part.name,
-            function(err, o){
-                if(err){
-                    logger.error(err);
-                    if(callback)
-                        return callback(err);
-                }
-                else
-                    callback(null, o);
-            }
-            , {"include_docs": true}
-        );
-        logger.debug('[persistence.getAllParts] OUT');
-    };
-
-    var delPart = function(options, callback){
+     var delPart = function(options, callback){
         logger.debug('[persistence.delPart] IN');
         if(checkInitialization(delPart, [ options, callback ], callback) ) return;
         db.del(config.database.instances.part.name, options,
@@ -386,32 +386,31 @@ var Persistence = function(){
             }
             else {
                 var toReplicate = r.filter(function (value) {
-                    return (null != value.match('.*_prod'))
+                    return (null != value.match('.*_prod$'))
                 });
 
                 if (0 < toReplicate.length){
                     toReplicate.forEach(function (el, index, array) {
                         logger.debug(util.format("[persistence.replicate] replicating db %s", el));
-                        var handler = function (isLast, cback, name) {
-                            var f = function (err, r) {
-                                if (err) {
-                                    logger.error(err);
-                                    if (cback)
-                                        cback(err);
-                                }
-                                else {
-                                    logger.debug(util.format("[persistence.replicate] successfully replicated db %s", name));
-                                    if (isLast && cback)
-                                        cback(null, true);
-                                }
-                            };
-                            return {func: f};
-                        }((index == (array.length - 1)), callback, el);
 
                         var target = el + '_replica_' + new Date().getDay();
                         logger.debug(util.format("[persistence.replicate] going to replicate db %s to %s", el, target));
-                        db.replicateDb(el, target, handler.func);
-
+                        if( index == (array.length-1) ){
+                            db.replicateDb(el, target, function(err, r){
+                                if (err) {
+                                    logger.error(err);
+                                    if (callback)
+                                        callback(err);
+                                }
+                                else {
+                                    logger.debug(util.format("[persistence.replicate] successfully replicated db %s", el));
+                                    if (callback)
+                                        callback(null, true);
+                                }
+                            });
+                        }
+                        else
+                            db.replicateDb(el, target);
                     });
                 }
                 else {
@@ -425,12 +424,149 @@ var Persistence = function(){
         logger.debug('[persistence.replicate] OUT');
     };
 
+/*    var getAllParts = function(callback){
+        logger.debug('[persistence.getAllParts] IN');
+        if(checkInitialization(getAllParts, [ callback ], callback) ) return;
+        db.getAll(config.database.instances.part.name,
+            function(err, o){
+                if(err){
+                    logger.error(err);
+                    if(callback)
+                        return callback(err);
+                }
+                else
+                    callback(null, o);
+            }
+            , {"include_docs": true}
+        );
+        logger.debug('[persistence.getAllParts] OUT');
+    };*/
+
+/*    var getParts = function(callback){
+        logger.debug('[persistence.getParts] IN');
+
+        if(checkInitialization(getParts, [ options, callback ], callback) ) return;
+
+        db.getAll(config.database.instances.part.name,
+            function(err, o){
+                if(err){
+                    logger.error(err);
+                    if(callback)
+                        return callback(err);
+                }
+
+                callback(null, o.result);
+            }
+        );
+
+        logger.debug('[persistence.getParts] OUT');
+    };*/
+
+    var numOfParts = function(callback){
+        logger.debug('[persistence.numOfParts] IN');
+
+        if(checkInitialization(numOfParts, [ callback ], callback) ) return;
+        db.numOf(config.database.instances.part.name, function(err, o){
+                if(err){
+                    logger.error(err);
+                    if(callback)
+                        return callback(err);
+                }
+
+                callback(null, o);
+            }
+        );
+
+        logger.debug('[persistence.numOfParts] OUT');
+    };
+
+
+    var getPartsCount = function(params, callback) {
+        logger.debug('[persistence.getPartsCount] IN');
+        if (checkInitialization(getPartsCount, [params, callback], callback)) return;
+
+        var options = {
+            "selector": {
+                 "$not": {"_id": {"$regex": "_design/.*"}}
+            }
+        };
+
+        if (null != params.category) {
+            options.selector.category = {"$elemMatch": { "$in": params.category} }
+        }
+        if (null != params.model) {
+            options.selector.model = {"$elemMatch": { "$in": params.model} }
+        }
+
+        db.getDocs(config.database.instances.part.name, options,
+            function(err, r){
+                if(err){
+                    logger.error(err);
+                    if(callback)
+                        callback(err);
+                }
+                else{
+                    if(callback) {
+                        callback(null, r.length);
+                    }
+                }
+
+            }
+            , false
+        );
+        logger.debug('[persistence.getPartsCount] OUT');
+    };
+
+    var getParts = function(params, callback) {
+        logger.debug('[persistence.getParts] IN');
+        if (checkInitialization(getParts, [params, callback], callback)) return;
+
+        var options = {
+            "selector": {
+                "$not": {"_id": {"$regex": "_design/.*"}}
+            }
+        };
+
+        if(params.inclusive)
+            options.selector._id = {"$gte": params.id}
+        else
+            options.selector._id = {"$gt": params.id}
+
+        if (null != params.category) {
+            options.selector.category = {"$elemMatch": { "$eq": params.category} }
+        }
+        if (null != params.model) {
+            options.selector.model = {"$elemMatch": { "$in": params.model} }
+        }
+
+        if (params.n)
+            options.limit = params.n
+
+        db.getDocs(config.database.instances.part.name, options,
+            function(err, r){
+                if(err){
+                    logger.error(err);
+                    if(callback)
+                        callback(err);
+                }
+                else{
+                    if(callback) {
+                        callback(null, r);
+                    }
+                }
+
+            }
+            , false
+        );
+        logger.debug('[persistence.getParts] OUT');
+    };
+
 
     // ---------------------------------------------------------------------------
 
     return {
         getSpotlightParts: getSpotlightParts
-        , getParts: getParts
+        /*, getParts: getParts*/
         , setPart: setPart
         , delAllParts: delAllParts
         , dropPartsDb: dropPartsDb
@@ -440,8 +576,12 @@ var Persistence = function(){
         , getCategories: getCategories
         , getNPartsFromId: getNPartsFromId
         , getPart: getPart
-        , getAllParts: getAllParts
+    /*    , getAllParts: getAllParts*/
         , replicate: replicate
+     /*   , getFilteredPartsFromId: getFilteredPartsFromId*/
+        , dropReplicas: dropReplicas
+        , getPartsCount: getPartsCount
+        , getParts: getParts
     };
 
 }();

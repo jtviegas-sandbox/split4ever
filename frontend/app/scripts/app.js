@@ -23,8 +23,9 @@ angular
     , 'ngTagsInput'
     , 'mgcrea.ngStrap'
     , 'ui.scroll'
+    , 'ui.scroll.grid'
     , 'pascalprecht.translate'
-    //, 'ui.scroll.jqlite'
+
   ])
   .config(function ($routeProvider, $locationProvider, tagsInputConfigProvider) {
     $routeProvider

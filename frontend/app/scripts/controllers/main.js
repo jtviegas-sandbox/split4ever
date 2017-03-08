@@ -43,11 +43,6 @@ angular.module('frontendApp')
           dscache.setFilter(cf);
         };
 
-        var resetIndexes = function(){
-          minIndex = 0;
-          maxIndex = 0;
-        };
-
         var partArrayIds2String= function(a){
           var r = null;
           for(var i = 0; i < a.length; i++){
@@ -59,28 +54,26 @@ angular.module('frontendApp')
           return r;
         };
 
-        var get = function(index, count, success){
+        var get = function(descriptor, success){
+          // descriptor = { index: x, count: y , append: z }
+          console.log('[datasource.get] asking for items with descriptor: ', descriptor);
 
-          console.log('[datasource.get] asking for index: %d and count: %d', index, count);
-
-          $timeout(
-            dscache.getByIndex(index, count, function(err, r){
+          //$timeout(
+            dscache.get(descriptor, function(err, r){
+              // we have to receive the filtered items count and the overall index range according to the filter
               if(err)
                 console.log(err);
               else {
                 console.log('[datasource.get] got %d parts', r.length);
-                if(0 < r.length){
-                  if(index < minIndex)
-                    minIndex=index;
-                  if(maxIndex < index + r.length -1)
-                    maxIndex = index + r.length -1;
-
-                  console.log('[datasource.get] minIndex: %d | maxIndex: %d | got %d parts !', minIndex, maxIndex, r.length);
-                  console.log('[datasource.get] %s', partArrayIds2String(r));
-                }
+                console.log('[datasource.get] r.items:', r);
+                minIndex = 0;
+                if(0 == r.length)
+                  maxIndex = 0
+                else
+                  maxIndex = r.length - 1;
                 success(r);
               }
-            }), 1000);
+            })//, 1000);
 
         };
 
@@ -89,15 +82,14 @@ angular.module('frontendApp')
           , minIndex: minIndex
           , maxIndex: maxIndex
           , setFilter: setFilter
-          , resetIndexes: resetIndexes
         };
       }();
 
       var filterHasChanged = $rootScope.$on('filterUpdate', function(event, data){
         console.log('[MainCtrl.filterHasChanged]: %s', JSON.stringify(data));
         $scope.datasource.setFilter(data);
-        $scope.datasource.resetIndexes();
-        return $scope.scrollAdapter.reload(0);
+        //$scope.datasource.resetIndexes();
+        //return $scope.scrollAdapter.reload(0);
       });
 
       $scope.$on('$destroy', filterHasChanged);

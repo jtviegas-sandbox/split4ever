@@ -232,7 +232,7 @@ var Db = function(){
         logger.debug('[Db.init] OUT');
     };
 
-    var getAll  = function(db, callback, options) {
+    var getAll  = function(db, callback) {
         logger.debug('[Db.getAll] IN');
         var dbObj = connection.use(db);
 
@@ -252,43 +252,7 @@ var Db = function(){
                     });
                     logger.info(util.format("[Db.getAll] got %d docs", result.length));
                     if(cb)
-                        cb(null, {ok: true, 'result': result})
-                }
-            };
-
-            return { f: f };
-
-        }(callback);
-
-        if(options)
-            dbObj.list(options, getAllCallback.f);
-        else
-            dbObj.list(getAllCallback.f);
-
-        logger.debug('[Db.getAll] OUT');
-    };
-
-    var getAll2  = function(db, callback) {
-        logger.debug('[Db.getAll2] IN');
-        var dbObj = connection.use(db);
-
-        var getAllCallback = function(cb){
-
-            var f = function(err, r){
-                if(err){
-                    logger.error(err);
-                    if(cb)
-                        cb(err);
-                }
-                else {
-                    var result = [];
-                    r.rows.forEach(function(doc) {
-                        if( 0 > doc.id.indexOf('_design'))
-                            result.push(doc.doc);
-                    });
-                    logger.info(util.format("[Db.getAll2] got %d docs", result.length));
-                    if(cb)
-                        cb(null, {ok: true, 'result': result})
+                        cb(null, result)
                 }
             };
 
@@ -297,7 +261,7 @@ var Db = function(){
         }(callback);
 
         dbObj.list({"include_docs": true}, getAllCallback.f);
-        logger.debug('[Db.getAll2] OUT');
+        logger.debug('[Db.getAll] OUT');
     };
 
     var del = function(db, o, callback) {
@@ -333,7 +297,8 @@ var Db = function(){
             else {
                 var message = util.format("[Db.deleteDb] deleted db %s", name);
                 logger.info(message);
-                callback(null, {'ok':true, 'name':name, 'msg':message});
+                if(callback)
+                    callback(null, {'ok':true, 'name':name, 'msg':message});
             }
         });
         logger.debug('[Db.deleteDb] OUT');
@@ -351,7 +316,7 @@ var Db = function(){
                         cb(err);
                 }
                 else {
-                    delBulk(db, os.result,
+                    delBulk(db, os,
                         function(err,r) {
                             if(err){
                                 logger.error(err);
@@ -611,8 +576,10 @@ var Db = function(){
 
     var numOf = function(dbName, callback){
         logger.debug('[Db.numOf] IN');
+        var options = {};
+        options.reduce = true;
+        options.group = false;
 
-        var options = { reduce: true, group: false};
         getView(dbName, 'numOf', options,
             function(err, o){
                 if(err){
@@ -631,6 +598,25 @@ var Db = function(){
         logger.debug('[Db.numOf] OUT');
     };
 
+    var getDocs  = function(db, options, callback) {
+        logger.debug('[Db.getDocs] IN');
+        var dbObj = connection.use(db);
+        dbObj.find(options, function(err, r){
+            if(err){
+                logger.error(err);
+                if(callback)
+                    callback(err);
+            }
+            else {
+                var result = [];
+                Array.prototype.push.apply(result, r.docs);
+                logger.info(util.format("[Db.getDocs] got %d docs", result.length));
+                if(callback)
+                    callback(null, result)
+            }
+        });
+        logger.debug('[Db.getDocs] OUT');
+    };
 
 // ---------------------------------------------------------------------------
 
@@ -649,6 +635,7 @@ var Db = function(){
         , getDbNames: getDbNames
         , replicateDb: replicateDb
         , numOf: numOf
+        ,getDocs: getDocs
     };
 
 }();

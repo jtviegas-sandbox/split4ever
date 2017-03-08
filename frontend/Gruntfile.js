@@ -16,6 +16,7 @@ module.exports = function (grunt) {
   require('jit-grunt')(grunt, {
     useminPrepare: 'grunt-usemin',
     ngtemplates: 'grunt-angular-templates',
+    cdnify: 'grunt-google-cdn',
     cdnify: 'grunt-google-cdn'
   });
 
@@ -66,7 +67,13 @@ module.exports = function (grunt) {
         ]
       }
     },
-
+      // Test settings
+    karma: {
+      unit: {
+        configFile: 'test/karma.conf.js',
+          singleRun: true
+      }
+    },
     // The actual grunt server settings
     connect: {
       options: {
@@ -220,7 +227,7 @@ module.exports = function (grunt) {
             }
           }
       }
-    }, 
+    },
 
     // Renames files for browser caching purposes
     filerev: {
@@ -415,14 +422,6 @@ module.exports = function (grunt) {
         'imagemin',
         'svgmin'
       ]
-    },
-
-    // Test settings
-    karma: {
-      unit: {
-        configFile: 'test/karma.conf.js',
-        singleRun: true
-      }
     }
   });
 

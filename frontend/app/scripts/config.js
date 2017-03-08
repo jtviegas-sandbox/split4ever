@@ -26,14 +26,17 @@ angular.module('frontendApp')
                 url: '/auth'
             }
     	}
-        , AUTH : {
-            adminGroup: 'admin'
-        }
-        , ALERT: {
-            container: '#appAlertArea'
-            , timeout: 10000
-            , customClass: 'appAlert'
+      , AUTH : {
+          adminGroup: 'admin'
+      }
+      , ALERT: {
+          container: '#appAlertArea'
+          , timeout: 10000
+          , customClass: 'appAlert'
 
-        }
+      }
+      , CACHE: {
+	      initialSize: 20
+      }
   });
 

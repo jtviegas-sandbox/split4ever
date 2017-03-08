@@ -5,19 +5,32 @@ describe('Controller: MainCtrl', function () {
   // load the controller's module
   beforeEach(module('frontendApp'));
 
-  var MainCtrl,
-    scope;
+  var $controller, $scope;
 
-  // Initialize the controller and a mock scope
-  beforeEach(inject(function ($controller, $rootScope) {
-    scope = $rootScope.$new();
-    MainCtrl = $controller('MainCtrl', {
-      $scope: scope
-      // place here mocked dependencies
-    });
+  beforeEach(inject(function (_$controller_, $rootScope) {
+    // The injector unwraps the underscores (_) from around the parameter names when matching
+    $scope =  $rootScope.$new();
+    $controller = _$controller_;
+
   }));
 
-  it('should attach a list of awesomeThings to the scope', function () {
-    expect(MainCtrl.awesomeThings.length).toBe(3);
+  describe('sum', function () {
+
+    it('1 + 1 should equal 2', function () {
+
+      var controller = $controller('MainCtrl', { $scope: $scope });
+      var descriptor = { index: 0, count: 4 , append: true };
+
+      $scope.datasource.get(descriptor, function(err, r){
+        expect(r).toBe(0);
+      });
+    });
+
+
+
   });
+
+
+
+
 });

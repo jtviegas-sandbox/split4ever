@@ -40,6 +40,19 @@ describe('running persistence unit tests', function() {
 
     describe('parts operations' , function() {
 
+/*        it('0* drop replicas', function(done) {
+            this.timeout(300000);
+            persistence.dropReplicas('part',
+                function(err){
+                    if(err)
+                        done(err)
+                    else {
+                        done();
+                    }
+
+                });
+        });*/
+
         it('1* insert a spotlight part', function(done) {
             this.timeout(5000);
             persistence.setPart(parts[0],
@@ -184,6 +197,20 @@ describe('running persistence unit tests', function() {
                     }
                 });
         });
+
+        it('9.5* should have one part with specific model', function(done) {
+            persistence.getPartsCount(
+                {"model": parts[0].model}
+                ,function(err, o){
+                    if(err)
+                        done(err);
+                    else {
+                        assert.equal(o, 1);
+                        done();
+                    }
+                });
+        });
+
 
         it('10* delete spotlight', function(done) {
             persistence.delPart(parts[0],

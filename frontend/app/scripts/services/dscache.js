@@ -1,118 +1,89 @@
 'use strict';
 
 angular.module('frontendApp').service( 'dscache',
-  function (api){
+  function (api, config){
 
-    var os = [];
-    var filter = {};
+    var filter = null;
+    var cache = {
+      os: []
+    };
 
     var setFilter = function(cf){
         filter = cf;
-        os = [];
+        cache.os = [];
+        cache.maxIndex = 0;
     };
 
-    var getByIndex = function (index, buffer, callback){
+    var cacheSlicer = function(from, n){
+      console.log('[dscache.cacheSlicer] IN (from: %d, n: %d)', from, n);
 
-      console.log('[dscache.getByIndex] IN (%d,%d, ...)', index, buffer );
+      var r = { items: [] };
+      r.items.push.apply(r.items, cache.os.slice(from, from+n));
 
-      if(1 > buffer)
-        throw "buffer must be a non-zero positive number";
-      if(index > os.length)
-        throw "index should be contained or adjacent to the existent array";
-
-      var index1 = index;
-      var index2 = index + buffer -1;
-      if(index1 > index2)
-        throw "first range index can not be higher than the last range index";
-
-      assureIndexRange(index1, index2, callback);
-
+      console.log('[dscache.cacheSlicer] OUT => ', r);
+      return r;
     };
 
-    var partArrayIds2String= function(a){
-      var r = null;
-      for(var i = 0; i < a.length; i++){
-        if(null == r)
-          r = a[i]._id;
-        else
-          r = r + ', ' + a[i]._id;
+    var get = function (descriptor, callback){
+      // descriptor should be like: { index: x, count: y , append: z }
+      console.log('[dscache.get] IN - descriptor: ', descriptor);
+
+      //we interpret the index as being the latest one already in cache
+      var currentLastIndex = cache.os.length-1;
+      //so based on the parameters being provided
+      var howManyItemsWeNeed = 0;
+      var indexInclusive = false;
+
+      if( descriptor.index < 0 ) {
+        return callback(null, { items: [] , minIndex: cache.minIndex , maxIndex: cache.maxIndex });
       }
-      return null == r ? "" : r;
-    };
-
-    var assureIndexRange = function(i1, i2, callback){
-      console.log('[dscache.assureIndexRange] IN (%d,%d, ...)', i1, i2 );
-
-      var mustLoad = false;
-      var firstIndex2retrieve = null;
-      var secondIndex2retrieve = null;
-
-      if(i2 >= os.length){
-        firstIndex2retrieve = os.length;
-        secondIndex2retrieve = i2;
-        mustLoad=true;
+      var higherIndex2Have = descriptor.index + descriptor.count;
+      var fromId = '';
+      var howManyItemsWeNeed = 0;
+      if( 0 > currentLastIndex) { // case where cache is empty => cache.length - 1 = -1
+        indexInclusive = true;
+        howManyItemsWeNeed = descriptor.count;
       }
+      else{
+        if( higherIndex2Have > (currentLastIndex) ){
+          howManyItemsWeNeed = higherIndex2Have - (currentLastIndex);
+          fromId = cache.os[currentLastIndex]._id;
 
-      if(mustLoad){
-
-        var loadCallback = function(parentCallback){
-          var func = function(err, r){
-             if(err){
-                if (parentCallback)
-                  parentCallback(err)
-             }
-            else
-              if(parentCallback){
-                console.log('cache before slice: %s', partArrayIds2String(os));
-                var slice = os.slice(i1, i2+1)
-                console.log('slice [%d - %d]: %s', i1, i2+1, partArrayIds2String(slice));
-                parentCallback(null, slice);
-              }
-          };
-
-          return {func: func};
-        }(callback);
-
-        load(firstIndex2retrieve, secondIndex2retrieve, loadCallback.func)
-      }
-      else {
-        if(callback){
-          console.log('[dscache.assureIndexRange] cache before slice: %s', partArrayIds2String(os));
-          var slice = os.slice(i1, i2+1)
-          console.log('[dscache.assureIndexRange] slice [%d - %d]: %s', i1, i2+1, partArrayIds2String(slice));
-          callback(null, slice);
         }
       }
+      console.log('[dscache.get] d.index: %d   d.count: %d   currentLastIndex: %d   higherIndex2Have: %d   howManyItemsWeNeed: %d   fromId: %s',
+        descriptor.index, descriptor.count, currentLastIndex, higherIndex2Have, howManyItemsWeNeed, fromId);
 
+      if(0 < howManyItemsWeNeed){
+        api.getItemsFromId(
+          { 'size': howManyItemsWeNeed , 'filter': filter, 'id': fromId, 'inclusive': indexInclusive},
+          function(err, o){
+            if(err){
+              console.log(err)
+              if(callback)
+                callback(err);
+            }
+            else {
+              console.log('[dscache.get] got %d parts', o.length);
+              cache.os.push.apply(cache.os, o);
+              cache.maxIndex = cache.os.length - 1;
+            }
+          });
+      }
+
+      if(callback){
+        var o;
+        if(indexInclusive)
+          o = cacheSlicer(descriptor.index, descriptor.count);
+        else
+          o = cacheSlicer(descriptor.index+1, descriptor.count);
+        callback(null, o);
+      }
+      console.log('[dscache.get] OUT');
     };
 
-    var load = function(idx1, idx2, callback){
-      console.log('[dscache.load] IN (%d,%d, ...)', idx1, idx2 );
-      var id = null;
-
-      if(0 == idx1)
-        id = 0;
-      else
-        id = os[idx1-1]._id;
-
-      api.getDatasourceItems(
-        {'_id': id,  'n': (idx2 - idx1 + 1) , 'filter': filter},
-        function(err, o){
-          if(err){
-            console.log(err)
-          }
-          else {
-            console.log('got %d parts', o.length);
-            o.forEach(function(el){
-              os.push(el)
-            });
-            callback(null, o);
-          }
-      });
-    }
-
     return {
-      getByIndex: getByIndex
+      get: get
       , setFilter: setFilter
     };
 

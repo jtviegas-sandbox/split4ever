@@ -60,36 +60,7 @@ var CollectionsFunctions = function(){
         logger.debug('[CollectionsFunctions.getSpotlights] OUT');
     };
 
-    var getNPartsFromId = function(req,res){
-        logger.debug('[CollectionsFunctions.getNPartsFromId] IN');
 
-        var params = {
-            "id": req.params.id
-            , "n": parseInt(req.params.n)
-        };
-
-        if(req.query){
-            if(null != req.query.model)
-                params.model = req.query.model;
-
-            if(null != req.query.category)
-                params.category = req.query.category;
-        }
-
-        var callback = function(err, o){
-            if(err){
-                logger.error(err);
-                res.status(400).end();
-            }
-            else {
-                res.status(200).json({"result": o});
-                res.end();
-            }
-        };
-
-        persistence.getNPartsFromId(params, callback);
-        logger.debug('[CollectionsFunctions.getNPartsFromId] OUT');
-    };
 
     var numOfParts = function(req,res){
         logger.debug('[CollectionsFunctions.numOfParts] IN');
@@ -210,6 +181,88 @@ var CollectionsFunctions = function(){
         logger.debug('[CollectionsFunctions.delPart] OUT');
     };
 
+    var getNPartsFromId = function(req,res){
+        logger.debug('[CollectionsFunctions.getNPartsFromId] IN');
+
+        var params = {
+            "id": req.params.id
+            , "n": parseInt(req.params.n)
+        };
+
+        if(req.query){
+            if(null != req.query.model)
+                params.model = req.query.model;
+
+            if(null != req.query.category)
+                params.category = req.query.category;
+        }
+
+        var callback = function(err, o){
+            if(err){
+                logger.error(err);
+                res.status(400).end();
+            }
+            else {
+                res.status(200).json({"result": o});
+                res.end();
+            }
+        };
+
+        persistence.getNPartsFromId(params, callback);
+        logger.debug('[CollectionsFunctions.getNPartsFromId] OUT');
+    };
+
+    var getParts = function(req,res){
+        logger.debug('[CollectionsFunctions.getParts] IN');
+
+        var params = { "id": ""};
+        if(req.query.id)
+            params.id = req.query.id;
+        params.n = parseInt(req.query.size);
+        if(req.query.filter){
+            params.model = req.query.filter.model;
+            params.category = req.query.filter.category;
+        }
+        params.inclusive = req.query.inclusive;
+
+         var callback = function(err, o){
+            if(err){
+                logger.error(err);
+                res.status(400).end();
+            }
+            else {
+                res.status(200).json({"result": o});
+                res.end();
+            }
+        };
+
+        persistence.getParts(params, callback);
+        logger.debug('[CollectionsFunctions.getParts] OUT');
+    };
+
+    var getPartsCount = function(req,res){
+        logger.debug('[CollectionsFunctions.getPartsCount] IN');
+
+        var params = {};
+        if(req.query.filter){
+            params.model = req.query.filter.model;
+            params.category = req.query.filter.category;
+        }
+
+        persistence.getPartsCount(params, function(err, o){
+            if(err){
+                logger.error(err);
+                res.status(400).end();
+            }
+            else {
+                res.status(200).json({"result": o});
+                res.end();
+            }
+        });
+
+        logger.debug('[CollectionsFunctions.getPartsCount] OUT');
+    };
+
 
     return {
         getAllParts: getAllParts
@@ -220,8 +273,9 @@ var CollectionsFunctions = function(){
         , getCategories: getCategories
         , getModels: getModels
         , getSpotlights: getSpotlights
-        , numOfParts: numOfParts
+        , getPartsCount: getPartsCount
         , downloadParts: downloadParts
+        , getParts: getParts
     };
 
 }();

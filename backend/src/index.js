@@ -14,7 +14,7 @@ if(!process.env.MODE)
     process.env.MODE = 'PROD';
 else {
     if('DEV' == process.env.MODE){
-        frontendDir = __dirname + '../../dist/public'
+        frontendDir = __dirname + '/../../dist/public';
     }
 }
 

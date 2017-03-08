@@ -15,11 +15,11 @@ router.use(bodyParser.urlencoded({ extended: true, limit: '50mb' })); // for par
 router.get('/part/categories', functions.getCategories);
 router.get('/part/models', functions.getModels);
 router.get('/part/spotlights', functions.getSpotlights);
-router.get('/part/n', functions.numOfParts);
 router.get('/part/all', functions.getAllParts);
 router.get('/part/download', functions.downloadParts);
-router.get('/part/:id/:n', functions.getNPartsFromId);
+router.get('/part/count', functions.getPartsCount);
 router.get('/part/:id', functions.getPart);
+router.get('/part', functions.getParts);
 
 router.post('/part', authentication.verifyAuth, functions.setPart);
 router.delete('/part/:id/:rev', authentication.verifyAuth, functions.delPart);

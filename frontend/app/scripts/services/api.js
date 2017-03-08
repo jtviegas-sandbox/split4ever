@@ -188,15 +188,72 @@ angular.module('frontendApp')
         );
       };
 
+      var getItemsFromId = function(input, callback){
+          // input example: { 'size': howMany , 'filter': filter, 'id': fromId, 'inclusive': false}
+        console.log('[api.getItemsFromId] IN (%s)', JSON.stringify(input) );
+
+        var options = {
+          method: 'GET'
+          , url: config.API.url + '/collections/part'
+          , withCredentials : true
+          , headers: { 'Content-Type': 'application/json' }
+          , params: {}
+        };
+
+        options.params.filter = input.filter;
+        options.params.size = input.size;
+        options.params.id = input.id;
+        options.params.inclusive = input.inclusive;
+
+        $http(options).then(
+          function success(response) {
+            if(callback)
+              callback(null, response.data.result);
+          },
+          function error(response) {
+            if(callback)
+              callback(response)
+          }
+        );
+      };
+
+
+      var getItemsCount = function(filter, callback){
+        console.log('[api.getItemsCount] IN (%s)', filter);
+
+        var options = {
+          method: 'GET'
+          , url: config.API.url + '/collections/part/count'
+          , withCredentials : true
+          , headers: { 'Content-Type': 'application/json' }
+          , params: {}
+        };
+
+        if(filter)
+          options.params.filter = filter;
+
+        $http(options).then(
+          function success(response) {
+            if(callback)
+              callback(null, response.data.result);
+          },
+          function error(response) {
+            if(callback)
+              callback(response)
+          }
+        );
+      };
+
       return {
         setItem: setItem
         , delItem: delItem
         , getItem: getItem
         , getCategories: getCategories
-        , getDatasourceItems: getDatasourceItems
+        , getItemsFromId: getItemsFromId
         , getSession: getSession
         , getModels: getModels
         , getSpotlights: getSpotlights
+        , getItemsCount: getItemsCount
       };
     }
   )

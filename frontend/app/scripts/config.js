@@ -38,5 +38,8 @@ angular.module('frontendApp')
       , CACHE: {
 	      initialSize: 20
       }
+      , MAIN: {
+	      partsLoadSize: 8
+      }
   });
 

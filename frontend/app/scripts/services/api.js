@@ -200,7 +200,13 @@ angular.module('frontendApp')
           , params: {}
         };
 
-        options.params.filter = input.filter;
+        //do some housekeeping on values from html elements
+        options.params.filter = { model: null, category: null};
+        if("" != input.filter.model)
+          options.params.filter.model = input.filter.model;
+        if("" != input.filter.category)
+          options.params.filter.category = input.filter.category;
+
         options.params.size = input.size;
         options.params.id = input.id;
         options.params.inclusive = input.inclusive;

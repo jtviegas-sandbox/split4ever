@@ -40,8 +40,8 @@
 </div>
 <!-- end of parts filter -->
 <!-- start of parts list -->
-<div class="row x-parts-list" uiScrollViewport>
-  <div class="col-xs-6 col-sm-4 col-md-4" ui-scroll="part in datasource" buffer-size="6" start-index="6">
+<div class="row x-parts-list" infinite-scroll="getMoreParts()" infinite-scroll-distance="0" infinite-scroll-disabled="loading || allFetched" infinite-scroll-use-document-bottom="true">
+  <div class="col-xs-6 col-sm-4 col-md-4" ng-repeat="part in parts" >
     <div class="thumbnail">
 
       <uib-carousel interval="0" no-wrap="false">

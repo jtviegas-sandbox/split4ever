@@ -22,9 +22,8 @@ angular
     'ui.bootstrap'
     , 'ngTagsInput'
     , 'mgcrea.ngStrap'
-    , 'ui.scroll'
-    , 'ui.scroll.grid'
     , 'pascalprecht.translate'
+    , 'infinite-scroll'
 
   ])
   .config(function ($routeProvider, $locationProvider, tagsInputConfigProvider) {
@@ -71,3 +70,5 @@ angular
 
     }
   );
+
+angular.module('infinite-scroll').value('THROTTLE_MILLISECONDS', 1000)

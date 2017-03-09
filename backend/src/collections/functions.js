@@ -220,8 +220,9 @@ var CollectionsFunctions = function(){
             params.id = req.query.id;
         params.n = parseInt(req.query.size);
         if(req.query.filter){
-            params.model = req.query.filter.model;
-            params.category = req.query.filter.category;
+            var _filter = JSON.parse(req.query.filter);
+            params.model = _filter.model;
+            params.category = _filter.category;
         }
         params.inclusive = req.query.inclusive;
 

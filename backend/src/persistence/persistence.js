@@ -527,7 +527,7 @@ var Persistence = function(){
             }
         };
 
-        if(params.inclusive)
+        if("true" == params.inclusive)
             options.selector._id = {"$gte": params.id}
         else
             options.selector._id = {"$gt": params.id}
@@ -536,8 +536,9 @@ var Persistence = function(){
             options.selector.category = {"$elemMatch": { "$eq": params.category} }
         }
         if (null != params.model) {
-            options.selector.model = {"$elemMatch": { "$in": params.model} }
+            options.selector.model = {"$elemMatch": { "$eq": params.model} }
         }
+        options.sort = [ {"_id": "asc"} ];
 
         if (params.n)
             options.limit = params.n

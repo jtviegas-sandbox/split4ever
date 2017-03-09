@@ -8,8 +8,8 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('MainCtrl', [ '$scope', 'dscache','$timeout', 'config', 'api','app','$rootScope',
-    function ($scope, dscache, $timeout, config, api, app, $rootScope) {
+  .controller('MainCtrl', [ '$scope', '$timeout', 'config', 'api','app','$rootScope',
+    function ($scope, $timeout, config, api, app, $rootScope) {
 
       $scope.literals = config.LITERALS;
       $scope.spotlights = [];
@@ -20,87 +20,67 @@ angular.module('frontendApp')
         category: null
         , model: null
       };
+      $scope.loading = false;
+      $scope.allFetched = false;
+      $scope.parts = [];
 
-      api.getSpotlights(function(err, o){
-        if(err){
-          console.log('couldn\'t load spotlights: %j', err);
-        }
-        else{
-          if(0 < o.length){
-            Array.prototype.push.apply($scope.spotlights, o);
-            console.log('models', $scope.spotlights);
-          }
-        console.log('loaded spotlights cache with %d items', o.length);
-        }
-      });
+      $scope.getMoreParts = function(){
+        console.log('[MainCtrl.getMoreParts] IN');
+        if(!$scope.loading)
+          loadParts();
+        console.log('[MainCtrl.getMoreParts] OUT');
+      };
 
-     $scope.datasource = function(){
+      $scope.resetFilter = function(){
+        console.log('[MainCtrl.resetFilter] IN');
+        //$scope.filter = f;
+        $scope.parts = [];
+        $scope.allFetched = false;
+        loadParts();
+        console.log('[MainCtrl.resetFilter] OUT');
+      };
 
-        var minIndex = 0;
-        var maxIndex = 0;
-
-        var setFilter = function(cf){
-          dscache.setFilter(cf);
-        };
-
-        var partArrayIds2String= function(a){
-          var r = null;
-          for(var i = 0; i < a.length; i++){
-            if(null == r)
-              r = a[i]._id;
-            else
-              r = r + ', ' + a[i]._id;
-          }
-          return r;
-        };
-
-        var get = function(descriptor, success){
-          // descriptor = { index: x, count: y , append: z }
-          console.log('[datasource.get] asking for items with descriptor: ', descriptor);
-
-          //$timeout(
-            dscache.get(descriptor, function(err, r){
-              // we have to receive the filtered items count and the overall index range according to the filter
-              if(err)
-                console.log(err);
-              else {
-                console.log('[datasource.get] got %d parts', r.length);
-                console.log('[datasource.get] r.items:', r);
-                minIndex = 0;
-                if(0 == r.length)
-                  maxIndex = 0
-                else
-                  maxIndex = r.length - 1;
-                success(r);
+      var loadParts = function(){
+        console.log('[MainCtrl.loadParts] IN');
+        $scope.loading = true;
+        var fromId = '';
+        if(0 < $scope.parts.length)
+          fromId = $scope.parts[$scope.parts.length-1]._id
+        console.log('[MainCtrl.loadParts] loading parts from id', fromId);
+        api.getItemsFromId(
+          { 'size': config.MAIN.partsLoadSize , 'filter': $scope.filter, 'id': fromId, 'inclusive': false},
+          function(err, o){
+            if(err){
+              console.log(err)
+              if(callback)
+                callback(err);
+            }
+            else {
+              console.log('[MainCtrl.loadParts] got %d parts', o.length);
+              if(0 < o.length){
+                console.log('[MainCtrl.loadParts] last _id is', o[o.length-1]._id);
+                Array.prototype.push.apply($scope.parts, o);
               }
-            })//, 1000);
-
-        };
-
-        return {
-          get: get
-          , minIndex: minIndex
-          , maxIndex: maxIndex
-          , setFilter: setFilter
-        };
-      }();
+              else {
+                $scope.allFetched = true;
+              }
+            }
+            $scope.loading = false;
+          });
+        console.log('[MainCtrl.loadParts] OUT');
+      };
 
       var filterHasChanged = $rootScope.$on('filterUpdate', function(event, data){
-        console.log('[MainCtrl.filterHasChanged]: %s', JSON.stringify(data));
-        $scope.datasource.setFilter(data);
-        //$scope.datasource.resetIndexes();
-        //return $scope.scrollAdapter.reload(0);
+        console.log('[MainCtrl.filterHasChanged]: %s', data);
+        $scope.resetFilter();
       });
 
       $scope.$on('$destroy', filterHasChanged);
 
       $scope.$watchCollection('filter', function (newValue, oldValue ) {
-          if (newValue.category == "") newValue.category = null;
-          if (newValue.model == "") newValue.model = null;
-          $rootScope.$emit('filterUpdate', newValue);
+            $rootScope.$emit('filterUpdate', newValue);
         }
       );
-
 
       api.getCategories(function(err, o){
         if(err){
@@ -128,6 +108,17 @@ angular.module('frontendApp')
         }
       });
 
-
+      api.getSpotlights(function(err, o){
+        if(err){
+          console.log('couldn\'t load spotlights: %j', err);
+        }
+        else{
+          if(0 < o.length){
+            Array.prototype.push.apply($scope.spotlights, o);
+            console.log('models', $scope.spotlights);
+          }
+          console.log('loaded spotlights cache with %d items', o.length);
+        }
+      });
 
     }]);

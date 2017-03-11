@@ -12,13 +12,13 @@ var frontendDir = __dirname + '/public';
 
 if(!process.env.MODE)
     process.env.MODE = 'PROD';
-else {
+/*else {
     if('DEV' == process.env.MODE){
         frontendDir = __dirname + '/../../dist/public';
     }
-}
+}*/
 
-logger.info('[index.js] starting in mode: %s [%s]', process.env.MODE, frontendDir);
+logger.info('[index.js] starting in mode: %s [frontend dir: %s]', process.env.MODE, frontendDir);
 
 var cookieSessionProps = {
   name: 'session',

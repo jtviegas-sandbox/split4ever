@@ -19,7 +19,7 @@
 }
 
 .x-parts-list {
-  min-height: 624px;
+ /* min-height: 624px;*/
   max-height: 1248px;
 }
 
@@ -95,7 +95,7 @@
   }
 
   .x-parts-list {
-    min-height: 848px;
+    /*min-height: 848px;*/
   }
 
 }

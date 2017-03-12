@@ -24,9 +24,17 @@ angular
     , 'mgcrea.ngStrap'
     , 'pascalprecht.translate'
     , 'infinite-scroll'
-
+    , 'uiGmapgoogle-maps'
   ])
-  .config(function ($routeProvider, $locationProvider, tagsInputConfigProvider) {
+  .config(function ($routeProvider, $locationProvider, tagsInputConfigProvider, uiGmapGoogleMapApiProvider) {
+
+/*    var localConfig = {
+      apiKey: {
+        prod: 'AIzaSyD1dGioCaFlfEns2R6u_P-IiCessCTtIiQ'
+        , dev: 'AIzaSyCD5LQySTKfxCu41Xj07Q-CeIFeFT50iyg'
+      }
+    };*/
+
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -64,11 +72,27 @@ angular
        // if you don't wish to set base URL then use this
        $locationProvider.html5Mode(true);
       }
+
+/*    var apiKey;
+    if(window.location.hostname == 'localhost')
+      apiKey = localConfig.apiKey.dev;
+    else
+      apiKey = localConfig.apiKey.prod;
+
+    console.log('apiKey', apiKey);*/
+
+    uiGmapGoogleMapApiProvider.configure({
+      key: 'AIzaSyCD5LQySTKfxCu41Xj07Q-CeIFeFT50iyg',
+      v: '3.20', //defaults to latest 3.X anyhow
+      libraries: 'weather,geometry,visualization'
+    });
+
   })
   .controller( 'AppCtrl',
     function($scope, $location, $http){
-
+      console.log('location', $location);
     }
-  );
+  )
+  ;
 
 angular.module('infinite-scroll').value('THROTTLE_MILLISECONDS', 1000)

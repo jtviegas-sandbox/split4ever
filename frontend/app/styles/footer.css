@@ -1,6 +1,6 @@
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 200px;
+  margin-bottom: 300px;
 }
 .footer {
   position: absolute;
@@ -41,9 +41,9 @@ body {
   .angular-google-map-container {
     height: 200px;
   }
-  body {
-    /* Margin bottom by footer height */
+/*  body {
+    !* Margin bottom by footer height *!
     margin-bottom: 300px;
-  }
+  }*/
 
 }

@@ -39,63 +39,7 @@
 }
 
 
-/* Responsive: small devices , portrait tablets and up */
-@media screen and (max-width: 767px) {
 
-  /* Remove the padding we set earlier */
-  .header,
-  .marketing,
-  .footer {
-    padding-left: 0;
-    padding-right: 0;
-  }
-  /* Space out the masthead */
-  .header {
-    margin-bottom: 20px;
-  }
 
-}
 
-@media screen and (min-width: 768px) and (max-width: 1199px) {
 
-  .container, .container-fluid {
-    max-width: 730px;
-  }
-
-  /* Remove the padding we set earlier */
-  .header,
-  .marketing,
-  .footer {
-    padding-left: 0;
-    padding-right: 0;
-  }
-  /* Space out the masthead */
-  .header {
-    margin-bottom: 20px;
-  }
-
-}
-
-@media screen and (min-width: 1200px) {
-
-  .container, .container-fluid {
-    max-width: 80%;
-  }
-
-  /*Remove the padding we set earlier */
-  .header,
-  .marketing,
-  .footer {
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  .header {
-    margin-bottom: 30px;
-  }
-
-  .x-parts-list {
-    /*min-height: 848px;*/
-  }
-
-}

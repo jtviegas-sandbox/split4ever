@@ -98,6 +98,8 @@ div.ng-enter-active {
   padding-right: 15px;
 }
 
+
+
 /* Responsive: small devices , portrait tablets and up */
 @media screen and (max-width: 767px) {
 
@@ -118,7 +120,7 @@ div.ng-enter-active {
 @media screen and (min-width: 768px) and (max-width: 1199px) {
 
   .container, .container-fluid {
-    max-width: 730px;
+    width: 90%;
   }
 
   /* Remove the padding we set earlier */
@@ -132,14 +134,18 @@ div.ng-enter-active {
   .header {
     margin-bottom: 20px;
   }
+  .main {
+    padding-bottom: 100px;
+  }
+
 
 }
 
 @media screen and (min-width: 1200px) {
 
-  .container, .container-fluid {
-    max-width: 80%;
-  }
+/*  .container, .container-fluid {
+    max-width: 90%;
+  }*/
 
    /*Remove the padding we set earlier */
   .header,

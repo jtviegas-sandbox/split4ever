@@ -32,7 +32,7 @@
     "express-session": "^1.14.0",
     "method-override": "^2.3.5",
     "multer": "^0.1.8",
-    "newrelic": "^1.35.1",
+/*    "newrelic": "^1.35.1",*/
     "passport": "^0.3.2",
     "passport-idaas-openidconnect": "^1.1.2",
     "serve-favicon": "^2.3.0",

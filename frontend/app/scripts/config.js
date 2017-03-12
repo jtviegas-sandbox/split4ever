@@ -7,6 +7,7 @@ angular.module('frontendApp')
         , subTitle1: 'classic VW parts: sale and purchase'
         , subTitle2: 'used | old stock | new old stock | reworked'
         , phone: '+351 91 91 594 54'
+        , email: 'split4ever@gmail.com'
         , tagsFilterPlaceholder: '...filter parts by tags'
         , partSubmitFailed: 'failed to submit part'
         , partDeleteFailed: 'failed to delete part'
@@ -40,6 +41,8 @@ angular.module('frontendApp')
       }
       , MAIN: {
 	      partsLoadSize: 8
+
       }
+
   });
 

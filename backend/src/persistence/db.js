@@ -348,7 +348,7 @@ var Db = function(){
         for(var i=0; i < os.length; i++){
             var entry = {
                 _id: os[i].id,
-                _rev: os[i].value.rev,
+                _rev: os[i].rev,
                 _deleted: true
             };
             entries.push(entry);
@@ -381,7 +381,7 @@ var Db = function(){
                     callback(err);
             }
             else {
-                logger.info(util.format("[Db.get] got an item: %j",r));
+                logger.info(util.format("[Db.get] got an item"));
                 if(callback)
                     callback(null, r);
             }

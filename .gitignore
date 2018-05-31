@@ -1,0 +1,8 @@
+.tern-project
+node-modules
+node_modules
+package-lock.json
+*/.project
+*/.settings
+*/trace.log
+dist

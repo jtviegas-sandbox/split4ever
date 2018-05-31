@@ -24,6 +24,7 @@ var cookieSessionProps = {
   name: 'session',
   keys: ['split4ever', 'split4ever, ever'],
   cookie: {
+	  // 30 days cookies
     maxAge : 30*24*60*60*1000
   }
 };

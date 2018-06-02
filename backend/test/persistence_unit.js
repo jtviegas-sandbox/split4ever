@@ -3,6 +3,7 @@
  */
 "use strict";
 process.env.MODE = 'TEST';
+process.env.STORE = 'MOCK';
 
 var expect = require('chai').expect;
 var assert = require('chai').assert;

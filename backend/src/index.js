@@ -1,22 +1,15 @@
-/*require('newrelic');*/
 var express = require('express');
-require('newrelic');
 var util = require('util');
 var cookieSession = require('cookie-session');
 var cookieParser = require('cookie-parser');
 var logger = require('./common/apputils').logger;
 
 //CONSTANTS
-const PORT=3000;
-var frontendDir = __dirname + '/public';
+process.env.PORT = process.env.PORT || 3000;
+process.env.MODE = process.env.MODE || 'PROD';
+process.env.STORE = process.env.STORE || 'REAL';
 
-if(!process.env.MODE)
-    process.env.MODE = 'PROD';
-/*else {
-    if('DEV' == process.env.MODE){
-        frontendDir = __dirname + '/../../dist/public';
-    }
-}*/
+var frontendDir = __dirname + '/public';
 
 logger.info('[index.js] starting in mode: %s [frontend dir: %s]', process.env.MODE, frontendDir);
 
@@ -40,7 +33,7 @@ app.use(cookieSession(cookieSessionProps));
 app.use(cookieParser());
 app.use(authentication.passport.initialize());
 app.use(authentication.passport.session()); 
-app.set('port', process.env.PORT || PORT);
+app.set('port', process.env.PORT);
 
 var options = {
   dotfiles: 'ignore',

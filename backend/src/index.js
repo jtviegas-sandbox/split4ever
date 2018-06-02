@@ -1,6 +1,4 @@
-/*require('newrelic');*/
 var express = require('express');
-require('newrelic');
 var util = require('util');
 var cookieSession = require('cookie-session');
 var cookieParser = require('cookie-parser');

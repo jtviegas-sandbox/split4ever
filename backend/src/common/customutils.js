@@ -99,6 +99,14 @@ var CustomUtils = function() {
         while(new Date().getTime() < now + sleepDuration){ /* do nothing */ }
     }
 
+    function resolveAfter2Seconds(f) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+            resolve(true);
+            }, 2000);
+        });
+    }
+
     return {
         getPropertyNames: getPropertyNames
         , getPropertyArray: getPropertyArray

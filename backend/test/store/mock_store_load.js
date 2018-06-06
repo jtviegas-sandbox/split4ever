@@ -3,10 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const csvParser = require('csv-parse');
 
-var dataStore = function() {
-
-    const DEFAULT_FILE = './data.csv';
-    var data = null;
+var mock_store_load = function() {
 
     var toBase64 = function(file) {
         // read binary data
@@ -62,56 +59,33 @@ var dataStore = function() {
     };
 
     // data file format: 'number', 'name', 'price', 'category', 'subcategory', 'notes' 
+    var load = function(_dataFile, callback){
 
-    function loadAsyncFunction(_datafile){
-        let _folder = path.dirname(_datafile);
+        let _folder = path.dirname(_dataFile);
         let imgs = findImgObjs(_folder);
-        return new Promise(resolve => {
-            let d = [];
-            fs.createReadStream(_datafile)
+
+        let data=[];
+        fs.createReadStream(_dataFile)
             .pipe(csvParser({delimiter: ','}))
             .on('data', function(l) {
-                console.log('@data',l);
-                d.push(toPart(l, imgs));
+                console.log(l);
+                data.push(toPart(l, imgs));
             })
             .on('end',function() {
-                console.log('@end', d);
-                resolve(d);
-            })
-            .on('error', function() {
-                console.log('@error',d);
-                resolve(null);
+                console.log(data);
+                callback(null, data);
             });
-        });
-    }
 
-    async function init(){
-        data = await loadAsyncFunction(DEFAULT_FILE);
-        console.log('data:', data);
-        let status = (data !== null);
-        console.log('status:', status );
-        return status;
-    }
-
-    var setObj = function(o){
-        if(o.id){
-            s = data.filter(e => o.id === e.id)
-            if(1 === s.length){
-                let idx = data.indexOf(s[0]);
-                data[idx] = o;
-            }
-                s[0]
-        }
-        else {
-
-        }
     }
 
     return {
-        init: init
+        toBase64: toBase64
+        , toImageObj: toImageObj
+        , findImgObjs: findImgObjs
+        , load: load
     };
 
 }();
 
-module.exports = dataStore;
+module.exports = mock_store_load;
 

@@ -25,55 +25,11 @@ var dataService = function(){
 
     var init = function(func, args, callback){
         logger.debug('[dataService.init] IN');
-
         if(!on){
             store = storeFactory.get();
-            store.init();
+            on = store.init();
         }
-
-        if(!db.isInitialized()){
-            logger.debug('[dataService.checkInitialization] initializing....');
-            var localCallback = function(err){
-                if(err){
-                    logger.error(err);
-                    if(callback)
-                        callback(err);
-                }
-                else {
-                    logger.debug('[dataService.checkInitialization] ...initialized! going to setup replication jobs');
-                    setInterval(replicate, config.database.replicationDelay)
-                    func.apply(this, args || []);
-                }
-            };
-            db.init(localCallback);
-            return true;
-        }
-        logger.debug('[dataService.checkInitialization] OUT');
-    };
-
-    // ---------------------------------------------------------------------------
-    // ----------------------------------PUBLIC  METHODS--------------------------
-
-    var getSpotlightParts = function(callback){
-        logger.debug('[persistence.getSpotlightParts] IN');
-
-        if(checkInitialization(getSpotlightParts, [ callback ], callback) ) return;
-        var localCallback = function(err, result){
-            if(err){
-                logger.error(err);
-                callback(err);
-            }
-            else
-                callback(null, result);
-        };
-
-        var options =  { 'selector': {
-                "_id": { "$gt": 0 }
-                , "spotlight": 1
-            }  };
-
-        db.getSome(config.database.instances.part.name, options, localCallback, false);
-        logger.debug('[persistence.getSpotlightParts] OUT');
+        logger.debug('[dataService.init] OUT');
     };
 
 

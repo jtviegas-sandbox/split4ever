@@ -1,3 +1,5 @@
+const uuid = require('uuid')
+const fs = require('fs');
 
 var CustomUtils = function() {
 
@@ -68,17 +70,9 @@ var CustomUtils = function() {
     var randomNumber = function(max) {
         return Math.floor(Math.random() * (max+1));
     };
-
-    var uuid = function(len) {
-        var buf = []
-            , chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-            , charlen = chars.length;
-
-        for (var i = 0; i < len; ++i) {
-            buf.push(chars[randomInt(0, charlen - 1)]);
-        }
-
-        return buf.join('');
+    
+    var createUuid = function() {
+        return uuid();
     };
 
 
@@ -94,19 +88,32 @@ var CustomUtils = function() {
     };
 
     //millis sleep
-    function sleepFor( sleepDuration ){
+    var sleepFor = function( sleepDuration ){
         var now = new Date().getTime();
         while(new Date().getTime() < now + sleepDuration){ /* do nothing */ }
     }
 
-    function resolveAfter2Seconds(f) {
-        return new Promise(resolve => {
-            setTimeout(() => {
-            resolve(true);
-            }, 2000);
-        });
+    
+    var fileToBase64 = function(file){
+    	// read binary data
+        let bitmap = fs.readFileSync(file);
+        // convert binary data to base64 encoded string
+        return new Buffer(bitmap).toString('base64');
     }
-
+    
+    var createRandomObj  = function(){
+    	let p = {};
+        p.id = uuid();
+        p.name = randomString(24)
+        p.price = randomNumber(500)
+        p.category = randomString(24)
+        p.subcategory = randomString(24)
+        p.notes = randomString(24)
+        p.images = []
+        return p;
+    }
+    
+    
     return {
         getPropertyNames: getPropertyNames
         , getPropertyArray: getPropertyArray
@@ -117,11 +124,13 @@ var CustomUtils = function() {
         , getProperties: getProperties
         , randomString: randomString
         , randomNumber: randomNumber
-        , uuid: uuid
+        , createUuid: createUuid
         , randomInt: randomInt
         , randomBoolean: randomBoolean
         , sleepFor: sleepFor
         , findPropertyIndexInArrayObj: findPropertyIndexInArrayObj
+        , fileToBase64: fileToBase64
+        , createRandomObj: createRandomObj
     };
 
 }();

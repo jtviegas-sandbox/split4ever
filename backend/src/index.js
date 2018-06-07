@@ -2,7 +2,10 @@ var express = require('express');
 var util = require('util');
 var cookieSession = require('cookie-session');
 var cookieParser = require('cookie-parser');
-var logger = require('./common/apputils').logger;
+
+//custom modules
+var parts = require('./resources/parts/route.js');
+var logger = require('./services/common/apputils').logger;
 
 //CONSTANTS
 process.env.PORT = process.env.PORT || 3000;
@@ -22,17 +25,10 @@ var cookieSessionProps = {
   }
 };
 
-//custom modules
-var custom = require('./common/custom.js');
-var collections = require('./collections/route.js');
-var authenticationRoute = require('./auth/route.js');
-var authentication = require('./auth/authentication.js');
 
 var app = express();
 app.use(cookieSession(cookieSessionProps));
 app.use(cookieParser());
-app.use(authentication.passport.initialize());
-app.use(authentication.passport.session()); 
 app.set('port', process.env.PORT);
 
 var options = {
@@ -44,8 +40,7 @@ var options = {
 };
 
 app.use('/', express.static(frontendDir, options));
-app.use('/auth', authenticationRoute);
-app.use('/api/collections', collections);
+app.use('/api/parts', parts);
 
 // custom 404 page
 app.use(function(req, res){

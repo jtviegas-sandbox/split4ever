@@ -3,7 +3,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var logger = require('./../common/apputils').logger;
-var authentication = require('../auth/authentication');
 
 var functions = require('./functions');
 logger.debug('started loading...');
@@ -21,8 +20,8 @@ router.get('/part/count', functions.getPartsCount);
 router.get('/part/:id', functions.getPart);
 router.get('/part', functions.getParts);
 
-router.post('/part', authentication.verifyAuth, functions.setPart);
-router.delete('/part/:id/:rev', authentication.verifyAuth, functions.delPart);
+router.post('/part', functions.setPart);
+router.delete('/part/:id/:rev', functions.delPart);
 
 logger.debug('...finished loading.');
 module.exports = router;

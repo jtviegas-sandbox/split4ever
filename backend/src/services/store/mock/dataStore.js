@@ -2,24 +2,19 @@
 const fs = require('fs');
 const path = require('path');
 const csvParser = require('csv-parse');
+const customutils = require('../../../common/customutils')
+var logger = require('./../../../common/apputils').logger;
 
 var dataStore = function() {
 
-    const DEFAULT_FILE = './data.csv';
+    const DEFAULT_FILE = __dirname + '/data.csv';
     var data = null;
-
-    var toBase64 = function(file) {
-        // read binary data
-        let bitmap = fs.readFileSync(file);
-        // convert binary data to base64 encoded string
-        return new Buffer(bitmap).toString('base64');
-    }
 
     var toImageObj = function(_path){
         var o = {};
         o.name = path.posix.basename(_path);
         o.type = path.extname(o.name);
-        o.data = toBase64(_path);
+        o.data = customutils.fileToBase64(_path);
         return o;
     }
 
@@ -40,7 +35,7 @@ var dataStore = function() {
                 if(!o[partNumber])
                     o[partNumber] = []
                 
-                o[partNumber].push(toImageObj(file));
+                o[partNumber].push(toImageObj(_path + "/" + file));
 
             }
             
@@ -51,7 +46,9 @@ var dataStore = function() {
     }
 
     var toPart  = function(fieldsArray, imgArray){
+
         let p = {};
+        p.id = customutils.createUuid();
         p.name = fieldsArray[1]
         p.price = fieldsArray[2]
         p.category = fieldsArray[3]
@@ -61,7 +58,7 @@ var dataStore = function() {
         return p;
     };
 
-    // data file format: 'number', 'name', 'price', 'category', 'subcategory', 'notes' 
+    // data file format: 'id', number', 'name', 'price', 'category', 'subcategory', 'notes' 
 
     function loadAsyncFunction(_datafile){
         let _folder = path.dirname(_datafile);
@@ -86,29 +83,119 @@ var dataStore = function() {
     }
 
     async function init(){
+        logger.debug('[dataStore.init] IN');
         data = await loadAsyncFunction(DEFAULT_FILE);
-        console.log('data:', data);
         let status = (data !== null);
-        console.log('status:', status );
+         logger.debug('[dataStore.init] OUT');
         return status;
     }
 
-    var setObj = function(o){
-        if(o.id){
-            s = data.filter(e => o.id === e.id)
-            if(1 === s.length){
-                let idx = data.indexOf(s[0]);
-                data[idx] = o;
-            }
-                s[0]
+    var getObjIndex = function(obj){
+        let r = -1
+        if( obj.id ){
+            let s = data.filter(e => obj.id === e.id)
+            if(1 === s.length)
+                r = data.indexOf(s[0]);
         }
-        else {
+        
+        return r;
+    }
 
+    var getIdIndex = function(id){
+        let r = -1
+        if( id ){
+            let s = data.filter(e => id === e.id)
+            if(1 === s.length)
+                r = data.indexOf(s[0]);
+        }
+        
+        return r;
+    }
+
+    var setObj = function(o, cb){
+        try{
+            let idx = getObjIndex(o);
+            if( idx > -1 )
+                data[idx] = o;
+            else{
+                if( !o.id )
+                    o.id = customutils.createUuid();
+                data.push(o);
+            } 
+            cb(null, o);
+        }
+        catch(error){
+            cb(error);
+        }
+        
+    }
+
+    var getObj = function(id, cb){
+        try{
+            let r = null;
+            let idx = getIdIndex(id);
+            if( idx > -1 )
+                r = data[idx];
+            cb(null, r);
+         }
+        catch(error){
+            cb(error);
+        }
+    }
+
+    var getObjs = function(cb){
+        try{
+            cb(null, [...data]);
+         }
+        catch(error){
+            cb(error);
+        }
+    }
+
+    var removeObj = function(id, cb){
+        try {
+            let r = null;
+            let idx = getIdIndex(id);
+            if( idx > -1 )
+                r = data.splice(idx,1);
+            cb(null, r);
+         }
+        catch(error){
+            cb(error);
+        }
+    }
+
+    var setObjs = function(os, cb){
+        try {
+            os.forEach(function(o) {
+                setObj(o);
+            }); 
+
+             cb(null, [...data]);
+         }
+        catch(error){
+            cb(error);
+        }
+    }
+
+    var clear = function(cb){
+        try {
+            let o = data.splice(0);
+            cb(null, o);
+         }
+        catch(error){
+            cb(error);
         }
     }
 
     return {
-        init: init
+       init: init
+        , setObj: setObj
+        , getObj: getObj
+        , getObjs: getObjs
+        , removeObj: removeObj
+        , setObjs: setObjs
+        , clear: clear
     };
 
 }();

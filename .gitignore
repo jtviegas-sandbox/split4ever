@@ -6,3 +6,5 @@ package-lock.json
 */.settings
 */trace.log
 dist
+.project
+.settings

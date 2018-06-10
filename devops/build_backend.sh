@@ -16,12 +16,19 @@ cd $_pwd
 echo "...moving to $BACKEND..."
 cd $BACKEND
 npm install
-grunt -vd build
+grunt -vd test
+if [ "0" != "$?" ]; then
+	echo "...backend test failed...leaving!!!"
+	cd $_pwd
+	return 1
+fi
+grunt -vd travisbuild
 if [ "0" != "$?" ]; then
 	echo "...backend build failed...leaving!!!"
 	cd $_pwd
 	return 1
 fi
+
 cd $_pwd
 
 mkdir -p $ARCHIVE_DIR

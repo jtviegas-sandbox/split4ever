@@ -56,8 +56,6 @@ module.exports = function(grunt) {
                 files: [
                     { expand: true, cwd: 'src/',  src: ['**'], dest: 'dist/'}
                     ,{ expand: true, cwd: './',  src: ['package.json'], dest: 'dist/'}
-                    ,{ expand: true, cwd: './',  src: ['split4ever.pem'], dest: 'dist/'}
-                    ,{ expand: true, cwd: './',  src: ['split4ever.crt'], dest: 'dist/'}
                 ]
             }
         }
@@ -80,6 +78,11 @@ module.exports = function(grunt) {
     grunt.registerTask('test', [
         'cafemocha:unit'
         , 'cafemocha:integration'
+      ]);
+    
+    grunt.registerTask('travisbuild', [
+        'clean'
+        , 'copy'
       ]);
 
     grunt.registerTask('build', [

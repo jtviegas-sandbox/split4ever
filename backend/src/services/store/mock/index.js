@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const csvParser = require('csv-parse');
 const customutils = require('../../common/customutils')
+var Part = require('../../../representations/part')
 var logger = require('../../common/apputils').logger;
 
 var MockDataStore = function() {
@@ -55,7 +56,7 @@ var MockDataStore = function() {
         p.subcategory = fieldsArray[4]
         p.notes = fieldsArray[5]
         p.images = imgArray[fieldsArray[0]]
-        return p;
+        return new Part(p);
     };
 
     // data file format: 'id', number', 'name', 'price', 'category', 'subcategory', 'notes' 

@@ -4,11 +4,8 @@ var cookieSession = require('cookie-session');
 var cookieParser = require('cookie-parser');
 var https = require('https');
 const fs = require('fs');
-var passport = require('passport');
-var BasicStrategy = require('passport-http').BasicStrategy;
+
 //var swaggerUi = require('swagger-ui-express'), swaggerDocument = require('./swagger.json');
-
-
 
 //custom modules
 var logger = require('./services/common/apputils').logger;
@@ -30,15 +27,6 @@ var cookieSessionProps = {
     maxAge : 30*24*60*60*1000
   }
 };
-
-passport.use(new BasicStrategy(
-  function(username, password, done) {
-    if( password === 'passw0rd' )
-      return done(null, { name: username, authenticated: true });
-    else 
-      return done(null, false);
-  }
-));
 
 var app = express();
 app.use(cookieSession(cookieSessionProps));
@@ -67,7 +55,6 @@ if( 'PROD' === process.env.MODE ){
   });
 }
 
-app.use(passport.authenticate('basic', { session: false }));
 //app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api/parts', parts);
 app.use('/', express.static(frontendDir, options));

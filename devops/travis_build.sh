@@ -2,7 +2,7 @@
 
 echo "[@build]...running..."
 folder=$(dirname $(readlink -f $0))
-$folder/build.sh
+$folder/build_backend.sh
 echo "[@build]...done."
 
 

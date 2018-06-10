@@ -24,6 +24,7 @@ if [ "0" != "$?" ]; then
 fi
 cd $_pwd
 
+mkdir -p $ARCHIVE_DIR
 echo "...moving backend build to dist..."
 cp -r $BACKEND_BUILD/* $BACKEND_DIST/
 

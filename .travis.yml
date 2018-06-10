@@ -1,9 +1,12 @@
 language: node_js
 node_js:
   - "9.11.1"
-before_install: 
+cache:
+  directories:
+    - "backend/node_modules"
+install: 
   - ./devops/travis_install.sh
-install:
+script:
   - ./devops/travis_build.sh
 
 

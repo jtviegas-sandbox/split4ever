@@ -59,7 +59,7 @@ var Config = function() {
 
     var log = {
         dir: process.env.LOG_DIR || './logs'
-        , level: process.env.LOG_LEVEL || 'debug'
+        , level: process.env.LOG_LEVEL || 'info'
         , filename: process.env.LOG_FILENAME || 'trace.log'
         , filesize: process.env.LOG_FILESIZE || 1048576
         , filenum: process.env.LOG_FILENUM || 5

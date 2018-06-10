@@ -21,6 +21,7 @@ const dataStoreFactory = (function(){
                             if(!e && s.isFile()){
                                 logger.info('[dataStoreFactory.init] loading store %s', storetype);
                                 let store = require(storetypeFolder);
+
                                 stores[storetype.toLowerCase()] = store;
                                 logger.info('[dataStoreFactory.init] loaded %s store', storetype);
                             }

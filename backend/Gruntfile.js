@@ -17,11 +17,6 @@ module.exports = function(grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json')
-/*        , env : {
-            dev : {
-              src : '../devops/env.json'
-            }
-        }*/
         , cafemocha: {
             unit: {
                 src: 'test/*_unit.js',
@@ -59,9 +54,10 @@ module.exports = function(grunt) {
         , copy: {
             main: {
                 files: [
-                    { expand: true, cwd: 'src/',  src: ['**'], dest: 'dist/'},
-                    { expand: true, cwd: './',  src: ['package.json'], dest: 'dist/'},
-                    { expand: true, cwd: './',  src: ['manifest.yml'], dest: 'dist/'}
+                    { expand: true, cwd: 'src/',  src: ['**'], dest: 'dist/'}
+                    ,{ expand: true, cwd: './',  src: ['package.json'], dest: 'dist/'}
+                    ,{ expand: true, cwd: './',  src: ['split4ever.pem'], dest: 'dist/'}
+                    ,{ expand: true, cwd: './',  src: ['split4ever.crt'], dest: 'dist/'}
                 ]
             }
         }
@@ -82,16 +78,14 @@ module.exports = function(grunt) {
         'jshint', 'clean', 'cafemocha:unit' ]);
 
     grunt.registerTask('test', [
-        //'env:dev'
         'cafemocha:unit'
         , 'cafemocha:integration'
       ]);
 
     grunt.registerTask('build', [
-        //'env:dev'
-        'clean'
+        'cafemocha:unit'
+        , 'clean'
         , 'copy'
-        , 'cafemocha:unit'
       ]);
 
 };

@@ -4,17 +4,16 @@ var cookieSession = require('cookie-session');
 var cookieParser = require('cookie-parser');
 
 //custom modules
-var parts = require('./resources/parts/route.js');
 var logger = require('./services/common/apputils').logger;
+var parts = require('./resources/parts/route.js');
 
 //CONSTANTS
 process.env.PORT = process.env.PORT || 3000;
 process.env.MODE = process.env.MODE || 'PROD';
 process.env.STORE = process.env.STORE || 'REAL';
-
 var frontendDir = __dirname + '/public';
 
-logger.info('[index.js] starting in mode: %s [frontend dir: %s]', process.env.MODE, frontendDir);
+logger.info('[index.js] starting in mode: %s [dataStore: %s][frontend dir: %s]', process.env.MODE, process.env.STORE, frontendDir);
 
 var cookieSessionProps = {
   name: 'session',

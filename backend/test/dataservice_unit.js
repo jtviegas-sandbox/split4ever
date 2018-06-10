@@ -9,14 +9,17 @@ var expect = require('chai').expect;
 var assert = require('chai').assert;
 
 var service = require('../src/services/data/dataService');
-var customutils = require('../src/common/customutils');
+var customutils = require('../src/services/common/customutils');
+
+
 
 describe('running data service unit tests on mock:', function() {
 
-    describe('data service operations' , function() {
+
+    describe('service operations' , function() {
 
         it('1* should have 7 objects there', function(done) {
-            let objs = service.getParts(function(err,o){
+            service.getParts(function(err,o){
                 expect(err).to.be.null;
                 expect(o.length).to.equal(7);
                 done();
@@ -28,12 +31,13 @@ describe('running data service unit tests on mock:', function() {
             let o = customutils.createRandomObj();
             service.setPart(o, function(e,o){
                 expect(e).to.be.null;
+                service.getParts(function(e,os){
+                    expect(e).to.be.null;
+                    expect(os.length).to.equal(8);
+                    done();
+                });
             });
-            let objs = service.getParts(function(e,o){
-                expect(e).to.be.null;
-                expect(o.length).to.equal(8);
-                done();
-            });
+            
             
          });
 
@@ -71,19 +75,28 @@ describe('running data service unit tests on mock:', function() {
          });
 
          it('5* should have nothing after clear', function(done) {
-            service.clearParts(function(e,os){
-                expect(e).to.be.null;
-                service.getParts(function(e,os){
+             let parts = null;
+             service.getParts(function(e,os){
                     expect(e).to.be.null;
-                    expect(os.length).to.equal(0);
-                    done();
+                    parts = os;
+                    service.clearParts(function(e,os){
+                        expect(e).to.be.null;
+                        service.getParts(function(e,os2){
+                            expect(e).to.be.null;
+                            expect(os2.length).to.equal(0);
+                            service.addParts(parts, function(e,os3){
+                                expect(e).to.be.null;
+                                expect(os3.length).to.equal(parts.length);
+                                done();
+                            });
+                        });
+
+                    });
                 });
 
-            });
+            
 
          });
-
-
     });
 });
 

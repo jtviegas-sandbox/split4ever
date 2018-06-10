@@ -8,8 +8,8 @@ process.env.STORE = 'MOCK';
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 
-var storeFactory = require('../src/services/store/dataStoreFactory');
-var customutils = require('../src/common/customutils');
+const storeFactory = require(__dirname + '/../src/services/store/dataStoreFactory');
+var customutils = require('../src/services/common/customutils');
 
 describe('running datastore unit tests on mock:', function() {
 
@@ -17,11 +17,11 @@ describe('running datastore unit tests on mock:', function() {
 
     before(function(done) {
         store = storeFactory.get();
-        store.init();
         done();
     });
 
     describe('store operations' , function() {
+
 
         it('1* should have 7 objects there', function(done) {
             let objs = store.getObjs(function(err,o){
@@ -79,19 +79,28 @@ describe('running datastore unit tests on mock:', function() {
          });
 
          it('5* should have nothing after clear', function(done) {
-            store.clear(function(e,os){
-                expect(e).to.be.null;
-                store.getObjs(function(e,os){
+            let parts = null;
+             store.getObjs(function(e,os){
                     expect(e).to.be.null;
-                    expect(os.length).to.equal(0);
-                    done();
-                });
+                    parts = os;
+                    store.clear(function(e,os){
+                        expect(e).to.be.null;
+                        store.getObjs(function(e,os){
+                            expect(e).to.be.null;
+                            expect(os.length).to.equal(0);
+                            store.setObjs(parts, function(e,os){
+                                expect(e).to.be.null;
+                                expect(os.length).to.equal(parts.length);
+                                done();
+                            });
+                        });
 
-            });
+                    });
+                });
 
          });
 
-
+        
     });
 });
 

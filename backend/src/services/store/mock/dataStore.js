@@ -2,8 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 const csvParser = require('csv-parse');
-const customutils = require('../../../common/customutils')
-var logger = require('./../../../common/apputils').logger;
+const customutils = require('../../common/customutils')
+var logger = require('../../common/apputils').logger;
 
 var dataStore = function() {
 
@@ -68,26 +68,30 @@ var dataStore = function() {
             fs.createReadStream(_datafile)
             .pipe(csvParser({delimiter: ','}))
             .on('data', function(l) {
-                console.log('@data',l);
+                logger.debug('@data %s',l);
                 d.push(toPart(l, imgs));
             })
             .on('end',function() {
-                console.log('@end', d);
+                logger.debug('@end: %s', d);
                 resolve(d);
             })
             .on('error', function() {
-                console.log('@error',d);
+                logger.debug('@error: %s',d);
                 resolve(null);
             });
         });
     }
 
-    async function init(){
+    async function init (){
         logger.debug('[dataStore.init] IN');
         data = await loadAsyncFunction(DEFAULT_FILE);
         let status = (data !== null);
-         logger.debug('[dataStore.init] OUT');
-        return status;
+        logger.debug('[dataStore.init] OUT');
+        if(status)
+            logger.info("store has %d objs", data.length);
+        else
+            logger.info("store got no data");
+
     }
 
     var getObjIndex = function(obj){
@@ -112,16 +116,20 @@ var dataStore = function() {
         return r;
     }
 
+    var syncSetObj = function(o){
+        let idx = getObjIndex(o);
+        if( idx > -1 )
+            data[idx] = o;
+        else{
+            if( !o.id )
+                o.id = customutils.createUuid();
+            data.push(o);
+        }
+    }
+
     var setObj = function(o, cb){
         try{
-            let idx = getObjIndex(o);
-            if( idx > -1 )
-                data[idx] = o;
-            else{
-                if( !o.id )
-                    o.id = customutils.createUuid();
-                data.push(o);
-            } 
+            syncSetObj(o);
             cb(null, o);
         }
         catch(error){
@@ -144,12 +152,14 @@ var dataStore = function() {
     }
 
     var getObjs = function(cb){
+        logger.debug('[dataStore.getObjs] IN');
         try{
             cb(null, [...data]);
          }
         catch(error){
             cb(error);
         }
+        logger.debug('[dataStore.getObjs] OUT');
     }
 
     var removeObj = function(id, cb){
@@ -168,10 +178,9 @@ var dataStore = function() {
     var setObjs = function(os, cb){
         try {
             os.forEach(function(o) {
-                setObj(o);
+                syncSetObj(o);
             }); 
-
-             cb(null, [...data]);
+            cb(null, [...data]);
          }
         catch(error){
             cb(error);
@@ -188,9 +197,10 @@ var dataStore = function() {
         }
     }
 
+    init();
+
     return {
-       init: init
-        , setObj: setObj
+        setObj: setObj
         , getObj: getObj
         , getObjs: getObjs
         , removeObj: removeObj

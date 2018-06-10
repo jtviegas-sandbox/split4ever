@@ -1,7 +1,7 @@
 # split4ever
 
-travis CI page -> https://travis-ci.org/split4ever/main
+travis CI page -> https://travis-ci.org/jtviegas/split4ever
 
-test env -> https://split4ever.mybluemix.net/
+test env -> ... (was https://split4ever.mybluemix.net/)
 
 

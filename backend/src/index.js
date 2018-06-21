@@ -4,6 +4,7 @@ var cookieSession = require('cookie-session');
 var cookieParser = require('cookie-parser');
 var https = require('https');
 const fs = require('fs');
+var cors = require('cors');
 
 //var swaggerUi = require('swagger-ui-express'), swaggerDocument = require('./swagger.json');
 
@@ -54,6 +55,11 @@ if( 'PROD' === process.env.MODE ){
     }
   });
 }
+
+if( 'TEST' === process.env.MODE ){
+  app.use(cors({origin: 'http://localhost:3000'}));
+}
+
 
 //app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api/parts', parts);

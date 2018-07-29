@@ -1,0 +1,7 @@
+FUNCTION_NAME=store
+FUNCTION_FILE=index.js
+ZIP_FILE=$FUNCTION_NAME.zip
+HANDLER=index.handler
+ROLE=arn:aws:iam::692391178777:role/service-role/parts-consumer
+RUNTIME=nodejs8.10
+MEMORY=128

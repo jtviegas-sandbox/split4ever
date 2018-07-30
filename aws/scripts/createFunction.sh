@@ -5,6 +5,11 @@ parent_folder=$(dirname $this_folder)
 
 . $this_folder/include
 
+SRC=$parent_folder/src
+_pwd=`pwd`
+
+cd $SRC
+
 rm -f $ZIP_FILE
 zip -9 $ZIP_FILE $FUNCTION_FILE 
 
@@ -18,3 +23,6 @@ aws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://$ZI
 
 aws lambda create-alias --function-name $FUNCTION_NAME --name $ALIAS --function-version "\$LATEST"
 
+rm $ZIP_FILE
+
+cd $_pwd

@@ -1,0 +1,8 @@
+FUNCTION_NAME=load
+BUCKET_NAME=functions.split4ever.com
+TEMPLATE=template.yaml
+TEMPLATE_FINAL=template-final.yaml
+CAPABILITY=CAPABILITY_IAM
+REGION=us-east-1
+POLICY=parts-load
+POLICY_FILE=policy.json

@@ -1,0 +1,9 @@
+PROJ=split4ever
+DOMAIN=$PROJ.com
+TABLES="part_prod part_dev"
+BUCKET_NAMES="function store_prod store_dev"
+STORE_BUCKET_NAMES="store_prod store_dev"
+STORE_MAINTENANCE_USER_POLICY=storeMaintenanceUser
+STORE_MAINTENANCE_FUNCTION_POLICY=storeMaintenanceFunction
+STORE_MAINTENANCE_GROUP=storeMaintenanceUsers
+STORE_MAINTENANCE_USERS="rocha tiago"

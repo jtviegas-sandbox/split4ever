@@ -6,6 +6,7 @@ parent_folder=$(dirname $this_folder)
 . ./include
 _pwd=`pwd`
 
+echo "#################################################\n#################################################\n#################################################"
 echo "-------\ncreating aws config for project $PROJ...\n-------"
 
 echo "------- creating tables for project $PROJ..."
@@ -98,5 +99,18 @@ for u in $STORE_MAINTENANCE_USERS; do
 done
 
 echo "------- ... iam configuration for project $PROJ done."
+
+
+echo "------- creating functions for project $PROJ..."
+
+zip -9 $this_folder/$FUNCTIONS_ZIP $this_folder/$FUNCTIONS_SCRIPT
+if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create $FUNCTIONS_ZIP !...leaving." && cd $_pwd && return 1; fi
+template="sam-template.yaml"
+arn=`aws iam list-policies --output text | grep $STORE_MAINTENANCE_FUNCTION_POLICY | awk '{print $2}'`
+sed  "s=.*Role: 'XXXXXXROLE01XXXXX'.*=      Role: '$arn'=" $this_folder/$SAM_TEMPLATE > $this_folder/$TEMPLATE
+aws cloudformation deploy --template-file $this_folder/$TEMPLATE --capabilities $CAPABILITY --stack-name PROD
+if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create functions !...leaving." && cd $_pwd && return 1; else echo "------- created functions" ; fi
+
+echo "------- creating functions for project $PROJ done."
 
 echo "-------\naws config for project $PROJ done.\n-------"

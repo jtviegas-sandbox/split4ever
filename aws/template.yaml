@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: backend service to react on store bucket updates and load dynamoDb tables
+Resources:
+  partsLoadFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.partsLoad
+      Runtime: nodejs8.10
+      CodeUri:
+        Bucket: function
+        Key: functions.zip
+        Version: 121212
+      Description: >-
+        backend service to react on store bucket updates and load dynamoDb
+        tables
+      MemorySize: 256
+      Timeout: 150
+      Role: 'arn:aws:iam::692391178777:policy/storeMaintenanceFunction'
+      Events:
+        BucketEventProd:
+          Type: S3
+          Properties:
+            Bucket:
+              Ref: BucketProd
+            Events:
+              - 's3:ObjectCreated:Put'
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: done
+                  - Name: suffix
+                    Value: .update
+        BucketEventDev:
+          Type: S3
+          Properties:
+            Bucket:
+              Ref: BucketDev
+            Events:
+              - 's3:ObjectCreated:Put'
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: done
+                  - Name: suffix
+                    Value: .update
+  BucketProd:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: store-prod
+  BucketDev:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: store-dev
+    
+            
+      
+    

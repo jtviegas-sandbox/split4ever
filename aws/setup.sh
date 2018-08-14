@@ -109,6 +109,8 @@ zip -9 $this_folder/$FUNCTIONS_ZIP $this_folder/$FUNCTIONS_SCRIPT
 if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create $FUNCTIONS_ZIP !...leaving." && cd $_pwd && return 1; fi
 template="sam-template.yaml"
 
+
+
 aws iam create-role --role-name $STORE_MAINTENANCE_FUNCTION_ROLE --assume-role-policy-document file://$this_folder/$ASSUME_ROLE_POLICY_FILE
 if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create role $STORE_MAINTENANCE_FUNCTION_ROLE !...leaving." && cd $_pwd && return 1; fi
 arn=`aws iam list-policies --output text | grep $STORE_MAINTENANCE_FUNCTION_POLICY | awk '{print $2}'`

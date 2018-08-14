@@ -9,6 +9,16 @@ echo "#################################################\n#######################
 echo "-------\nremoving aws config for project $PROJ...\n-------"
 
 echo "------- removing iam configuration for project $PROJ..."
+aws lambda delete-function --function-name $LOAD_FUNCTION
+
+arn=`aws iam list-policies --output text | grep $STORE_MAINTENANCE_FUNCTION_POLICY | awk '{print $2}'`
+aws iam detach-role-policy --role-name $STORE_MAINTENANCE_FUNCTION_ROLE --policy-arn $arn
+if [ ! "$?" -eq "0" ] ; then echo "------- ! could not detach policy $STORE_MAINTENANCE_FUNCTION_POLICY from role $STORE_MAINTENANCE_FUNCTION_ROLE !" ; else echo "------- detached policy $STORE_MAINTENANCE_FUNCTION_POLICY from role $STORE_MAINTENANCE_FUNCTION_ROLE" ; fi
+aws iam delete-role --role-name $STORE_MAINTENANCE_FUNCTION_ROLE
+if [ ! "$?" -eq "0" ] ; then echo "------- ! could not delete role $STORE_MAINTENANCE_FUNCTION_ROLE !" ; else echo "------- deleted role $STORE_MAINTENANCE_FUNCTION_ROLE" ; fi
+
+
+
 
 for u in $STORE_MAINTENANCE_USERS; do
     aws iam remove-user-from-group --user-name $u --group-name $STORE_MAINTENANCE_GROUP

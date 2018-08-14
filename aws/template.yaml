@@ -16,13 +16,13 @@ Resources:
         tables
       MemorySize: 256
       Timeout: 150
-      Role: 'arn:aws:iam::692391178777:policy/storeMaintenanceFunction'
+      Role: 'arn:aws:iam::692391178777:role/storeMaintenanceFunction'
       Events:
-        BucketEventProd:
+        bucketEventProd:
           Type: S3
           Properties:
             Bucket:
-              Ref: BucketProd
+              Ref: bucketProd
             Events:
               - 's3:ObjectCreated:Put'
             Filter:
@@ -32,11 +32,11 @@ Resources:
                     Value: done
                   - Name: suffix
                     Value: .update
-        BucketEventDev:
+        bucketEventDev:
           Type: S3
           Properties:
             Bucket:
-              Ref: BucketDev
+              Ref: bucketDev
             Events:
               - 's3:ObjectCreated:Put'
             Filter:
@@ -46,11 +46,11 @@ Resources:
                     Value: done
                   - Name: suffix
                     Value: .update
-  BucketProd:
+  bucketProd:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: store-prod
-  BucketDev:
+  bucketDev:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: store-dev

@@ -98,6 +98,8 @@ for u in $STORE_MAINTENANCE_USERS; do
     if [ ! "$?" -eq "0" ] ; then echo "------- ! could not add user $u to group $STORE_MAINTENANCE_GROUP !...leaving." && cd $_pwd && return 1; else echo "------- added user $u to group $STORE_MAINTENANCE_GROUP" ; fi
 done
 
+
+
 echo "------- ... iam configuration for project $PROJ done."
 
 
@@ -106,11 +108,22 @@ echo "------- creating functions for project $PROJ..."
 zip -9 $this_folder/$FUNCTIONS_ZIP $this_folder/$FUNCTIONS_SCRIPT
 if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create $FUNCTIONS_ZIP !...leaving." && cd $_pwd && return 1; fi
 template="sam-template.yaml"
+
+aws iam create-role --role-name $STORE_MAINTENANCE_FUNCTION_ROLE --assume-role-policy-document file://$this_folder/$ASSUME_ROLE_POLICY_FILE
+if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create role $STORE_MAINTENANCE_FUNCTION_ROLE !...leaving." && cd $_pwd && return 1; fi
 arn=`aws iam list-policies --output text | grep $STORE_MAINTENANCE_FUNCTION_POLICY | awk '{print $2}'`
-sed  "s=.*Role: 'XXXXXXROLE01XXXXX'.*=      Role: '$arn'=" $this_folder/$SAM_TEMPLATE > $this_folder/$TEMPLATE
-aws cloudformation deploy --template-file $this_folder/$TEMPLATE --capabilities $CAPABILITY --stack-name PROD
-if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create functions !...leaving." && cd $_pwd && return 1; else echo "------- created functions" ; fi
+aws iam attach-role-policy --policy-arn $arn --role-name $STORE_MAINTENANCE_FUNCTION_ROLE
+if [ ! "$?" -eq "0" ] ; then echo "------- ! could attach policy $STORE_MAINTENANCE_FUNCTION_POLICY to role $STORE_MAINTENANCE_FUNCTION_ROLE !...leaving." && cd $_pwd && return 1; fi
+# arn=`aws iam list-roles --output text | grep $STORE_MAINTENANCE_FUNCTION_ROLE | awk '{print $2}'`
+# sed  "s=.*Role: 'XXXXXXROLE01XXXXX'.*=      Role: '$arn'=" $this_folder/$SAM_TEMPLATE > $this_folder/$TEMPLATE
+# aws cloudformation deploy --template-file $this_folder/$TEMPLATE --capabilities $CAPABILITY --stack-name PROD
+# if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create functions !...leaving." && cd $_pwd && return 1; else echo "------- created functions" ; fi
 
 echo "------- creating functions for project $PROJ done."
 
 echo "-------\naws config for project $PROJ done.\n-------"
+
+# aws iam list-roles --output text | grep storeMaintenanceFunction | awk '{print $2}'
+# arn:aws:iam::692391178777:role/storeMaintenanceFunction
+# sed  "s=.*Role: 'XXXXXXROLE01XXXXX'.*=      Role: 'arn:aws:iam::692391178777:role/storeMaintenanceFunction'=" sam-template.yaml > template.yaml
+# aws cloudformation deploy --template-file template.yaml --capabilities CAPABILITY_IAM --stack-name PROD

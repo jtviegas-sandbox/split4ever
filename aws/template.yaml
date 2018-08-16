@@ -8,9 +8,8 @@ Resources:
       Handler: index.partsLoad
       Runtime: nodejs8.10
       CodeUri:
-        Bucket: function
+        Bucket: function.split4ever.com
         Key: functions.zip
-        Version: 121212
       Description: >-
         backend service to react on store bucket updates and load dynamoDb
         tables

@@ -108,15 +108,20 @@ echo "------- creating functions for project $PROJ..."
 zip -9 $this_folder/$FUNCTIONS_ZIP $this_folder/$FUNCTIONS_SCRIPT
 if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create $FUNCTIONS_ZIP !...leaving." && cd $_pwd && return 1; fi
 template="sam-template.yaml"
-
-
+BUCKET=s3://$BUCKET_FUNCTION/
+aws s3 cp $this_folder/$FUNCTIONS_ZIP $BUCKET
+if [ ! "$?" -eq "0" ] ; then echo "------- ! could not copy $FUNCTIONS_ZIP to $BUCKET !...leaving." && cd $_pwd && return 1; fi
+template="sam-template.yaml"
 
 aws iam create-role --role-name $STORE_MAINTENANCE_FUNCTION_ROLE --assume-role-policy-document file://$this_folder/$ASSUME_ROLE_POLICY_FILE
 if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create role $STORE_MAINTENANCE_FUNCTION_ROLE !...leaving." && cd $_pwd && return 1; fi
 arn=`aws iam list-policies --output text | grep $STORE_MAINTENANCE_FUNCTION_POLICY | awk '{print $2}'`
 aws iam attach-role-policy --policy-arn $arn --role-name $STORE_MAINTENANCE_FUNCTION_ROLE
 if [ ! "$?" -eq "0" ] ; then echo "------- ! could attach policy $STORE_MAINTENANCE_FUNCTION_POLICY to role $STORE_MAINTENANCE_FUNCTION_ROLE !...leaving." && cd $_pwd && return 1; fi
-# arn=`aws iam list-roles --output text | grep $STORE_MAINTENANCE_FUNCTION_ROLE | awk '{print $2}'`
+arn=`aws iam list-roles --output text | grep $STORE_MAINTENANCE_FUNCTION_ROLE | awk '{print $2}'`
+aws lambda create-function --function-name $LOAD_FUNCTION --runtime $FUNCTION_RUNTIME --role $arn --handler $LOAD_FUNCTION_HANDLER --code $LOAD_FUNCTION_CODE --timeout $LOAD_FUNCTION_TIMEOUT --memory-size $LOAD_FUNCTION_MEMORY --tags project=split4ever,stack=prod
+if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create function $LOAD_FUNCTION !...leaving." && cd $_pwd && return 1; else echo "------- created function $LOAD_FUNCTION" ; fi
+
 # sed  "s=.*Role: 'XXXXXXROLE01XXXXX'.*=      Role: '$arn'=" $this_folder/$SAM_TEMPLATE > $this_folder/$TEMPLATE
 # aws cloudformation deploy --template-file $this_folder/$TEMPLATE --capabilities $CAPABILITY --stack-name PROD
 # if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create functions !...leaving." && cd $_pwd && return 1; else echo "------- created functions" ; fi

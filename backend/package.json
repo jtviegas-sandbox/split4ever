@@ -20,6 +20,9 @@
     "url": "https://github.com/split4ever/main/issues"
   },
   "homepage": "https://github.com/split4ever/main",
+  "resolutions": {
+    "eslint-scope": "3.7.1"
+  },
   "dependencies": {
     "body-parser": "^1.18.3",
     "cfenv": "^1.0.3",

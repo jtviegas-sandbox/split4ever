@@ -112,7 +112,18 @@ var CustomUtils = function() {
         p.images = []
         return p;
     }
-    
+
+    var createNewRandomObj  = function(){
+    	let p = {};
+        p.name = randomString(24)
+        p.price = randomNumber(500)
+        p.category = randomString(24)
+        p.subcategory = randomString(24)
+        p.notes = randomString(24)
+        p.images = []
+        return p;
+    }
+
     
     return {
         getPropertyNames: getPropertyNames
@@ -131,6 +142,7 @@ var CustomUtils = function() {
         , findPropertyIndexInArrayObj: findPropertyIndexInArrayObj
         , fileToBase64: fileToBase64
         , createRandomObj: createRandomObj
+        , createNewRandomObj: createNewRandomObj
     };
 
 }();

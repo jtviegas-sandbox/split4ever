@@ -49,8 +49,8 @@ var PartsFunctions = function(){
         logger.debug('[PartsFunctions.getPart] OUT');
     };
 
-     var setPart = function(req,res){
-        logger.debug('[PartsFunctions.setPart] IN');
+    var putPart = function(req,res){
+        logger.debug('[PartsFunctions.putPart] IN');
         var id = req.params.id;
         var obj = req.body;
         if(id !== obj.id)
@@ -67,14 +67,56 @@ var PartsFunctions = function(){
             }
         };
         data.setPart(obj, callback);
-        logger.debug('[PartsFunctions.setPart] OUT');
+        logger.debug('[PartsFunctions.putPart] OUT');
     };
 
+    var postPart = function(req,res){
+        logger.debug('[PartsFunctions.postPart] IN');
+
+        var obj = req.body;
+        if(obj.id)
+            res.status(422).send('trying to post object with an id');
+
+        var callback = function(err, o){
+            if(err){
+                logger.error(err);
+                res.status(500).end();
+            }
+            else {
+                res.status(201).json(o);
+                res.end();
+            }
+        };
+        data.setPart(obj, callback);
+        logger.debug('[PartsFunctions.postPart] OUT');
+    };
+
+    var delPart = function(req,res){
+        logger.debug('[PartsFunctions.delPart] IN');
+        var id = req.params.id;
+
+        var callback = function(err, o){
+            if(err){
+                logger.error(err);
+                res.status(500).end();
+            }
+            else {
+                if(o)
+                    res.status(204).end();
+                else
+                    res.status(404).end();
+            }
+        };
+        data.removePart(id, callback);
+        logger.debug('[PartsFunctions.delPart] OUT');
+    };
 
     return {
         getParts: getParts
         , getPart: getPart
-        , setPart: setPart
+        , putPart: putPart
+        , postPart: postPart
+        , delPart: delPart
     };
 
 }();

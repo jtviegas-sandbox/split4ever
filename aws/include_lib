@@ -1,0 +1,141 @@
+__R=
+
+STATE_ACTIVE=ACTIVE
+STATE_UPDATING=UPDATING
+STATE_CREATING=CREATING
+STATE_DELETING=DELETING
+STATE_MISSING=MISSING
+
+STATE_ACTIVE_CODE=9
+STATE_UPDATING_CODE=7
+STATE_CREATING_CODE=3
+STATE_DELETING_CODE=2
+STATE_MISSING_CODE=1
+
+
+getTableState()
+{
+    echo "___@getTableState"
+    local __r=$STATE_MISSING_CODE
+    local __table=$1
+    local __s=`aws dynamodb describe-table --output text --table-name $__table | grep "^TABLE" | awk '{print $8}'`
+    if [ ! -z "$__s" ]; then
+        if [ "$__s" = $STATE_DELETING ]; then __r=$STATE_DELETING_CODE; fi
+        if [ "$__s" = "$STATE_CREATING" ]; then __r=$STATE_CREATING_CODE; fi
+        if [ "$__s" = "$STATE_UPDATING" ]; then __r=$STATE_UPDATING_CODE; fi
+        if [ "$__s" = "$STATE_ACTIVE" ]; then __r=$STATE_ACTIVE_CODE; fi
+    fi
+    echo "___getTableState@ $__r"
+    return $__r
+}
+
+checkTableExistence()
+{
+    echo "___@checkTableExistence"
+    local __r=1
+    local __table=$1
+    
+    local __s=0
+    while [ "$__s" -ne "$STATE_MISSING_CODE" ] && [ "$__s" -ne "$STATE_ACTIVE_CODE" ]
+    do
+        getTableState "$__table"
+        __s=$?
+        echo "\n... table $__table at state $__s...\n"
+        sleep 6
+    done
+
+    if [ "$__s" -eq "$STATE_MISSING_CODE" ] 
+    then
+        __r=0
+    fi
+    
+    echo "___checkTableExistence@ $__r"
+    return $__r
+}
+
+waitForNoTableState()
+{
+    echo "___@waitForNoTableState"
+    local __table=$1
+    
+    local __s=0
+    while [ "$__s" -ne "$STATE_MISSING_CODE" ]
+    do
+        getTableState "$__table"
+        __s=$?
+        echo "\n... table $__table at state $__s...\n"
+        sleep 6
+    done
+    echo "___waitForNoTableState@"
+}
+
+deleteTable()
+{
+    echo "___@deleteTable"
+    local __r=0
+    local __table=$1
+    
+    checkTableExistence "$__table"
+    local __s=$?
+    
+    if [ "$__s" -eq "0" ]; then
+        echo "\n... table $__table is not there ...\n"
+    else
+        aws dynamodb delete-table --table-name $__table    
+        __r=$?
+        if [ "$__r" -eq "0" ]
+        then 
+            waitForNoTableState "$__table"
+            echo "\n...table $__table not there anymore.\n"
+        fi
+    fi
+    echo "___deleteTable@ $__r"
+    return $__r
+}
+
+
+waitForTableState()
+{
+    echo "___@waitForTableState"
+    local __table=$1
+    local __state=$2
+    
+    local __s=0
+    while [ ! "$__s" -eq "$__state" ]
+    do
+        getTableState "$__table"
+        __s=$?
+        echo "\n... table $__table at state $__s...\n"
+        sleep 6
+    done
+    
+    echo "___waitForTableState@"
+}
+
+createTable()
+{
+    echo "___@createTable"
+    local __r=0
+    local __table=$1
+
+    checkTableExistence "$__table"
+    local __s=$?
+    if [ ! "$__s" -eq "0" ]; then
+        echo "\n*** table $__table already there...leaving...\n"
+        __r=0
+    else
+        aws dynamodb create-table --table-name $__table --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+        __r=$?
+        if [ "$__r" -eq "0" ]; then
+                waitForTableState "$__table" "$STATE_ACTIVE_CODE"
+        else
+            __r=1
+        fi
+
+    fi
+    echo "___createTable@ $__r"
+    return $__r
+}
+
+
+

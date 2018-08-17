@@ -10,6 +10,7 @@ var expect = require('chai').expect;
 var baseFolder = __dirname + '/../src';
 var app = require(baseFolder + '/index.js');
 const utils = require(baseFolder + '/services/common/customutils')
+const Part = require(baseFolder + '/representations/part')
 
 describe('parts endpoint tests', function() {
 
@@ -17,11 +18,14 @@ describe('parts endpoint tests', function() {
     var ENDPOINT = '/api/parts';
 
     var obj = null;
+    var n = 0;
 
     before(function(done) {
         app = require(baseFolder + '/index.js');
         done();
     });
+
+    
 
     it('should get all objects', function(done) {
 
@@ -32,14 +36,43 @@ describe('parts endpoint tests', function() {
                 expect(err).to.be.null;
                 expect(res.status).to.be.equal(200)
                 var o = res.body;
-                assert.isTrue(0 < o.length);
-                obj = o[o.length-1]
+                assert.isTrue(0 <= o.length);
+                n = o.length;
                 done();
             });
     });
 
-    
-    it('retrieve one object', function(done) {
+    it('should require basic authentication to post object', function(done) {
+
+        obj = new Part(utils.createNewRandomObj());
+        request(app).post(ENDPOINT)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json')
+            .send(obj)
+            .end(function(err, res) {
+                expect(res.status).to.be.equal(401)
+                done();
+            });
+    });
+
+    it('post object', function(done) {
+
+        request(app).post(ENDPOINT)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json')
+            .set('Authorization', 'Basic ' + new Buffer('user:passw0rd').toString('base64'))
+            .send(obj)
+            .end(function(err, res) {
+                expect(err).to.be.null;
+                expect(res.status).to.be.equal(201)
+                var o = res.body;
+                assert.equal(obj.name, o.name);
+                obj = o;
+                done();
+            });
+    });
+
+    it('retrieve object', function(done) {
 
         let path = ENDPOINT + '/' + obj.id
         request(app).get(path)
@@ -81,10 +114,9 @@ describe('parts endpoint tests', function() {
             });
     });
 
-    it('change the object', function(done) {
+    it('put/change the object', function(done) {
 
         let path = ENDPOINT + '/' + obj.id
-        obj.name = utils.randomString(16);
         request(app).put(path)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json')
@@ -99,6 +131,72 @@ describe('parts endpoint tests', function() {
             });
     });
 
-    
+    it('check number of objects ', function(done) {
+
+        request(app).get(ENDPOINT)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json')
+            .end(function(err, res) {
+                expect(err).to.be.null;
+                expect(res.status).to.be.equal(200)
+                var o = res.body;
+                assert.equal(n+1, o.length);
+                done();
+            });
+    });
+
+    it('should require basic authentication to delete obj', function(done) {
+
+        let path = ENDPOINT + '/' + obj.id
+        request(app).delete(path)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json')
+            .end(function(err, res) {
+                expect(res.status).to.be.equal(401)
+                done();
+            });
+    });
+
+    it('delete object', function(done) {
+
+        let path = ENDPOINT + '/' + obj.id
+        request(app).delete(path)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json')
+            .set('Authorization', 'Basic ' + new Buffer('user:passw0rd').toString('base64'))
+            .end(function(err, res) {
+                expect(err).to.be.null;
+                expect(res.status).to.be.equal(204)
+                done();
+            });
+    });
+
+    it('try to delete unexistent object', function(done) {
+
+        let path = ENDPOINT + '/' + obj.id + '-6789'
+        request(app).delete(path)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json')
+            .set('Authorization', 'Basic ' + new Buffer('user:passw0rd').toString('base64'))
+            .end(function(err, res) {
+                expect(err).to.be.null;
+                expect(res.status).to.be.equal(404)
+                done();
+            });
+    });
+
+    it('check number of objects', function(done) {
+
+        request(app).get(ENDPOINT)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json')
+            .end(function(err, res) {
+                expect(err).to.be.null;
+                expect(res.status).to.be.equal(200)
+                var o = res.body;
+                assert.equal(n, o.length);
+                done();
+            });
+    });
 
 });

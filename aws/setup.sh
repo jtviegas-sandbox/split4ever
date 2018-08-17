@@ -54,7 +54,7 @@ done
 echo "------- ... creating buckets for project $PROJ done."
 
 
-echo "------- creating iam configuration for project $PROJ..."
+echo "------- creating iam configuration for project $PROJ..."toto
 
 policy=$STORE_MAINTENANCE_USER_POLICY
 store_buckets=""

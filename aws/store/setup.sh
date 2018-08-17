@@ -6,7 +6,26 @@ parent_folder=$(dirname $this_folder)
 . $parent_folder/include
 . $parent_folder/include_lib
 
-table=$STORE_TABLE
-createTable "$table"
-__r=$?
-if [ ! "$__r" -eq "0" ] ; then echo "------- ! could not create table $table !...leaving." && cd $_pwd && return 1; else echo "------- created table $table" ; fi
+info "tables creation..."
+
+for table in $STORE_TABLES; do
+    createTable "$table"
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then err "could not create table $table !...leaving." && return 1; fi
+done
+
+info "...tables creation done."
+
+info "buckets creation..."
+for bucket in $STORE_BUCKETS; do
+    createBucket "$bucket"
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then err "could not create bucket $bucket !...leaving." && return 1; fi
+done
+info "...buckets creation done."
+
+
+
+echo "overall outcome: $__r"
+
+

@@ -230,8 +230,51 @@ createBucketsPolicy()
 deleteBucketsPolicy()
 {
     goin "deleteBucketsPolicy" $1
-
+    local policy=$1
+    
+    arn=`aws iam list-policies --output text | grep $policy | awk '{print $2}'`
+    for v in `aws iam list-policy-versions --policy-arn $arn --output text | awk '{print $4}'`; do
+        aws iam delete-policy-version --policy-arn $arn --version-id $v
+        #if [ ! "$?" -eq "0" ] ; then echo "! could not delete policy $p version $v !...leaving." && cd $_pwd && return 1; else echo "deleted policy $p version $v" ; fi
+        if [ ! "$?" -eq "0" ] ; then echo "------- ! could not delete policy $p version $v !"; else echo "------- deleted policy $p version $v" ; fi
+    done
+    aws iam delete-policy --policy-arn $arn
+    #if [ ! "$?" -eq "0" ] ; then echo "! could not delete policy $p !...leaving." && cd $_pwd && return 1; else echo "deleted policy $p" ; fi
+    if [ ! "$?" -eq "0" ] ; then echo "------- ! could not delete policy $p !"; else echo "------- deleted policy $p" ; fi
     
 
     goout "deleteBucketsPolicy" $__r
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

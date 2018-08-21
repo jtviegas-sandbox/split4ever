@@ -206,30 +206,26 @@ deleteBucket()
     return $__r
 }
 
-createBucketsPolicy()
+createPolicyForBucket()
 {
-    goin "createBucketsPolicy" $1
+    goin "createPolicyForBucket" "$1 $2"
 
     local policy=$1
-    local buckets="$2"
-    local store_buckets=
-    for b in $buckets; do
-        store_buckets=$store_buckets",\"arn:aws:s3:::$b\""
-    done
-    local store_buckets_resource="\"arn:aws:s3:::*\/*\""$store_buckets
-
+    local bucket="$2"
+    local store_buckets_resource="\"arn:aws:s3:::*\/*\",\"arn:aws:s3:::$bucket\""
     sed  "s/.*\"Resource\": \[ XXXYYYZZZ \].*/\t\t\"Resource\": \[ $store_buckets_resource \]/" $this_folder/$policy.policy > $this_folder/$policy.json
     aws iam create-policy --policy-name $policy --policy-document file://$this_folder/$policy.json
     local __r=$?
     if [ ! "$__r" -eq "0" ] ; then warn "could not create policy $policy"; else info "created policy $policy" ; fi
     rm $this_folder/$policy.json
 
-    goout "createBucketsPolicy" $__r
+    goout "createPolicyForBucket" $__r
+    return $__r
 }
 
-deleteBucketsPolicy()
+deletePolicy()
 {
-    goin "deleteBucketsPolicy" $1
+    goin "deletePolicy" $1
     local policy=$1
     
     arn=`aws iam list-policies --output text | grep $policy | awk '{print $2}'`
@@ -243,10 +239,32 @@ deleteBucketsPolicy()
     if [ ! "$?" -eq "0" ] ; then echo "------- ! could not delete policy $p !"; else echo "------- deleted policy $p" ; fi
     
 
-    goout "deleteBucketsPolicy" $__r
+    goout "deletePolicy" $__r
+    return $__r
 }
 
+createPolicyForFunction()
+{
+    goin "createPolicyForFunction" "$1 $2"
+    local __r=0
+    local policy=$1
+    local bucket=$2
+    local table=$3
+    
+    sed  "s/.*\"Resource\": \[ XXXXXX \].*/\t\t\"Resource\": \[ \"arn:aws:s3:::$bucket\" \]/" $this_folder/$policy.policy > $this_folder/$policy.2
+    local arn=`aws dynamodb describe-table --output text --table-name $table | grep arn.*$t | awk '{print $4}'`
+    arn=`echo $arn  | sed "s/\//\\//g"`
+    sed  "s=.*\"Resource\": \[ YYYYYY \].*=\t\t\"Resource\": \[ \"$arn\" \]=" $this_folder/$policy.2 > $this_folder/$policy.json
+    rm $this_folder/$policy.2
+    
+    aws iam create-policy --policy-name $policy --policy-document file://$this_folder/$policy.json
+    __r=$? 
+    if [ ! "$__r" -eq "0" ] ; then error "could not create policy $policy"; else info "created policy $policy" ; fi
+    rm $this_folder/$policy.json
 
+    goout "createPolicyForFunction" $__r
+    return $__r
+}
 
 
 

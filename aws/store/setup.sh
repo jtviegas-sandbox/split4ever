@@ -28,13 +28,15 @@ info "...buckets creation done."
 
 info "policies creation..."
 
-createPolicyForBucket $POLICY_BUCKET_PART_MAINTENANCE $BUCKET_PART
+createPolicyForBucket $POLICY_BUCKET_MAINTENANCE_PART $BUCKET_PART
 __r=$?
-if [ ! "$__r" -eq "0" ] ; then err "could not create policy $POLICY_BUCKET_PART_MAINTENANCE !...leaving." && return 1; fi
-createPolicyForFunction $POLICY_FUNCTION_PART_MAINTENANCE $BUCKET_PART $TABLE_PART
+if [ ! "$__r" -eq "0" ] ; then err "could not create policy $POLICY_BUCKET_MAINTENANCE_PART !...leaving." && return 1; fi
+createPolicyForBucketAndTable $POLICY_BUCKET_2_TABLE_EVENT_PART $BUCKET_PART $TABLE_PART
 __r=$?
-if [ ! "$__r" -eq "0" ] ; then err "could not create policy $POLICY_BUCKET_PART_MAINTENANCE !...leaving." && return 1; fi
+if [ ! "$__r" -eq "0" ] ; then err "could not create policy $POLICY_BUCKET_2_TABLE_EVENT_PART !...leaving." && return 1; fi
 info "...policies done."
+
+
 
 
 

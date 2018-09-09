@@ -192,7 +192,7 @@ deleteBucket()
     goin "deleteBucket" $1
     local __bucketName=$1
     __bucket="s3://$__bucketName"
-    aws s3 ls | grep $__bucket
+    aws s3 ls | grep $__bucketName
     local __r=$?
     if [ "$__r" -ne "0" ]; then
         warn "couldn't find bucket $__bucket, not there"
@@ -228,24 +228,28 @@ deletePolicy()
     goin "deletePolicy" $1
     local policy=$1
     
+    __r=0
     arn=`aws iam list-policies --output text | grep $policy | awk '{print $2}'`
-    for v in `aws iam list-policy-versions --policy-arn $arn --output text | awk '{print $4}'`; do
-        aws iam delete-policy-version --policy-arn $arn --version-id $v
-        #if [ ! "$?" -eq "0" ] ; then echo "! could not delete policy $p version $v !...leaving." && cd $_pwd && return 1; else echo "deleted policy $p version $v" ; fi
-        if [ ! "$?" -eq "0" ] ; then echo "------- ! could not delete policy $p version $v !"; else echo "------- deleted policy $p version $v" ; fi
-    done
-    aws iam delete-policy --policy-arn $arn
-    #if [ ! "$?" -eq "0" ] ; then echo "! could not delete policy $p !...leaving." && cd $_pwd && return 1; else echo "deleted policy $p" ; fi
-    if [ ! "$?" -eq "0" ] ; then echo "------- ! could not delete policy $p !"; else echo "------- deleted policy $p" ; fi
-    
-
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for $policy"
+        __r=1
+    else
+        for v in `aws iam list-policy-versions --policy-arn $arn --output text | awk '{print $4}'`; do
+            aws iam delete-policy-version --policy-arn $arn --version-id $v
+            #if [ ! "$?" -eq "0" ] ; then warn "could not delete policy $policy version $v" && cd $_pwd && return 1; else info "deleted policy $policy version $v" ; fi
+            if [ ! "$?" -eq "0" ] ; then warn "could not delete policy $policy version $v"; else info "deleted policy $policy version $v" ; fi
+        done
+        aws iam delete-policy --policy-arn $arn
+        if [ ! "$?" -eq "0" ] ; then warn "could not delete policy $policy"; else info "deleted policy $policy" ; fi
+    fi
     goout "deletePolicy" $__r
     return $__r
 }
 
-createPolicyForFunction()
+createPolicyForBucketAndTable()
 {
-    goin "createPolicyForFunction" "$1 $2"
+    goin "createPolicyForBucketAndTable" "$1 $2"
     local __r=0
     local policy=$1
     local bucket=$2
@@ -262,7 +266,7 @@ createPolicyForFunction()
     if [ ! "$__r" -eq "0" ] ; then error "could not create policy $policy"; else info "created policy $policy" ; fi
     rm $this_folder/$policy.json
 
-    goout "createPolicyForFunction" $__r
+    goout "createPolicyForBucketAndTable" $__r
     return $__r
 }
 

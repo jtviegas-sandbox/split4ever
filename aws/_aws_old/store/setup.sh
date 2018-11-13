@@ -4,7 +4,8 @@ this_folder=$(dirname $(readlink -f $0))
 parent_folder=$(dirname $this_folder)
 
 . $parent_folder/include
-. $parent_folder/include_lib
+. $this_folder/include
+. $parent_folder/lib
 
 __r=0
 
@@ -28,20 +29,27 @@ info "...buckets creation done."
 
 info "policies creation..."
 
-createPolicyForBucket $POLICY_BUCKET_MAINTENANCE_PART $BUCKET_PART
+createPolicyForBucket $PART_BUCKET_MAINTENANCE_POLICY $BUCKET_PART
 __r=$?
-if [ ! "$__r" -eq "0" ] ; then err "could not create policy $POLICY_BUCKET_MAINTENANCE_PART !...leaving." && return 1; fi
-createPolicyForBucketAndTable $POLICY_BUCKET_2_TABLE_EVENT_PART $BUCKET_PART $TABLE_PART
+if [ ! "$__r" -eq "0" ] ; then err "could not create policy $PART_BUCKET_MAINTENANCE_POLICY !...leaving." && return 1; fi
+
+
+
+
+createPolicyForBucketAndTable $PART_BUCKET_2_TABLE_FUNC_POLICY $BUCKET_PART $TABLE_PART
 __r=$?
-if [ ! "$__r" -eq "0" ] ; then err "could not create policy $POLICY_BUCKET_2_TABLE_EVENT_PART !...leaving." && return 1; fi
+if [ ! "$__r" -eq "0" ] ; then err "could not create policy $PART_BUCKET_2_TABLE_FUNC_POLICY !...leaving." && return 1; fi
 info "...policies done."
 
+info "groups creation..."
+
+createGroup $GROUP_BUCKET_MAINTENANCE_PART
 
 
 
+info "...groups done."
 
-
-
+stat
 
 echo "overall outcome: $__r"
 

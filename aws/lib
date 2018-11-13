@@ -10,7 +10,6 @@ STATE_CREATING_CODE=3
 STATE_DELETING_CODE=2
 STATE_MISSING_CODE=1
 
-
 debug(){
     local __msg="$1"
     echo "\n [DEBUG] `date` ... $__msg\n"
@@ -32,17 +31,34 @@ err(){
 }
 
 goin(){
-    local __msg="$1"
-    local __params="$2"
-    echo "\n [IN]    `date` ___ $__msg [$__params]\n"
+    if [ ! -z $LOG_TRACE ]; then
+        local __msg="$1"
+        local __params="$2"
+        echo "\n [IN]    `date` ___ $__msg [$__params]\n"
+    fi
 }
 
 goout(){
-    local __msg="$1"
-    local __outcome="$2"
-    echo "\n [OUT]   `date` ___ $__msg [$__outcome]\n"
+    if [ ! -z $LOG_TRACE ]; then
+        local __msg="$1"
+        local __outcome="$2"
+        echo "\n [OUT]   `date` ___ $__msg [$__outcome]\n"
+    fi
 }
 
+stat()
+{
+    goin "stat"
+    
+    info "current buckets:"
+    aws s3 ls
+    info "current tables:"
+    aws dynamodb --output text list-tables
+    info "current policies:"
+    aws iam list-policies --output text | grep $PROJ
+    
+    goout "stat"
+}
 
 getTableState()
 {
@@ -158,6 +174,7 @@ createTable()
         __r=$?
         if [ "$__r" -eq "0" ]; then
                 waitForTableState "$__table" "$STATE_ACTIVE_CODE"
+                info "created table $__table"
         else
             __r=1
         fi
@@ -270,6 +287,46 @@ createPolicyForBucketAndTable()
     return $__r
 }
 
+createGroup()
+{
+    goin "createGroup" "$1"
+    local __r=0
+    local __group=$1
+    
+    aws iam --output text list-groups | grep $__group
+    __r=$?
+    if [ "$__r" -eq "0" ]
+    then
+        warn "found group $__group already created"
+        __r=0
+    else
+        aws iam create-group --group-name $__group
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "could not create group $__group"; else info "created group $__group" ; fi
+    fi
+    
+    goout "createGroup" $__r
+    return $__r
+}
+
+deleteGroup()
+{
+    goin "deleteBucket" $1
+    local __bucketName=$1
+    __bucket="s3://$__bucketName"
+    aws s3 ls | grep $__bucketName
+    local __r=$?
+    if [ "$__r" -ne "0" ]; then
+        warn "couldn't find bucket $__bucket, not there"
+        __r=0
+    else
+        aws s3 rb $__bucket --force
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not delete bucket $__bucket !"; else info "deleted bucket $__bucket" ; fi
+    fi
+    goout "deleteBucket" $__r
+    return $__r
+}
 
 
 

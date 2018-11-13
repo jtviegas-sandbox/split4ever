@@ -30,7 +30,7 @@ done
 
 
 
-
+stat
 
 echo "overall outcome: $__r"
 

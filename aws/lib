@@ -10,6 +10,8 @@ STATE_CREATING_CODE=3
 STATE_DELETING_CODE=2
 STATE_MISSING_CODE=1
 
+#LOG_TRACE=TRUE
+
 debug(){
     local __msg="$1"
     echo "\n [DEBUG] `date` ... $__msg\n"
@@ -311,31 +313,136 @@ createGroup()
 
 deleteGroup()
 {
-    goin "deleteBucket" $1
-    local __bucketName=$1
-    __bucket="s3://$__bucketName"
-    aws s3 ls | grep $__bucketName
-    local __r=$?
+    goin "deleteGroup" $1
+    local __r=0
+    local __group=$1
+    
+    aws iam list-groups --output=text | grep __group
     if [ "$__r" -ne "0" ]; then
-        warn "couldn't find bucket $__bucket, not there"
+        warn "couldn't find goup $__group, not there"
         __r=0
     else
-        aws s3 rb $__bucket --force
+        aws iam delete-group --group-name $__group
         __r=$?
-        if [ ! "$__r" -eq "0" ] ; then warn "! could not delete bucket $__bucket !"; else info "deleted bucket $__bucket" ; fi
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not delete group $__group!"; else info "deleted group $__group" ; fi
     fi
-    goout "deleteBucket" $__r
+    goout "deleteGroup" $__r
     return $__r
 }
 
 
+createUser()
+{
+    goin "createUser" "$1"
+    local __r=0
+    local __user=$1
+    
+    aws iam create-user --user-name $__user
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then 
+        warn "could not create user $__user"
+    else 
+        info "created user $__user"
+        aws iam create-login-profile --user-name $__user --password p4ssw0rd --password-reset-required
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not create profile for user $__user!"; else info "profile created for user $__user" ; fi
+    fi
+ 
+    goout "createUser" $__r
+    return $__r
+}
+
+deleteUser()
+{
+    goin "deleteUser" $1
+    local __user=$1
+    local __r=0
+    
+    aws iam delete-login-profile --user-name $__user
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not delete user $__user profile !"; else info "deleted user $__user profile" ; fi
+    aws iam delete-user --user-name $__user
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not delete user $__user !"; else info "deleted user $__user" ; fi
+
+    goout "deleteUser" $__r
+    return $__r
+}
 
 
+attachPolicyToGroup()
+{
+    goin "attachPolicyToGroup" "$1 $2"
+    local __policy=$1
+    local __group=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+        aws iam attach-group-policy --policy-arn $arn --group-name $__group
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not attach group $__group to policy $_policy !"; else info "attached group $__group to policy $_policy" ; fi
+    fi
+ 
+    goout "attachPolicyToGroup" $__r
+    return $__r
+}
 
+dettachPolicyFromGroup()
+{
+    goin "dettachPolicyFromGroup" "$1 $2"
+    local __policy=$1
+    local __group=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+        aws iam detach-group-policy --group-name $__group --policy-arn $arn
+         __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not dettach group $__group from policy $_policy !"; else info "dettached group $__group from policy $_policy" ; fi
+    fi
 
+    goout "dettachPolicyFromGroup" $__r
+    return $__r
+}
 
+addUserToGroup()
+{
+    goin "addUserToGroup" "$1 $2"
+    local __user=$1
+    local __group=$2
+    local __r=0
+    
+    aws iam add-user-to-group --user-name $__user --group-name $__group
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not add user $__user to $__group !"; else info "added user $__user to group $__group" ; fi
+    
+    goout "addUserToGroup" $__r
+    return $__r
+}
 
-
+removeUserFromGroup()
+{
+    goin "removeUserFromGroup" "$1 $2"
+    local __user=$1
+    local __group=$2
+    local __r=0
+    
+    aws iam remove-user-from-group --user-name $__user --group-name $__group
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not remove user $__user from $__group !"; else info "removed user $__user from group $__group" ; fi
+    
+    goout "removeUserFromGroup" $__r
+    return $__r
+}
 
 
 

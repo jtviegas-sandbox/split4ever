@@ -8,11 +8,13 @@ parent_folder=$(dirname $this_folder)
 
 __r=0
 
-info "setting up functions..."
+info "setting up tables..."
 
-createPolicyForBucketAndTable $BUCKET_TO_TABLE_FUNCTION_POLICY_PARTS $BUCKET_PARTS $TABLE_PARTS
-__r=$?
-if [ ! "$__r" -eq "0" ] ; then return 1; fi
+for table in $TABLES; do
+    createTable "$table"
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then return 1; fi
+done
 
 
-info "...functions setup done."
+info "...tables setup done."

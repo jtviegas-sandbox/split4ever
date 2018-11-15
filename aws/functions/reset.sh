@@ -8,8 +8,12 @@ parent_folder=$(dirname $this_folder)
 
 __r=0
 
-info "resetting functions..."
+info "resetting tables..."
 
-deletePolicy "$BUCKET_MAINTENANCE_POLICY_PARTS"
 
-info "...functions reset done."
+for table in $TABLES; do
+    deleteTable "$table"
+done
+
+
+info "...tables reset done."

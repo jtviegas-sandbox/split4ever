@@ -91,6 +91,7 @@ rm $this_folder/$policy.json
 
 aws iam create-group --group-name $STORE_MAINTENANCE_GROUP
 if [ ! "$?" -eq "0" ] ; then echo "------- ! could not create group $STORE_MAINTENANCE_GROUP !...leaving." && cd $_pwd && return 1; else echo "------- created group $STORE_MAINTENANCE_GROUP" ; fi
+
 arn=`aws iam list-policies --output text | grep $STORE_MAINTENANCE_USER_POLICY | awk '{print $2}'`
 aws iam attach-group-policy --policy-arn $arn --group-name $STORE_MAINTENANCE_GROUP
 if [ ! "$?" -eq "0" ] ; then echo "------- ! could not attach policy $STORE_MAINTENANCE_USER_POLICY to group $STORE_MAINTENANCE_GROUP !...leaving." && cd $_pwd && return 1; else echo "------- attached policy $STORE_MAINTENANCE_USER_POLICY to group $STORE_MAINTENANCE_GROUP" ; fi

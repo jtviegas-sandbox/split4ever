@@ -10,6 +10,8 @@ __r=0
 
 info "functions tables..."
 
+removePermissionFromFunction $PARTS_UPDATE_FUNCTION $PARTS_UPDATE_FUNCTION_PERMISSION_STATEMENT_ID
+
 deleteFunction $PARTS_UPDATE_FUNCTION
 
 info "...functions reset done."

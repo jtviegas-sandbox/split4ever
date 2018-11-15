@@ -15,7 +15,9 @@ __r=$?
 if [ ! "$__r" -eq "0" ] ; then return 1; fi
 
 #aws lambda add-permission --function-name $PARTS_UPDATE_FUNCTION --principal s3.amazonaws.com --statement-id $PARTS_UPDATE_FUNCTION_PERMISSION_STATEMENT_ID --action "lambda:InvokeFunction" --source-arn "$BUCKET_PARTS_ARN" --source-account $OWNER_ACCOUNT
-addPermissionToFunction $PARTS_UPDATE_FUNCTION $PARTS_UPDATE_FUNCTION_PRINCIPAL $PARTS_UPDATE_FUNCTION_PERMISSION_STATEMENT_ID $PARTS_UPDATE_FUNCTION_ACTION $BUCKET_PARTS_ARN $OWNER_ACCOUNT
+owner=`aws s3api get-bucket-acl --bucket $BUCKET_PARTS --output=text | grep OWNER | awk '{print $3}'`
+echo "owner: $owner"
+addPermissionToFunction $PARTS_UPDATE_FUNCTION $PARTS_UPDATE_FUNCTION_PRINCIPAL $PARTS_UPDATE_FUNCTION_PERMISSION_STATEMENT_ID $PARTS_UPDATE_FUNCTION_ACTION $BUCKET_PARTS_ARN $owner
 __r=$?
 if [ ! "$__r" -eq "0" ] ; then return 1; fi
 

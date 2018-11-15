@@ -5,6 +5,7 @@
             "Sid": "VisualEditor0",
             "Effect": "Allow",
             "Action": [
+                "iam:ChangePassword",
                 "s3:ListBucketByTags",
                 "s3:GetBucketTagging",
                 "s3:ListBucketVersions",
@@ -38,7 +39,8 @@
             "Effect": "Allow",
             "Action": [
                 "s3:ListAllMyBuckets",
-                "s3:HeadBucket"
+                "s3:HeadBucket",
+                "iam:ChangePassword"
             ],
             "Resource": "*"
         }

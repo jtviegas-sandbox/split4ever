@@ -10,6 +10,8 @@ __r=0
 
 info "resetting functions..."
 
-deletePolicy "$BUCKET_MAINTENANCE_POLICY_PARTS"
+
+deleteFunction $PARTS_UPDATE_FUNCTION
+
 
 info "...functions reset done."

@@ -10,6 +10,8 @@ STATE_CREATING_CODE=3
 STATE_DELETING_CODE=2
 STATE_MISSING_CODE=1
 
+#LOG_TRACE=TRUE
+
 debug(){
     local __msg="$1"
     echo "\n [DEBUG] `date` ... $__msg\n"
@@ -311,35 +313,264 @@ createGroup()
 
 deleteGroup()
 {
-    goin "deleteBucket" $1
-    local __bucketName=$1
-    __bucket="s3://$__bucketName"
-    aws s3 ls | grep $__bucketName
-    local __r=$?
+    goin "deleteGroup" $1
+    local __r=0
+    local __group=$1
+    
+    aws iam list-groups --output=text | grep __group
     if [ "$__r" -ne "0" ]; then
-        warn "couldn't find bucket $__bucket, not there"
+        warn "couldn't find goup $__group, not there"
         __r=0
     else
-        aws s3 rb $__bucket --force
+        aws iam delete-group --group-name $__group
         __r=$?
-        if [ ! "$__r" -eq "0" ] ; then warn "! could not delete bucket $__bucket !"; else info "deleted bucket $__bucket" ; fi
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not delete group $__group!"; else info "deleted group $__group" ; fi
     fi
-    goout "deleteBucket" $__r
+    goout "deleteGroup" $__r
     return $__r
 }
 
 
+createUser()
+{
+    goin "createUser" "$1"
+    local __r=0
+    local __user=$1
+    
+    aws iam create-user --user-name $__user
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then 
+        warn "could not create user $__user"
+    else 
+        info "created user $__user"
+        aws iam create-login-profile --user-name $__user --password p4ssw0rd --password-reset-required
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not create profile for user $__user!"; else info "profile created for user $__user" ; fi
+    fi
+ 
+    goout "createUser" $__r
+    return $__r
+}
+
+deleteUser()
+{
+    goin "deleteUser" $1
+    local __user=$1
+    local __r=0
+    
+    aws iam delete-login-profile --user-name $__user
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not delete user $__user profile !"; else info "deleted user $__user profile" ; fi
+    aws iam delete-user --user-name $__user
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not delete user $__user !"; else info "deleted user $__user" ; fi
+
+    goout "deleteUser" $__r
+    return $__r
+}
 
 
+attachPolicyToGroup()
+{
+    goin "attachPolicyToGroup" "$1 $2"
+    local __policy=$1
+    local __group=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+        aws iam attach-group-policy --policy-arn $arn --group-name $__group
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not attach group $__group to policy $_policy !"; else info "attached group $__group to policy $_policy" ; fi
+    fi
+ 
+    goout "attachPolicyToGroup" $__r
+    return $__r
+}
 
+dettachPolicyFromGroup()
+{
+    goin "dettachPolicyFromGroup" "$1 $2"
+    local __policy=$1
+    local __group=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+        aws iam detach-group-policy --group-name $__group --policy-arn $arn
+         __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not dettach group $__group from policy $_policy !"; else info "dettached group $__group from policy $_policy" ; fi
+    fi
 
+    goout "dettachPolicyFromGroup" $__r
+    return $__r
+}
 
+addUserToGroup()
+{
+    goin "addUserToGroup" "$1 $2"
+    local __user=$1
+    local __group=$2
+    local __r=0
+    
+    aws iam add-user-to-group --user-name $__user --group-name $__group
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not add user $__user to $__group !"; else info "added user $__user to group $__group" ; fi
+    
+    goout "addUserToGroup" $__r
+    return $__r
+}
 
+removeUserFromGroup()
+{
+    goin "removeUserFromGroup" "$1 $2"
+    local __user=$1
+    local __group=$2
+    local __r=0
+    
+    aws iam remove-user-from-group --user-name $__user --group-name $__group
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not remove user $__user from $__group !"; else info "removed user $__user from group $__group" ; fi
+    
+    goout "removeUserFromGroup" $__r
+    return $__r
+}
 
+createRole()
+{
+    goin "createRole" "$1 $2"
+    local __r=0
+    local __role=$1
+    local __role_policy_doc=$2
+    
+    aws iam create-role --role-name $__role --assume-role-policy-document file://$__role_policy_doc
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then 
+        warn "could not create role $__role"
+    else 
+        info "created role $__role"
+    fi
+ 
+    goout "createRole" $__r
+    return $__r
+}
 
+deleteRole()
+{
+    goin "deleteRole" "$1"
+    local __r=0
+    local __role=$1
+    
+    aws iam delete-role --role-name $__role 
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then 
+        warn "could not delete role $__role"
+    else 
+        info "deleted role $__role"
+    fi
+ 
+    goout "deleteRole" $__r
+    return $__r
+}
 
+attachRoleToPolicy()
+{
+    goin "attachRoleToPolicy" "$1 $2"
+    local __role=$1
+    local __policy=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+        aws iam attach-role-policy --policy-arn $arn --role-name $__role
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not attach role $__role to policy $_policy !"; else info "attached role $__role to policy $_policy" ; fi
+    fi
+ 
+    goout "attachRoleToPolicy" $__r
+    return $__r
+}
 
+detachRoleFromPolicy()
+{
+    goin "detachRoleFromPolicy" "$1 $2"
+    local __role=$1
+    local __policy=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+        aws iam detach-role-policy --policy-arn $arn --role-name $__role
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not detach role $__role from policy $_policy !"; else info "detached role $__role from policy $_policy" ; fi
+    fi
 
+    goout "detachRoleFromPolicy" $__r
+    return $__r
+}
+
+createFunction()
+{
+    goin "createFunction" "$1 $2 $3 $4 $5 $6 $7"
+    local __r=0
+    local __function=$1
+    local __role=$2
+    local __role_policy_doc=$2
+    local __zip=$3
+    local __handler=$4
+    local __runtime=$5
+    local __timeout=$6
+    local __memory=$7
+
+    local arn=`aws iam list-roles --output text | grep $__role | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find role arn for name: $__role"
+        __r=1
+    else
+        echo "aws lambda create-function --function-name $__function --zip-file fileb://$__zip --handler $__handler --runtime $__runtime --role $arn --timeout $__timeout --memory-size $__memory" 
+        aws lambda create-function --function-name $__function --zip-file fileb://$__zip --handler $__handler --runtime $__runtime --role $arn --timeout $__timeout --memory-size $__memory
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not create function $__function !"; else info "created function $__function" ; fi
+    fi
+
+    goout "createFunction" $__r
+    return $__r
+}
+
+deleteFunction()
+{
+    goin "deleteFunction" "$1"
+    local __r=0
+    local __function=$1
+    
+    aws lambda delete-function --function-name $__function
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then 
+        warn "could not delete function $__function"
+    else 
+        info "deleted function $__function"
+    fi
+ 
+    goout "deleteFunction" $__r
+    return $__r
+}
 
 
 

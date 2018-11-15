@@ -8,10 +8,8 @@ parent_folder=$(dirname $this_folder)
 
 __r=0
 
-info "resetting functions..."
-
+info "functions tables..."
 
 deleteFunction $PARTS_UPDATE_FUNCTION
-
 
 info "...functions reset done."

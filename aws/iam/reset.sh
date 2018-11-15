@@ -10,7 +10,6 @@ __r=0
 
 info "resetting identity and access management..."
 
-
 detachRoleFromPolicy $DATA_MAINTENANCE_FUNCTION_ROLE $BUCKET_TO_TABLE_FUNCTION_POLICY_PARTS
 
 deleteRole $DATA_MAINTENANCE_FUNCTION_ROLE

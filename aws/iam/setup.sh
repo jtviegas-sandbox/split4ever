@@ -37,6 +37,7 @@ for u in $DATA_MAINTENANCE_USERS; do
     if [ ! "$__r" -eq "0" ] ; then return 1; fi
 done
 
+<<<<<<< HEAD
 info "...creating role for data maintenance function..."
 createRole $DATA_MAINTENANCE_FUNCTION_ROLE $this_folder/$ROLE_ASSUMING_POLICY_FILE
 __r=$?
@@ -49,6 +50,8 @@ if [ ! "$__r" -eq "0" ] ; then return 1; fi
 
 
 
+=======
+>>>>>>> e4e68d88d4a6b857aac334e16b66e70f4f7886b9
 
 
 

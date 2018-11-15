@@ -351,6 +351,21 @@ createUser()
     goout "createUser" $__r
     return $__r
 }
+<<<<<<< HEAD
+
+deleteUser()
+{
+    goin "deleteUser" $1
+    local __user=$1
+    local __r=0
+    
+    aws iam delete-login-profile --user-name $__user
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not delete user $__user profile !"; else info "deleted user $__user profile" ; fi
+    aws iam delete-user --user-name $__user
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not delete user $__user !"; else info "deleted user $__user" ; fi
+=======
 
 deleteUser()
 {
@@ -368,7 +383,11 @@ deleteUser()
     goout "deleteUser" $__r
     return $__r
 }
+>>>>>>> e4e68d88d4a6b857aac334e16b66e70f4f7886b9
 
+    goout "deleteUser" $__r
+    return $__r
+}
 
 attachPolicyToGroup()
 {
@@ -383,6 +402,35 @@ attachPolicyToGroup()
         warn "could not find policy arn for name: $__policy"
         __r=1
     else
+        aws iam attach-group-policy --policy-arn $arn --group-name $__group
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not attach group $__group to policy $_policy !"; else info "attached group $__group to policy $_policy" ; fi
+    fi
+ 
+    goout "attachPolicyToGroup" $__r
+    return $__r
+}
+
+<<<<<<< HEAD
+attachPolicyToGroup()
+{
+    goin "attachPolicyToGroup" "$1 $2"
+=======
+dettachPolicyFromGroup()
+{
+    goin "dettachPolicyFromGroup" "$1 $2"
+>>>>>>> e4e68d88d4a6b857aac334e16b66e70f4f7886b9
+    local __policy=$1
+    local __group=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+<<<<<<< HEAD
         aws iam attach-group-policy --policy-arn $arn --group-name $__group
         __r=$?
         if [ ! "$__r" -eq "0" ] ; then warn "! could not attach group $__group to policy $_policy !"; else info "attached group $__group to policy $_policy" ; fi
@@ -417,6 +465,19 @@ dettachPolicyFromGroup()
 addUserToGroup()
 {
     goin "addUserToGroup" "$1 $2"
+=======
+        aws iam detach-group-policy --group-name $__group --policy-arn $arn
+         __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not dettach group $__group from policy $_policy !"; else info "dettached group $__group from policy $_policy" ; fi
+    fi
+
+    goout "dettachPolicyFromGroup" $__r
+    return $__r
+}
+
+addUserToGroup()
+{
+    goin "addUserToGroup" "$1 $2"
     local __user=$1
     local __group=$2
     local __r=0
@@ -426,6 +487,30 @@ addUserToGroup()
     if [ ! "$__r" -eq "0" ] ; then warn "! could not add user $__user to $__group !"; else info "added user $__user to group $__group" ; fi
     
     goout "addUserToGroup" $__r
+    return $__r
+}
+
+removeUserFromGroup()
+{
+    goin "removeUserFromGroup" "$1 $2"
+>>>>>>> e4e68d88d4a6b857aac334e16b66e70f4f7886b9
+    local __user=$1
+    local __group=$2
+    local __r=0
+    
+<<<<<<< HEAD
+    aws iam add-user-to-group --user-name $__user --group-name $__group
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not add user $__user to $__group !"; else info "added user $__user to group $__group" ; fi
+    
+    goout "addUserToGroup" $__r
+=======
+    aws iam remove-user-from-group --user-name $__user --group-name $__group
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not remove user $__user from $__group !"; else info "removed user $__user from group $__group" ; fi
+    
+    goout "removeUserFromGroup" $__r
+>>>>>>> e4e68d88d4a6b857aac334e16b66e70f4f7886b9
     return $__r
 }
 

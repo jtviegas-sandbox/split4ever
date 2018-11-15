@@ -351,7 +351,6 @@ createUser()
     goout "createUser" $__r
     return $__r
 }
-<<<<<<< HEAD
 
 deleteUser()
 {
@@ -365,25 +364,6 @@ deleteUser()
     aws iam delete-user --user-name $__user
     __r=$?
     if [ ! "$__r" -eq "0" ] ; then warn "! could not delete user $__user !"; else info "deleted user $__user" ; fi
-=======
-
-deleteUser()
-{
-    goin "deleteUser" $1
-    local __user=$1
-    local __r=0
-    
-    aws iam delete-login-profile --user-name $__user
-    __r=$?
-    if [ ! "$__r" -eq "0" ] ; then warn "! could not delete user $__user profile !"; else info "deleted user $__user profile" ; fi
-    aws iam delete-user --user-name $__user
-    __r=$?
-    if [ ! "$__r" -eq "0" ] ; then warn "! could not delete user $__user !"; else info "deleted user $__user" ; fi
-
-    goout "deleteUser" $__r
-    return $__r
-}
->>>>>>> e4e68d88d4a6b857aac334e16b66e70f4f7886b9
 
     goout "deleteUser" $__r
     return $__r
@@ -411,15 +391,10 @@ attachPolicyToGroup()
     return $__r
 }
 
-<<<<<<< HEAD
 attachPolicyToGroup()
 {
     goin "attachPolicyToGroup" "$1 $2"
-=======
-dettachPolicyFromGroup()
-{
-    goin "dettachPolicyFromGroup" "$1 $2"
->>>>>>> e4e68d88d4a6b857aac334e16b66e70f4f7886b9
+
     local __policy=$1
     local __group=$2
     local __r=0
@@ -430,7 +405,6 @@ dettachPolicyFromGroup()
         warn "could not find policy arn for name: $__policy"
         __r=1
     else
-<<<<<<< HEAD
         aws iam attach-group-policy --policy-arn $arn --group-name $__group
         __r=$?
         if [ ! "$__r" -eq "0" ] ; then warn "! could not attach group $__group to policy $_policy !"; else info "attached group $__group to policy $_policy" ; fi
@@ -465,19 +439,6 @@ dettachPolicyFromGroup()
 addUserToGroup()
 {
     goin "addUserToGroup" "$1 $2"
-=======
-        aws iam detach-group-policy --group-name $__group --policy-arn $arn
-         __r=$?
-        if [ ! "$__r" -eq "0" ] ; then warn "! could not dettach group $__group from policy $_policy !"; else info "dettached group $__group from policy $_policy" ; fi
-    fi
-
-    goout "dettachPolicyFromGroup" $__r
-    return $__r
-}
-
-addUserToGroup()
-{
-    goin "addUserToGroup" "$1 $2"
     local __user=$1
     local __group=$2
     local __r=0
@@ -487,30 +448,6 @@ addUserToGroup()
     if [ ! "$__r" -eq "0" ] ; then warn "! could not add user $__user to $__group !"; else info "added user $__user to group $__group" ; fi
     
     goout "addUserToGroup" $__r
-    return $__r
-}
-
-removeUserFromGroup()
-{
-    goin "removeUserFromGroup" "$1 $2"
->>>>>>> e4e68d88d4a6b857aac334e16b66e70f4f7886b9
-    local __user=$1
-    local __group=$2
-    local __r=0
-    
-<<<<<<< HEAD
-    aws iam add-user-to-group --user-name $__user --group-name $__group
-    __r=$?
-    if [ ! "$__r" -eq "0" ] ; then warn "! could not add user $__user to $__group !"; else info "added user $__user to group $__group" ; fi
-    
-    goout "addUserToGroup" $__r
-=======
-    aws iam remove-user-from-group --user-name $__user --group-name $__group
-    __r=$?
-    if [ ! "$__r" -eq "0" ] ; then warn "! could not remove user $__user from $__group !"; else info "removed user $__user from group $__group" ; fi
-    
-    goout "removeUserFromGroup" $__r
->>>>>>> e4e68d88d4a6b857aac334e16b66e70f4f7886b9
     return $__r
 }
 
@@ -657,7 +594,44 @@ deleteFunction()
     return $__r
 }
 
+addPermissionToFunction()
+{
+    goin "addPermissionToFunction" "$1 $2 $3 $4 $5 $6"
+    local __function=$1
+    local __principal=$2
+    local __statement_id=$3
+    local __action=$4
+    local __source_arn=$5
+    local __source_account=$6
+    
+    local __r=0
+    aws lambda add-permission --function-name $__function --principal $__principal --statement-id $__statement_id --action $__action --source-arn $__source_arn --source-account $__source_account
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not setup permissions for function $__function !"; else info "created permissions for function $__function" ; fi
+ 
+    goout "addPermissionToFunction" $__r
+    return $__r
+}
 
+
+removePermissionFromFunction()
+{
+    goin "removePermissionFromFunction" "$1 $2"
+    local __r=0
+    local __function=$1
+    local __statement_id=$2
+    
+    aws lambda remove-permission --function-name $__function --statement-id $__statement_id
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then 
+        warn "could not remove permission from function $__function"
+    else 
+        info "removed permission from function $__function"
+    fi
+ 
+    goout "removePermissionFromFunction" $__r
+    return $__r
+}
 
 
 

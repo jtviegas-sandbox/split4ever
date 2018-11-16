@@ -605,7 +605,8 @@ addPermissionToFunction()
     local __source_account=$6
     
     local __r=0
-    aws lambda add-permission --function-name $__function --principal $__principal --statement-id $__statement_id --action $__action --source-arn $__source_arn --source-account $__source_account
+    aws lambda add-permission --function-name $__function --principal $__principal --statement-id $__statement_id --action $__action --source-arn $__source_arn 
+    #--source-account $__source_account
     __r=$?
     if [ ! "$__r" -eq "0" ] ; then warn "! could not setup permissions for function $__function !"; else info "created permissions for function $__function" ; fi
  

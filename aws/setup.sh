@@ -9,14 +9,18 @@ parent_folder=$(dirname $this_folder)
 __r=0
 buckets/setup.sh
 __r=$?
-if [ ! "$__r" -eq "0" ] ; then return 1; fi
+if [ ! "$__r" -eq "0" ] ; then exit 1; fi
 
 tables/setup.sh
 __r=$?
-if [ ! "$__r" -eq "0" ] ; then return 1; fi
+if [ ! "$__r" -eq "0" ] ; then exit 1; fi
 
 iam/setup.sh
 __r=$?
-if [ ! "$__r" -eq "0" ] ; then return 1; fi
+if [ ! "$__r" -eq "0" ] ; then exit 1; fi
+
+functions/setup.sh
+__r=$?
+if [ ! "$__r" -eq "0" ] ; then exit 1; fi
 
 info "setup finished"

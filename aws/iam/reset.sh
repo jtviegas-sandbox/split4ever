@@ -25,6 +25,8 @@ dettachPolicyFromGroup $BUCKET_MAINTENANCE_POLICY_PARTS $DATA_MAINTENANCE_GROUP
 
 deletePolicy "$BUCKET_MAINTENANCE_POLICY_PARTS"
 
+deletePolicy "$BUCKET_PUBLIC_READ_POLICY"
+
 deleteGroup "$DATA_MAINTENANCE_GROUP"
 
 info "...identity and access management reset done."

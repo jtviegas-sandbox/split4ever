@@ -8,7 +8,7 @@ parent_folder=$(dirname $this_folder)
 
 __r=0
 
-info "functions tables..."
+info "resetting functions..."
 
 removePermissionFromFunction $PARTS_UPDATE_FUNCTION $PARTS_UPDATE_FUNCTION_PERMISSION_STATEMENT_ID
 

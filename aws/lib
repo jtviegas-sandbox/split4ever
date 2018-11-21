@@ -242,6 +242,23 @@ createPolicyForBucket()
     return $__r
 }
 
+createPolicyForBucket2()
+{
+    goin "createPolicyForBucket2" "$1 $2"
+
+    local policy=$1
+    local bucket="$2"
+    local buckets_resource="\"arn:aws:s3:::$bucket/*\""
+    sed  "s/.*\"Resource\": \[ XXXYYYZZZ \].*/\t\t\"Resource\": \[ $buckets_resource \]/" $this_folder/$policy.policy > $this_folder/$policy.json
+    aws iam create-policy --policy-name $policy --policy-document file://$this_folder/$policy.json
+    local __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "could not create policy $policy"; else info "created policy $policy" ; fi
+    rm $this_folder/$policy.json
+
+    goout "createPolicyForBucket2" $__r
+    return $__r
+}
+
 deletePolicy()
 {
     goin "deletePolicy" $1

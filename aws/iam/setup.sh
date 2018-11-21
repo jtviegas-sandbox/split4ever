@@ -25,6 +25,11 @@ createPolicyForBucket2 $BUCKET_PUBLIC_READ_POLICY $BUCKET_PARTS
 __r=$?
 if [ ! "$__r" -eq "0" ] ; then exit 1; fi
 
+info "...policy for parts bucket public read (for public/page access)..."
+createPolicyForBucket2 $BUCKET_PUBLIC_READ_POLICY $BUCKET_PARTS
+__r=$?
+if [ ! "$__r" -eq "0" ] ; then return 1; fi
+
 info "...attaching the policy for parts bucket maintenance (for user access) to the data maintenance users group..."
 attachPolicyToGroup $BUCKET_MAINTENANCE_POLICY_PARTS $DATA_MAINTENANCE_GROUP
 
@@ -51,8 +56,6 @@ info "...attaching data maintenance function role to policy for accessing both p
 attachRoleToPolicy $DATA_MAINTENANCE_FUNCTION_ROLE $BUCKET_TO_TABLE_FUNCTION_POLICY_PARTS
 __r=$?
 if [ ! "$__r" -eq "0" ] ; then exit 1; fi
-
-
 
 
 

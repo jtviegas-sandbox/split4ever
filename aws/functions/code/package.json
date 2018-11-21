@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "aws-sdk": "^2.357.0",
-    "papaparse": "^4.6.2"
+    "papaparse": "^4.6.2",
+    "uuid": "^3.3.2"
   },
   "name": "code",
   "description": "A simple Node.js application showing usage of the AWS SDK for Node.js.",

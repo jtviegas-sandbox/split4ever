@@ -1,23 +1,24 @@
 // Load the SDK and UUID
 const aws = require('aws-sdk');
 const papa = require('papaparse');
+const uuidv4 = require('uuid/v4');
 
 const SPEC_FILE = 'parts.txt'
 const PART_FIELDS_NUM = 6;
-const PARTS_BUCKET_NAME = "parts.split4ever.com";
-const regex=/^\d+_\d+\.(png|jpg)/i
-const imageRegex=/^(\d+)_*/
+const S3_AMAZON_URL = 'https://s3.amazonaws.com'
+const PARTS_BUCKET_NAME = 'parts.split4ever.com';
+const regex=/^(prod|dev)\/\d+_\d+\.(png|jpg)/i
+const imageRegex=/^(prod|dev)\/(\d+)_*/
 const REGION='us-east-1';
 const PARTS_TABLE = 'parts';
 const DEV_STAGE = 'dev';
 const DEV_STAGE_SUFFIX = '_DEV';
 
-
 aws.config.update({region: REGION});
 
 const s3 = new aws.S3();
 const db = new aws.DynamoDB();
-
+const doc = new aws.DynamoDB.DocumentClient({'service': db})
 
 const getPropertyNames = (o) => {
         var r=[];
@@ -37,13 +38,14 @@ const toPart = (o) => {
         throw Error("part conveyor wrong number of fields: ", o);
     
     let part = {};
-    part['number'] = o[0]
-    part['name'] = o[1]
-    part['price'] = o[2]
-    part['category'] = o[3]
-    part['subcategory '] = o[4]
-    part['notes'] = o[5]
-    part['images'] = []
+    part['id'] = uuidv4();
+    part['number'] = parseInt(o[0]);
+    part['name'] = o[1];
+    part['price'] = parseFloat(o[2]);
+    part['category'] = o[3];
+    part['subcategory'] = o[4];
+    part['notes'] = o[5];
+    part['images'] = [];
     
     return part;
 }
@@ -52,56 +54,50 @@ const toImage = (name, v) => {
     let image = {};
     image['name'] = name;
     image['type'] = v['ContentType'];
-    let buff = Buffer.from(v.Body);
-    image['data'] = buff.toString();
+    image['href'] = S3_AMAZON_URL + '/' + PARTS_BUCKET_NAME + '/' + name;
     return image;
 }
 
 
 const tableUpdater = (store) => {
     console.log('[tableUpdater|in]');
-    var params = {
-        TableName: store.table
-    };
-    
-    db.deleteTable(params, function(err, data) {
-        if (err) console.log(err, err.stack); // an error occurred
-/*
-{ AttributeName: "number", KeyType: "RANGE" } 
-                         ,
-                                  
-*/
-        console.log('[tableUpdater] deleted table:', store.table);
-        var params = {
-            AttributeDefinitions: [ { AttributeName: "number", AttributeType: "N" }
-                                  , { AttributeName: "name", AttributeType: "S" }
-                                  , { AttributeName: "price", AttributeType: "N" }
-                                  , { AttributeName: "category", AttributeType: "S" }
-                                  , { AttributeName: "subcategory", AttributeType: "S" }
-                                  , { AttributeName: "notes", AttributeType: "S" }
-                                  , { AttributeName: "images", AttributeType: "B" }]
-            , KeySchema: [  { AttributeName: "name", KeyType: "HASH" }
-                                  , { AttributeName: "price", KeyType: "RANGE" }
-                                  , { AttributeName: "category", KeyType: "RANGE" }
-                                  , { AttributeName: "subcategory", KeyType: "RANGE" }
-                                  , { AttributeName: "notes", KeyType: "RANGE" }
-                                  ]
-            , ProvisionedThroughput: {
-                ReadCapacityUnits: 5, 
-                WriteCapacityUnits: 5
-            }
-            , TableName: store.table
-        };
-        db.createTable(params, function(err, data) {
-            if (err) console.log(err, err.stack); // an error occurred
-            else {
-                console.log('[tableUpdater] created table:', store.table);
-                storeSaver(store);
-            }   
-        });
 
- });
-    console.log('[tableUpdater|in]');
+    var params = { 
+        TableName: store.table 
+        , AttributesToGet: [ 'id' ]
+    };
+    doc.scan(params, function(e,data){
+        if(e)
+            console.log(e, e.stack)
+        else{
+            let params = {RequestItems:{}};
+            let deleteRequests = [];
+            for( let i=0; i < data.Items.length; i++ ){
+                let item = data.Items[i];
+                let deleteRequest = {};
+                deleteRequest["DeleteRequest"] = { Key: { "id": item.id } }
+                deleteRequests.push(deleteRequest);
+            }
+            if( 0 <  deleteRequests.length){
+                params.RequestItems[store.table] = deleteRequests;
+                console.log('[tableUpdater] executing batchwrite with params:', params)
+                doc.batchWrite(params, function(err, data) {
+                  if (err) console.log(err, err.stack);
+                  else {
+                      console.log('[tableUpdater] executed batchwrite successfully:', data)
+                      storeSaver(store);
+                      console.log('[tableUpdater] OUTCOME(store):', JSON.stringify(store))
+                  } 
+                });
+            }
+            else {
+                storeSaver(store);
+                console.log('[tableUpdater] OUTCOME(store):', JSON.stringify(store))
+            }
+            
+        }
+    });
+    console.log('[tableUpdater|out]');
 }
 
 const storeSaver = (store) => {
@@ -110,8 +106,9 @@ const storeSaver = (store) => {
     let promises = []
     for(var n in store.data){
             if(store.data.hasOwnProperty(n)){
+                console.log('[storeSaver] saving item:', store.data[n])
                 let params = { Item: store.data[n], ReturnConsumedCapacity: "TOTAL", TableName: store.table };
-                promises.push(db.putItem(params).promise());    
+                promises.push(doc.put(params).promise());    
             }    
         } 
     console.log('[storeSaver] going to save all promises which are:', promises.length); 
@@ -125,22 +122,23 @@ const storeSaver = (store) => {
 const storeUpdater = (store,etags) => {
     
     let f = (os) => {
-        console.log('[storeUpdater.f|in] store:', store);
+        console.log('[storeUpdater.f|in] store:', store, '\netags:', etags);
         try {
             for(let i=0; i < os.length; i++){
                 let o = os[i];
                 let filename = etags[o.ETag];
                 let match = filename.match(imageRegex);
+                console.log('[storeUpdater.f] match:', match);
                 if( null !== match && Array.isArray(match) && 1 < match.length ){
-                    let number = parseInt(match[1]);
+                    
+                    let number = parseInt(match[2]);
                     if( ! store.data[number] )
                         throw Error('wrong number on image: ', filename )
                     let image = toImage(filename,o);
-                    console.log('[storeUpdater] image:', image);
                     store.data[number]['images'].push(image);
-                    console.log('[storeUpdater] item now:', store.data[number]);
+                    store.audit.images++;
+                    console.log('[storeUpdater] num of images item has now:', store.data[number]['images'].length);
                 }
-
             }
             let table = PARTS_TABLE;
             if( DEV_STAGE === store.stage )
@@ -160,9 +158,10 @@ const storeUpdater = (store,etags) => {
 const processImages = (store) => {
     console.log('[processImages|in] store:', store);
          try {
-             s3.listObjectsV2({ Bucket: PARTS_BUCKET_NAME }, function(err, data) {
+             s3.listObjectsV2({ Bucket: PARTS_BUCKET_NAME, Prefix: store.stage + '/' }, function(err, data) {
               if (err) console.log(err, err.stack); 
               else {
+                  console.log(data)
                   let etags = {};
                   let promises = [];
                   for(let i=0; i < data.Contents.length; i++){
@@ -196,6 +195,7 @@ const processSpecFile = (stage) => {
                 var buff = Buffer.from(data.Body);
                 var content = buff.toString();
                 parsed = papa.parse(content, config);
+                //set the stage
                 let store = {
                     stage: stage
                     , data: {}
@@ -207,6 +207,7 @@ const processSpecFile = (stage) => {
                         store.data[part.number] = part;
                     }
                     console.log("number of objects parsed:", Object.keys(store.data).length)
+                    store.audit = { objs: Object.keys(store.data).length , images: 0}
                     processImages(store);
                 }
             }
@@ -221,10 +222,10 @@ const processSpecFile = (stage) => {
 };
 
 
-var stage = 'dev'
+var stage = 'prod'
 var params = {
       Bucket: PARTS_BUCKET_NAME, 
-      Key: SPEC_FILE
+      Key: stage + '/' + SPEC_FILE
      };
 var specFilePromise = s3.getObject(params).promise();
 

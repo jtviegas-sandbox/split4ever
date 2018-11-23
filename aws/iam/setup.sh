@@ -5,6 +5,7 @@ parent_folder=$(dirname $this_folder)
 
 . $parent_folder/lib
 . $parent_folder/include
+. $this_folder/lib
 
 __r=0
 
@@ -16,7 +17,8 @@ __r=$?
 if [ ! "$__r" -eq "0" ] ; then exit 1; fi
 
 info "...policy for parts bucket maintenance (for user access)..."
-createPolicyForBucket $BUCKET_MAINTENANCE_POLICY_PARTS $BUCKET_PARTS
+createPolicyForBucket2 $BUCKET_MAINTAINER_POLICY $BUCKET_PARTS
+
 __r=$?
 if [ ! "$__r" -eq "0" ] ; then exit 1; fi
 

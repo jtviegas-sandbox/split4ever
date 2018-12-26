@@ -226,8 +226,6 @@ deleteBucket()
 }
 
 
-
-
 createPolicyForBucket()
 {
     goin "createPolicyForBucket" "$1 $2"
@@ -388,30 +386,7 @@ attachPolicyToGroup()
     else
         aws iam attach-group-policy --policy-arn $arn --group-name $__group
         __r=$?
-        if [ ! "$__r" -eq "0" ] ; then warn "! could not attach group $__group to policy $_policy !"; else info "attached group $__group to policy $_policy" ; fi
-    fi
- 
-    goout "attachPolicyToGroup" $__r
-    return $__r
-}
-
-attachPolicyToGroup()
-{
-    goin "attachPolicyToGroup" "$1 $2"
-
-    local __policy=$1
-    local __group=$2
-    local __r=0
-    
-    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
-    if [ -z "$arn" ]
-    then 
-        warn "could not find policy arn for name: $__policy"
-        __r=1
-    else
-        aws iam attach-group-policy --policy-arn $arn --group-name $__group
-        __r=$?
-        if [ ! "$__r" -eq "0" ] ; then warn "! could not attach group $__group to policy $_policy !"; else info "attached group $__group to policy $_policy" ; fi
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not attach group $__group to policy $__policy !"; else info "attached group $__group to policy $__policy" ; fi
     fi
  
     goout "attachPolicyToGroup" $__r
@@ -433,7 +408,7 @@ dettachPolicyFromGroup()
     else
         aws iam detach-group-policy --group-name $__group --policy-arn $arn
          __r=$?
-        if [ ! "$__r" -eq "0" ] ; then warn "! could not dettach group $__group from policy $_policy !"; else info "dettached group $__group from policy $_policy" ; fi
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not dettach group $__group from policy $__policy !"; else info "dettached group $__group from policy $__policy" ; fi
     fi
 
     goout "dettachPolicyFromGroup" $__r
@@ -550,6 +525,7 @@ detachRoleFromPolicy()
     goout "detachRoleFromPolicy" $__r
     return $__r
 }
+
 
 createFunction()
 {

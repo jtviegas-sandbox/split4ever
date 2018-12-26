@@ -13,7 +13,7 @@ info "setting up tables..."
 for table in $TABLES; do
     createTable "$table"
     __r=$?
-    if [ ! "$__r" -eq "0" ] ; then return 1; fi
+    if [ ! "$__r" -eq "0" ] ; then exit 1; fi
 done
 
 

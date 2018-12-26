@@ -1,0 +1,356 @@
+
+createPolicyForBucket()
+{
+    goin "createPolicyForBucket" "$1 $2"
+
+    local policy=$1
+    local bucket="$2"
+    local store_buckets_resource="\"arn:aws:s3:::*\/*\",\"arn:aws:s3:::$bucket\""
+    echo "sed  "s/.*\"Resource\": \[ XXXYYYZZZ \].*/\t\t\"Resource\": \[ $store_buckets_resource \]/" $this_folder/$policy.policy > $this_folder/$policy.json"
+    sed  "s/.*\"Resource\": \[ XXXYYYZZZ \].*/\t\t\"Resource\": \[ $store_buckets_resource \]/" $this_folder/$policy.policy > $this_folder/$policy.json
+    aws iam create-policy --policy-name $policy --policy-document file://$this_folder/$policy.json
+    local __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "could not create policy $policy"; else info "created policy $policy" ; fi
+    rm $this_folder/$policy.json
+
+    goout "createPolicyForBucket" $__r
+    return $__r
+}
+
+createPolicyForBucket2()
+{
+    goin "createPolicyForBucket2" "$1 $2"
+
+    local policy=$1
+    local bucket="$2"
+    
+    local buckets_resource="\"arn:aws:s3:::$bucket\/*\""
+    sed "s/.*\"Resource\": \[ XXXYYYZZZ \].*/\t\t\"Resource\": \[ $buckets_resource \]/" $this_folder/$policy.policy > $this_folder/$policy.json
+    aws iam create-policy --policy-name $policy --policy-document file://$this_folder/$policy.json
+    local __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "could not create policy $policy"; else info "created policy $policy" ; fi
+    rm $this_folder/$policy.json
+
+    goout "createPolicyForBucket2" $__r
+    return $__r
+}
+
+deletePolicy()
+{
+    goin "deletePolicy" $1
+    local policy=$1
+    
+    __r=0
+    arn=`aws iam list-policies --output text | grep $policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for $policy"
+        __r=1
+    else
+        for v in `aws iam list-policy-versions --policy-arn $arn --output text | awk '{print $4}'`; do
+            aws iam delete-policy-version --policy-arn $arn --version-id $v
+            #if [ ! "$?" -eq "0" ] ; then warn "could not delete policy $policy version $v" && cd $_pwd && return 1; else info "deleted policy $policy version $v" ; fi
+            if [ ! "$?" -eq "0" ] ; then warn "could not delete policy $policy version $v"; else info "deleted policy $policy version $v" ; fi
+        done
+        aws iam delete-policy --policy-arn $arn
+        if [ ! "$?" -eq "0" ] ; then warn "could not delete policy $policy"; else info "deleted policy $policy" ; fi
+    fi
+    goout "deletePolicy" $__r
+    return $__r
+}
+
+createPolicyForBucketAndTable()
+{
+    goin "createPolicyForBucketAndTable" "$1 $2"
+    local __r=0
+    local policy=$1
+    local bucket=$2
+    local table=$3
+    
+    sed  "s/.*\"Resource\": \[ XXXXXX \].*/\t\t\"Resource\": \[ \"arn:aws:s3:::$bucket\" \]/" $this_folder/$policy.policy > $this_folder/$policy.2
+    local arn=`aws dynamodb describe-table --output text --table-name $table | grep arn.*$t | awk '{print $4}'`
+    arn=`echo $arn  | sed "s/\//\\//g"`
+    sed  "s=.*\"Resource\": \[ YYYYYY \].*=\t\t\"Resource\": \[ \"$arn\" \]=" $this_folder/$policy.2 > $this_folder/$policy.json
+    rm $this_folder/$policy.2
+    
+    aws iam create-policy --policy-name $policy --policy-document file://$this_folder/$policy.json
+    __r=$? 
+    if [ ! "$__r" -eq "0" ] ; then error "could not create policy $policy"; else info "created policy $policy" ; fi
+    rm $this_folder/$policy.json
+
+    goout "createPolicyForBucketAndTable" $__r
+    return $__r
+}
+
+createGroup()
+{
+    goin "createGroup" "$1"
+    local __r=0
+    local __group=$1
+    
+    aws iam --output text list-groups | grep $__group
+    __r=$?
+    if [ "$__r" -eq "0" ]
+    then
+        warn "found group $__group already created"
+        __r=0
+    else
+        aws iam create-group --group-name $__group
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "could not create group $__group"; else info "created group $__group" ; fi
+    fi
+    
+    goout "createGroup" $__r
+    return $__r
+}
+
+deleteGroup()
+{
+    goin "deleteGroup" $1
+    local __r=0
+    local __group=$1
+    
+    aws iam list-groups --output=text | grep __group
+    if [ "$__r" -ne "0" ]; then
+        warn "couldn't find goup $__group, not there"
+        __r=0
+    else
+        aws iam delete-group --group-name $__group
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not delete group $__group!"; else info "deleted group $__group" ; fi
+    fi
+    goout "deleteGroup" $__r
+    return $__r
+}
+
+
+createUser()
+{
+    goin "createUser" "$1"
+    local __r=0
+    local __user=$1
+    
+    aws iam create-user --user-name $__user
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then 
+        warn "could not create user $__user"
+    else 
+        info "created user $__user"
+        aws iam create-login-profile --user-name $__user --password p4ssw0rd --password-reset-required
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not create profile for user $__user!"; else info "profile created for user $__user" ; fi
+    fi
+ 
+    goout "createUser" $__r
+    return $__r
+}
+
+deleteUser()
+{
+    goin "deleteUser" $1
+    local __user=$1
+    local __r=0
+    
+    aws iam delete-login-profile --user-name $__user
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not delete user $__user profile !"; else info "deleted user $__user profile" ; fi
+    aws iam delete-user --user-name $__user
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not delete user $__user !"; else info "deleted user $__user" ; fi
+
+    goout "deleteUser" $__r
+    return $__r
+}
+
+attachPolicyToGroup()
+{
+    goin "attachPolicyToGroup" "$1 $2"
+    local __policy=$1
+    local __group=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+        aws iam attach-group-policy --policy-arn $arn --group-name $__group
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not attach group $__group to policy $_policy !"; else info "attached group $__group to policy $_policy" ; fi
+    fi
+ 
+    goout "attachPolicyToGroup" $__r
+    return $__r
+}
+
+attachPolicyToGroup()
+{
+    goin "attachPolicyToGroup" "$1 $2"
+
+    local __policy=$1
+    local __group=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+        aws iam attach-group-policy --policy-arn $arn --group-name $__group
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not attach group $__group to policy $_policy !"; else info "attached group $__group to policy $_policy" ; fi
+    fi
+ 
+    goout "attachPolicyToGroup" $__r
+    return $__r
+}
+
+dettachPolicyFromGroup()
+{
+    goin "dettachPolicyFromGroup" "$1 $2"
+    local __policy=$1
+    local __group=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+        aws iam detach-group-policy --group-name $__group --policy-arn $arn
+         __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not dettach group $__group from policy $_policy !"; else info "dettached group $__group from policy $_policy" ; fi
+    fi
+
+    goout "dettachPolicyFromGroup" $__r
+    return $__r
+}
+
+addUserToGroup()
+{
+    goin "addUserToGroup" "$1 $2"
+    local __user=$1
+    local __group=$2
+    local __r=0
+    
+    aws iam add-user-to-group --user-name $__user --group-name $__group
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not add user $__user to $__group !"; else info "added user $__user to group $__group" ; fi
+    
+    goout "addUserToGroup" $__r
+    return $__r
+}
+
+removeUserFromGroup()
+{
+    goin "removeUserFromGroup" "$1 $2"
+    local __user=$1
+    local __group=$2
+    local __r=0
+    
+    aws iam remove-user-from-group --user-name $__user --group-name $__group
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "! could not remove user $__user from $__group !"; else info "removed user $__user from group $__group" ; fi
+    
+    goout "removeUserFromGroup" $__r
+    return $__r
+}
+
+createRole()
+{
+    goin "createRole" "$1 $2"
+    local __r=0
+    local __role=$1
+    local __role_policy_doc=$2
+    
+    aws iam create-role --role-name $__role --assume-role-policy-document file://$__role_policy_doc
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then 
+        warn "could not create role $__role"
+    else 
+        info "created role $__role"
+    fi
+ 
+    goout "createRole" $__r
+    return $__r
+}
+
+deleteRole()
+{
+    goin "deleteRole" "$1"
+    local __r=0
+    local __role=$1
+    
+    aws iam delete-role --role-name $__role 
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then 
+        warn "could not delete role $__role"
+    else 
+        info "deleted role $__role"
+    fi
+ 
+    goout "deleteRole" $__r
+    return $__r
+}
+
+attachRoleToPolicy()
+{
+    goin "attachRoleToPolicy" "$1 $2"
+    local __role=$1
+    local __policy=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+        aws iam attach-role-policy --policy-arn $arn --role-name $__role
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not attach role $__role to policy $_policy !"; else info "attached role $__role to policy $_policy" ; fi
+    fi
+ 
+    goout "attachRoleToPolicy" $__r
+    return $__r
+}
+
+detachRoleFromPolicy()
+{
+    goin "detachRoleFromPolicy" "$1 $2"
+    local __role=$1
+    local __policy=$2
+    local __r=0
+    
+    local arn=`aws iam list-policies --output text | grep $__policy | awk '{print $2}'`
+    if [ -z "$arn" ]
+    then 
+        warn "could not find policy arn for name: $__policy"
+        __r=1
+    else
+        aws iam detach-role-policy --policy-arn $arn --role-name $__role
+        __r=$?
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not detach role $__role from policy $_policy !"; else info "detached role $__role from policy $_policy" ; fi
+    fi
+
+    goout "detachRoleFromPolicy" $__r
+    return $__r
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

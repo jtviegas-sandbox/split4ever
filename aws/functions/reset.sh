@@ -12,7 +12,7 @@ parts_update_func_permission_id=s4e001
 
 __r=0
 
-info "functions tables..."
+info "resetting functions..."
 
 removePermissionFromFunction $parts_update_func $parts_update_func_permission_id
 

@@ -6,12 +6,16 @@ parent_folder=$(dirname $this_folder)
 . $parent_folder/lib
 . $parent_folder/include
 
+
+parts_update_func=s4e_parts_update_event_function
+parts_update_func_permission_id=s4e001
+
 __r=0
 
 info "functions tables..."
 
-removePermissionFromFunction $PARTS_UPDATE_FUNCTION $PARTS_UPDATE_FUNCTION_PERMISSION_STATEMENT_ID
+removePermissionFromFunction $parts_update_func $parts_update_func_permission_id
 
-deleteFunction $PARTS_UPDATE_FUNCTION
+deleteFunction $parts_update_func
 
 info "...functions reset done."

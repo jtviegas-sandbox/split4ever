@@ -225,13 +225,17 @@ deleteBucket()
     return $__r
 }
 
+
+
+
 createPolicyForBucket()
 {
     goin "createPolicyForBucket" "$1 $2"
 
     local policy=$1
-    local bucket="$2"
-    local store_buckets_resource="\"arn:aws:s3:::*\/*\",\"arn:aws:s3:::$bucket\""
+    local bucketName="$2"
+    
+    local store_buckets_resource="\"arn:aws:s3:::*\/*\",\"arn:aws:s3:::$bucketName\""
     sed  "s/.*\"Resource\": \[ XXXYYYZZZ \].*/\t\t\"Resource\": \[ $store_buckets_resource \]/" $this_folder/$policy.policy > $this_folder/$policy.json
     aws iam create-policy --policy-name $policy --policy-document file://$this_folder/$policy.json
     local __r=$?
@@ -634,11 +638,51 @@ removePermissionFromFunction()
     return $__r
 }
 
+createPolicy()
+{
+    goin "createPolicy" "$1 $2"
 
+    local _name=$1
+    local _spec="$2"
+    
+    echo "$_spec" > $this_folder/$_name.json
+    aws iam create-policy --policy-name $_name --policy-document file://$this_folder/$_name.json
+    local __r=$?
+    if [ ! "$__r" -eq "0" ] ; then warn "could not create policy $_name"; else info "created policy $_name" ; fi
+    rm $this_folder/$_name.json
 
+    goout "createPolicy" $__r
+    return $__r
+}
 
+buildPolicy()
+{
+    goin "buildPolicy" "$1 $2 $3"
+    local __r=0
+    local __effect=$1
+    local __actions=$2
+    local __resource=$3
+    
+    local _spec="{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\":"
+    _spec="$_spec \"$__effect\""
+    
+    _actions_str=
+    for _action in $(echo $__actions | tr "," "\n")
+    do
+        if [ -z $_actions_str ]; then
+            _actions_str="\"$_action\""
+        else
+            _actions_str="$_actions_str,\"$_action\""
+        fi
+    done
+    _spec="$_spec, \"Action\": [$_actions_str], \"Resource\": [\"$__resource\"]}]}" 
+ 
+    goout "buildPolicy" $_spec
+    echo "$_spec"
+}
 
-
+#result=$(buildPolicy Allow "iam:ChangePassword,s3:ListBucketByTags" "s3:Resource")
+#echo $result
 
 
 

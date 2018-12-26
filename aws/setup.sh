@@ -19,4 +19,8 @@ iam/setup.sh
 __r=$?
 if [ ! "$__r" -eq "0" ] ; then return 1; fi
 
+functions/setup.sh
+__r=$?
+if [ ! "$__r" -eq "0" ] ; then return 1; fi
+
 info "setup finished"

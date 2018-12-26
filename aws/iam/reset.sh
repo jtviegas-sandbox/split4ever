@@ -6,25 +6,31 @@ parent_folder=$(dirname $this_folder)
 . $parent_folder/lib
 . $parent_folder/include
 
-__r=0
+user1=tiago
+user2=rocha
+parts_maintenance_users="$user1 $user2"
+
+parts_maintenance_group=s4e_parts_maintenance
+update_function_role=s4e_parts_update
+role_assuming_policy_file=$this_folder/role_assuming.policy
 
 info "resetting identity and access management..."
 
-detachRoleFromPolicy $DATA_MAINTENANCE_FUNCTION_ROLE $BUCKET_TO_TABLE_FUNCTION_POLICY_PARTS
+detachRoleFromPolicy $update_function_role s4e_update_function_buckets_policy
+detachRoleFromPolicy $update_function_role s4e_update_function_tables_policy
+dettachPolicyFromGroup s4e_parts_overall_maintenance_policy $parts_maintenance_group
+dettachPolicyFromGroup s4e_parts_bucket_maintenance_policy $parts_maintenance_group
+deletePolicy s4e_update_function_tables_policy
+deletePolicy s4e_update_function_buckets_policy
+deletePolicy s4e_parts_overall_maintenance_policy
+deletePolicy s4e_parts_bucket_maintenance_policy
 
-deleteRole $DATA_MAINTENANCE_FUNCTION_ROLE
-
-for u in $DATA_MAINTENANCE_USERS; do
-    removeUserFromGroup $u $DATA_MAINTENANCE_GROUP
+for u in $parts_maintenance_users; do
+    removeUserFromGroup $u $parts_maintenance_group
     deleteUser $u
 done
+deleteRole $update_function_role
 
-deletePolicy "$BUCKET_TO_TABLE_FUNCTION_POLICY_PARTS"
-
-dettachPolicyFromGroup $BUCKET_MAINTENANCE_POLICY_PARTS $DATA_MAINTENANCE_GROUP
-
-deletePolicy "$BUCKET_MAINTENANCE_POLICY_PARTS"
-
-deleteGroup "$DATA_MAINTENANCE_GROUP"
+deleteGroup "$parts_maintenance_group"
 
 info "...identity and access management reset done."

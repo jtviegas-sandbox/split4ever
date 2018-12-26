@@ -7,6 +7,7 @@ parent_folder=$(dirname $this_folder)
 . $this_folder/include
 
 
+functions/reset.sh
 iam/reset.sh
 tables/reset.sh
 buckets/reset.sh

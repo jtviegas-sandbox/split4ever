@@ -637,7 +637,7 @@ buildPolicy()
     local __r=0
     local __effect=$1
     local __actions=$2
-    local __resource=$3
+    local __resources=$3
     
     local _spec="{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\":"
     _spec="$_spec \"$__effect\""
@@ -651,13 +651,28 @@ buildPolicy()
             _actions_str="$_actions_str,\"$_action\""
         fi
     done
-    _spec="$_spec, \"Action\": [$_actions_str], \"Resource\": [\"$__resource\"]}]}" 
+    
+    _resources_str=
+    if [ -z $__resources ]; then
+        _resources_str="\"*\""
+    else
+        for _resource in $(echo $__resources | tr "," "\n")
+        do
+            if [ -z $_resources_str ]; then
+                _resources_str="\"$_resource\""
+            else
+                _resources_str="$_resources_str,\"$_resource\""
+            fi
+        done
+    fi
+    
+    _spec="$_spec, \"Action\": [$_actions_str], \"Resource\": [$_resources_str]}]}" 
  
     goout "buildPolicy" $_spec
     echo "$_spec"
 }
 
-#result=$(buildPolicy Allow "iam:ChangePassword,s3:ListBucketByTags" "s3:Resource")
+#result=$(buildPolicy Allow "iam:ChangePassword,s3:ListBucketByTags" "*")
 #echo $result
 
 

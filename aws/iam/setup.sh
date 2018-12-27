@@ -60,7 +60,7 @@ createPolicy s4e_parts_bucket_maintenance_policy "$parts_bucket_maintenance_poli
 __r=$?
 if [ ! "$__r" -eq "0" ] ; then return 1; fi
 
-parts_overall_maintenance_policy=$(buildPolicy "Allow" "$parts_overall_maintenance_actions" "*")
+parts_overall_maintenance_policy=$(buildPolicy "Allow" "$parts_overall_maintenance_actions")
 info "...policy: s4e_parts_overall_maintenance_policy..."
 createPolicy s4e_parts_overall_maintenance_policy "$parts_overall_maintenance_policy"
 __r=$?
@@ -72,11 +72,20 @@ createPolicy s4e_update_function_buckets_policy "$update_function_buckets_policy
 __r=$?
 if [ ! "$__r" -eq "0" ] ; then return 1; fi
 
-arn=`aws dynamodb describe-table --output text --table-name $TABLE_PARTS | grep arn.*$TABLE_PARTS | awk '{print $4}'`
-arn=`echo $arn  | sed "s/\//\\//g"`
+tables_arn=
+for _table in $TABLES; do
+    arn=`aws dynamodb describe-table --output text --table-name $_table | grep arn.*$_table | awk '{print $4}'`
+    arn=`echo $arn  | sed "s/\//\\//g"`
+    
+    if [ -z $tables_arn ]; then
+        tables_arn="$arn"
+    else
+        tables_arn="$tables_arn,$arn"
+    fi
+done
 
-update_function_tables_policy=$(buildPolicy "Allow" "$update_function_tables_actions" "$arn")
-info "...policy: s4e_update_function_tables_policy..."
+update_function_tables_policy=$(buildPolicy "Allow" "$update_function_tables_actions" "$tables_arn")
+info "...policy: s4e_update_function_tables_policy... on table $_table"
 createPolicy s4e_update_function_tables_policy "$update_function_tables_policy"
 __r=$?
 if [ ! "$__r" -eq "0" ] ; then return 1; fi

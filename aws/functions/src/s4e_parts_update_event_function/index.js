@@ -2,13 +2,16 @@ const aws = require('aws-sdk');
 const papa = require('papaparse');
 const uuidv4 = require('uuid/v4');
 
+const REGION='eu-west-1';
 const SPEC_FILE = 'parts.txt';
 const PART_FIELDS_NUM = 6;
-const S3_AMAZON_URL = 'https://s3.amazonaws.com';
+//const S3_AMAZON_URL = 'https://s3.amazonaws.com';
+const S3_AMAZON_URL = 'https://s3.' + REGION + '.amazonaws.com'
+
 const PARTS_BUCKET_NAME = 'parts.split4ever.com';
 const regex=/^(prod|dev)\/\d+_\d+\.(png|jpg)/i;
 const imageRegex=/^(prod|dev)\/(\d+)_*/;
-const REGION='us-east-1';
+
 const PARTS_TABLE = 'parts';
 const DEV_STAGE = 'dev';
 const DEV_STAGE_SUFFIX = '_DEV';
@@ -230,7 +233,7 @@ const toPart = (o) => {
 };
 
 const processUpdate = (stage, callback) => {
-    console.log('[processUpdate|in]');
+    console.log('[processUpdate|in] stage:', stage);
     
     var params = {
       Bucket: PARTS_BUCKET_NAME, 
@@ -288,13 +291,13 @@ exports.handler = (event, context, callback) => {
     console.log('[handler|out]');
 };
 
-/*
+
 var event = {
     "Records": [
         {
             "eventVersion": "2.0",
             "eventSource": "aws:s3",
-            "awsRegion": "us-east-1",
+            "awsRegion": "eu-west-1",
             "eventTime": "2018-11-21T18:00:22.624Z",
             "eventName": "ObjectCreated:Put",
             "userIdentity": {
@@ -329,4 +332,3 @@ var event = {
 }
 
 exports.handler(event, null, (e,d)=>{console.log('DONE', e,d);})
-*/

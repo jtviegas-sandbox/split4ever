@@ -9,6 +9,7 @@
     "chai": "^4.1.2",
     "dynamodb-doc": "^1.0.0",
     "lambda-tester": "^3.5.0",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "papaparse": "^4.6.2"
   }
 }

@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: parts backend function (reads from DynamoDB) with a RESTful API endpoint using Amazon API Gateway.
+Parameters: 
+  TableNameParameter: 
+    Type: String
+Resources:
+  partsEndpoint:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs8.10
+      CodeUri: .
+      FunctionName: parts
+      Description: parts backend function (reads from DynamoDB) with a RESTful API endpoint using Amazon API Gateway.
+      MemorySize: 512
+      Timeout: 10
+      Role: arn:aws:iam::*:role/s4e_parts_api_read_function_role
+      Environment:
+        Variables:
+          TABLE_NAME: parts
+          PAGE_SIZE: 12
+      Events:
+        get_collection:
+          Type: Api
+          Properties:
+            Path: /parts
+            Method: GET
+        get_singular:
+          Type: Api
+          Properties:
+            Path: /parts/{id}
+            Method: GET

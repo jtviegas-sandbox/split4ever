@@ -12,7 +12,7 @@ parts_maintenance_users="$user1 $user2"
 
 parts_maintenance_group=s4e_parts_maintenance
 
-role_assuming_policy_file=$this_folder/role_assuming.policy
+role_assuming_policy_file=$parent_folder/role_assuming.policy
 
 parts_bucket_maintenance_actions="s3:ListBucketByTags,s3:GetBucketTagging,s3:ListBucketVersions,s3:GetBucketLogging,s3:CreateBucket,s3:ListBucket,s3:GetBucketPolicy,s3:DeleteBucketWebsite,s3:PutBucketTagging,s3:DeleteObject,s3:DeleteBucket,s3:PutBucketVersioning,s3:ListBucketMultipartUploads,s3:GetBucketVersioning,s3:PutBucketCORS,s3:GetBucketAcl,s3:GetBucketNotification,s3:PutObject,s3:PutBucketNotification,s3:PutBucketWebsite,s3:PutBucketRequestPayment,s3:PutBucketLogging,s3:GetBucketCORS,s3:GetBucketLocation,s3:ListAllMyBuckets,s3:HeadBucket,iam:ChangePassword"
 parts_overall_maintenance_actions="s3:ListAllMyBuckets,s3:HeadBucket,iam:ChangePassword"

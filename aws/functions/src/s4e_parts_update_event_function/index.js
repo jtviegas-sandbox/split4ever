@@ -4,7 +4,7 @@ const uuidv4 = require('uuid/v4');
 
 const REGION='eu-west-1';
 const SPEC_FILE = 'parts.txt';
-const PART_FIELDS_NUM = 6;
+const PART_FIELDS_NUM = 7;
 //const S3_AMAZON_URL = 'https://s3.amazonaws.com';
 const S3_AMAZON_URL = 'https://s3.' + REGION + '.amazonaws.com'
 
@@ -24,6 +24,7 @@ const s3 = new aws.S3();
 const db = new aws.DynamoDB();
 const doc = new aws.DynamoDB.DocumentClient({'service': db})
 
+const DATE_PATTERN = /(\d{4})(\d{2})(\d{2})/;
 
 const storeSaver = (store, callback) => {
     console.log('[storeSaver|in]');
@@ -189,6 +190,7 @@ const specFileHandling = (stage, callback) => {
                     for(let i = 0; i < parsed.data.length; i++){
                         let obj = parsed.data[i];
                         let part = toPart(obj);
+                        part['n'] = i;
                         store.data[part.number] = part;
                     }
                     let numParts = Object.keys(store.data).length;
@@ -228,6 +230,16 @@ const toPart = (o) => {
     part['subcategory'] = o[4];
     part['notes'] = o[5];
     part['images'] = [];
+    let dateAsString = null;
+    try{
+        dateAsString = o[6];
+        let dt = new Date(dateAsString.replace(DATE_PATTERN,'$1-$2-$3')); 
+        part['ts'] = dt.getTime();
+    }
+    catch(e){
+        console.log("[toPart] could not parse the date: ", dateAsString, " err:", e)
+        part['ts'] = Date.now();
+    }
     
     return part;
 };
@@ -291,7 +303,7 @@ exports.handler = (event, context, callback) => {
     console.log('[handler|out]');
 };
 
-
+/*
 var event = {
     "Records": [
         {
@@ -332,3 +344,4 @@ var event = {
 }
 
 exports.handler(event, null, (e,d)=>{console.log('DONE', e,d);})
+*/

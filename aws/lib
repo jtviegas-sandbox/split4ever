@@ -10,7 +10,7 @@ STATE_CREATING_CODE=3
 STATE_DELETING_CODE=2
 STATE_MISSING_CODE=1
 
-#LOG_TRACE=TRUE
+LOG_TRACE=TRUE
 
 debug(){
     local __msg="$1"
@@ -172,7 +172,7 @@ createTable()
         warn "table $__table already there"
         __r=0
     else
-        aws dynamodb create-table --table-name $__table --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+        aws dynamodb create-table --table-name $__table --attribute-definitions AttributeName=id,AttributeType=S AttributeName=n,AttributeType=N --key-schema AttributeName=id,KeyType=HASH AttributeName=n,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 --local-secondary-indexes IndexName=N KeySchema=AttributeName=n,KeyType=number
         __r=$?
         if [ "$__r" -eq "0" ]; then
                 waitForTableState "$__table" "$STATE_ACTIVE_CODE"
@@ -633,7 +633,7 @@ createPolicy()
 
 buildPolicy()
 {
-    goin "buildPolicy" "$1 $2 $3"
+    #goin "buildPolicy" "$1 $2 $3"
     local __r=0
     local __effect=$1
     local __actions=$2
@@ -668,7 +668,7 @@ buildPolicy()
     
     _spec="$_spec, \"Action\": [$_actions_str], \"Resource\": [$_resources_str]}]}" 
  
-    goout "buildPolicy" $_spec
+    #goout "buildPolicy" "$_spec"
     echo "$_spec"
 }
 

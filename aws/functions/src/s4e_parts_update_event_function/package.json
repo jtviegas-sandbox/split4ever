@@ -1,9 +1,12 @@
 {
-  "name": "aws",
+  "name": "s4e_parts_update_event_function",
   "version": "1.0.0",
-  "description": "",
-  "directories": {
-    "test": "test"
+  "description": "function that reacts to an update eventon the parts bucket",
+  "author": "developer",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha"
   },
   "dependencies": {
     "chai": "^4.1.2",

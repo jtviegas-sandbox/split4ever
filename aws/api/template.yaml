@@ -18,7 +18,6 @@ Resources:
       Role: arn:aws:iam::*:role/s4e_parts_api_read_function_role
       Environment:
         Variables:
-          TABLE_NAME: parts
           PAGE_SIZE: 12
       Events:
         get_collection:
@@ -29,5 +28,5 @@ Resources:
         get_singular:
           Type: Api
           Properties:
-            Path: /parts/{id}
+            Path: /parts/{key}
             Method: GET

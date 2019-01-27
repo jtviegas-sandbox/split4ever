@@ -12,7 +12,7 @@ Resources:
       Description: parts backend function (reads from DynamoDB) with a RESTful API endpoint using Amazon API Gateway.
       MemorySize: 512
       Timeout: 10
-      Role: [ ROLE_ARN ]
+      Role: arn:aws:iam::692391178777:role/s4e_parts_api_read_function_role
       Environment:
         Variables:
           PAGE_SIZE: 12

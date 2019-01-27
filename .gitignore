@@ -10,3 +10,5 @@ dist
 .settings
 .vscode
 .pmd
+.aws-sam
+old

@@ -11,12 +11,7 @@ __r=0
 info "resetting buckets..."
 
 
-
-
-for bucket in $BUCKETS; do
-    deleteBucket "$bucket"
-done
-
+deleteBucket $BUCKET_PARTS
 
 
 info "...buckets reset done."

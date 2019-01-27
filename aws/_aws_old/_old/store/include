@@ -1,6 +1,0 @@
-FUNCTION_NAME=store
-BUCKET_NAME=functions.split4ever.com
-TEMPLATE=template.yaml
-TEMPLATE_FINAL=template-final.yaml
-CAPABILITY=CAPABILITY_IAM
-REGION=us-east-1

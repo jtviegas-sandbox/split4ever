@@ -10,7 +10,7 @@ STATE_CREATING_CODE=3
 STATE_DELETING_CODE=2
 STATE_MISSING_CODE=1
 
-LOG_TRACE=TRUE
+#LOG_TRACE=TRUE
 
 debug(){
     local __msg="$1"
@@ -525,7 +525,7 @@ detachRoleFromPolicy()
     else
         aws iam detach-role-policy --policy-arn $arn --role-name $__role
         __r=$?
-        if [ ! "$__r" -eq "0" ] ; then warn "! could not detach role $__role from policy $_policy !"; else info "detached role $__role from policy $_policy" ; fi
+        if [ ! "$__r" -eq "0" ] ; then warn "! could not detach role $__role from policy $__policy !"; else info "detached role $__role from policy $__policy" ; fi
     fi
 
     goout "detachRoleFromPolicy" $__r
@@ -678,8 +678,28 @@ buildPolicy()
     echo "$_spec"
 }
 
-#result=$(buildPolicy Allow "iam:ChangePassword,s3:ListBucketByTags" "*")
-#echo $result
+deleteStack()
+{
+    goin "deleteStack" "$1"
+    local __r=0
+    local __stack=$1
+    
+    aws cloudformation delete-stack --stack-name $__stack
+    __r=$?
+    if [ ! "$__r" -eq "0" ] ; then 
+        warn "could not delete stack $__stack"
+    else 
+        info "deleted stack $__stack"
+    fi
+ 
+    goout "deleteStack" $__r
+    return $__r
+}
+
+# result=$(buildPolicy Allow "iam:ChangePassword,s3:ListBucketByTags" "*")
+# echo $result
+
+# aws cloudformation describe-stacks --stack-name split4ever | grep "OUTPUTS.*partsApi" | awk '{print $13}'
 
 
 

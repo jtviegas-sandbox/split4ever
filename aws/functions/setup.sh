@@ -33,6 +33,7 @@ for f in *; do
             rm -rf "$_folder/$aws_sdk_module_path"
         fi
         zip -9 -r $this_folder/$f.zip index.js node_modules 
+        npm install
     fi
 done
 

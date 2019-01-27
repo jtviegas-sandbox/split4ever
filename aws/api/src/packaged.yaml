@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: parts backend function (reads from DynamoDB) with a RESTful API endpoint
+  using Amazon API Gateway.
+Outputs:
+  partsApi:
+    Description: API Gateway endpoint URL for Prod stage for parts function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/split4ever/
+Resources:
+  partsEndpoint:
+    Properties:
+      CodeUri: s3://functions.split4ever.com/8c62301e424869b0dcbdbe74eb1e3bed
+      Description: parts backend function (reads from DynamoDB) with a RESTful API
+        endpoint using Amazon API Gateway.
+      Environment:
+        Variables:
+          PAGE_SIZE: 12
+      Events:
+        getCollection:
+          Properties:
+            Method: GET
+            Path: /parts
+          Type: Api
+        getSingular:
+          Properties:
+            Method: GET
+            Path: /parts/{key}
+          Type: Api
+      FunctionName: parts
+      Handler: index.handler
+      MemorySize: 512
+      Role: arn:aws:iam::692391178777:role/s4e_parts_api_read_function_role
+      Runtime: nodejs8.10
+      Timeout: 10
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31

@@ -10,10 +10,8 @@ __r=0
 
 info "seting up buckets..."
 
-for bucket in $BUCKETS; do
-    createBucket "$bucket"
-    __r=$?
-    if [ ! "$__r" -eq "0" ] ; then exit 1; fi
-done
+createBucket $BUCKET_PARTS
+__r=$?
+if [ ! "$__r" -eq "0" ] ; then exit 1; fi
 
 info "...buckets setup done."

@@ -1,6 +1,8 @@
 PROJ=split4ever
 DOMAIN=$PROJ.com
 OWNER_ACCOUNT=split4ever.proj
+REGION=eu-west-1
+API_STACK=split4ever
 
 INPUT_FILE=data.in
 
@@ -17,4 +19,6 @@ TABLE_PARTS_DEV=parts_DEV
 TABLES="$TABLE_PARTS $TABLE_PARTS_DEV"
 
 UPDATE_FUNCTION_ROLE=s4e_parts_update
+
+
 

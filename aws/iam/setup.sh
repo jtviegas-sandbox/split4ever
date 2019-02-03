@@ -14,7 +14,7 @@ parts_maintenance_group=s4e_parts_maintenance
 
 role_assuming_policy_file=$parent_folder/role_assuming.policy
 
-parts_bucket_maintenance_actions="s3:ListBucketByTags,s3:GetBucketTagging,s3:ListBucketVersions,s3:GetBucketLogging,s3:CreateBucket,s3:ListBucket,s3:GetBucketPolicy,s3:DeleteBucketWebsite,s3:PutBucketTagging,s3:DeleteObject,s3:DeleteBucket,s3:PutBucketVersioning,s3:ListBucketMultipartUploads,s3:GetBucketVersioning,s3:PutBucketCORS,s3:GetBucketAcl,s3:GetBucketNotification,s3:PutObject,s3:PutBucketNotification,s3:PutBucketWebsite,s3:PutBucketRequestPayment,s3:PutBucketLogging,s3:GetBucketCORS,s3:GetBucketLocation,s3:ListAllMyBuckets,s3:HeadBucket,iam:ChangePassword"
+parts_bucket_maintenance_actions="s3:ListBucketByTags,s3:GetBucketTagging,s3:ListBucketVersions,s3:GetBucketLogging,s3:CreateBucket,s3:ListBucket,s3:GetBucketPolicy,s3:PutEncryptionConfiguration,s3:GetObjectAcl,s3:PutBucketTagging,s3:DeleteObject,s3:DeleteBucket,s3:PutBucketVersioning,s3:PutObjectAcl,s3:ListBucketMultipartUploads,s3:PutObjectVersionTagging,s3:GetBucketVersioning,s3:PutBucketCORS,s3:GetBucketAcl,s3:GetBucketNotification,s3:PutInventoryConfiguration,s3:PutObject,s3:PutBucketNotification,s3:PutBucketWebsite,s3:PutBucketRequestPayment,s3:PutBucketLogging,s3:GetBucketCORS,s3:GetBucketLocation"
 parts_overall_maintenance_actions="s3:ListAllMyBuckets,s3:HeadBucket,iam:ChangePassword"
 update_function_buckets_actions="s3:*"
 update_function_tables_actions="dynamodb:*"
@@ -54,7 +54,7 @@ createPolicy s4e_logs_policy "$logs_policy"
 __r=$?
 if [ ! "$__r" -eq "0" ] ; then exit 1; fi
 
-parts_bucket_maintenance_policy=$(buildPolicy "Allow" "$parts_bucket_maintenance_actions" "arn:aws:s3:::*\/*")
+parts_bucket_maintenance_policy=$(buildPolicy "Allow" "$parts_bucket_maintenance_actions" "arn:aws:s3:::parts.split4ever.com,arn:aws:s3:::parts.split4ever.com/*")
 info "...policy: s4e_parts_bucket_maintenance_policy..."
 createPolicy s4e_parts_bucket_maintenance_policy "$parts_bucket_maintenance_policy"
 __r=$?

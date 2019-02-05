@@ -1,0 +1,42 @@
+{
+ "LambdaFunctionConfigurations": [
+    {
+      "Id": "s4e_parts_bucket_update_event_dev",
+      "LambdaFunctionArn": "FUNCTION_ARN"
+      ,"Events": ["s3:ObjectCreated:Put","s3:ObjectCreated:Post"],
+      "Filter": {
+        "Key": {
+          "FilterRules": [
+            {
+              "Name": "prefix",
+              "Value": "update"
+            }
+            , {
+              "Name": "suffix",
+              "Value": ".dev"
+            }
+          ]
+        }
+      }
+    }
+    , {
+      "Id": "s4e_parts_bucket_update_event_prod",
+      "LambdaFunctionArn": "FUNCTION_ARN"
+      ,"Events": ["s3:ObjectCreated:Put","s3:ObjectCreated:Post"],
+      "Filter": {
+        "Key": {
+          "FilterRules": [
+            {
+              "Name": "prefix",
+              "Value": "update"
+            }
+            , {
+              "Name": "suffix",
+              "Value": ".prod"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

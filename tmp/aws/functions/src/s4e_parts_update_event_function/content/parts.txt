@@ -1,0 +1,4 @@
+#number name    price   category    subcategory notes
+1,"ferrugenta mas boa",12.34,"badanas","pequenas","e uma badana muito boa",20181201
+2,"porta bagagem para levar a lua",123.46","portas bagagem","grandes","e um porta bagagem para campeoes",20181202
+3,"ferro velho mas bom",23.98,"cenas","valiosas","e um ferrinho daqueles velho",20181203

@@ -1,0 +1,18 @@
+{
+  "name": "s4e_parts_update_event_function",
+  "version": "1.0.0",
+  "description": "function that reacts to an update eventon the parts bucket",
+  "author": "developer",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha"
+  },
+  "dependencies": {
+    "chai": "^4.1.2",
+    "dynamodb-doc": "^1.0.0",
+    "lambda-tester": "^3.5.0",
+    "mocha": "^5.2.0",
+    "papaparse": "^4.6.2"
+  }
+}

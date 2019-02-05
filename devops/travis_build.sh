@@ -1,8 +1,0 @@
-#!/bin/sh
-
-echo "[@build]...running..."
-folder=$(dirname $(readlink -f $0))
-$folder/build_backend.sh
-echo "[@build]...done."
-
-

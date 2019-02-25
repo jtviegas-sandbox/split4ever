@@ -1,6 +1,7 @@
 #!/bin/sh
 
-this_folder=$(dirname $(readlink -f $0))
+#this_folder=$(dirname $(readlink -f $0))
+this_folder="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 parent_folder=$(dirname $this_folder)
 
 . $parent_folder/lib
@@ -24,17 +25,6 @@ info "seting up buckets..."
 createBucket $BUCKET_PARTS
 __r=$?
 if [ ! "$__r" -eq "0" ] ; then exit 1; fi
-
-for _folder in $BUCKET_PARTS_FOLDERS; do
-    arn=`aws dynamodb describe-table --output text --table-name $_table | grep arn.*$_table | awk '{print $4}'`
-    arn=`echo $arn  | sed "s/\//\\//g"`
-    
-    if [ -z $tables_arn ]; then
-        tables_arn="$arn"
-    else
-        tables_arn="$tables_arn,$arn"
-    fi
-done
 
 info "...buckets setup done."
 
@@ -83,12 +73,13 @@ __r=$?
 if [ ! "$__r" -eq "0" ] ; then return 1; fi
 
 __r=0
-$this_folder/update_function/setup.sh
+cd $this_folder/update_function
+./setup.sh
 __r=$?
 if [ ! "$__r" -eq "0" ] ; then exit 1; fi
-
+cd ..
 function_arn=`aws lambda list-functions | grep $PARTS_UPDATE_FUNCTION | awk '{print $4}'`
-sed  "s/.*\"LambdaFunctionArn\": \"FUNCTION_ARN\".*/\t\  \"LambdaFunctionArn\": \"$function_arn\"/g" $this_folder/notification_template.json > $this_folder/notification.json
+sed  "s/.*\"LambdaFunctionArn\": \"FUNCTION_ARN\".*/      \"LambdaFunctionArn\": \"$function_arn\"/g" $this_folder/notification_template.json > $this_folder/notification.json
 aws s3api put-bucket-notification-configuration --bucket $BUCKET_PARTS --notification-configuration file://$this_folder/notification.json
 
 

@@ -2,7 +2,7 @@
  "LambdaFunctionConfigurations": [
     {
       "Id": "s4e_parts_bucket_update_event_dev",
-	  "LambdaFunctionArn": "arn:aws:lambda:eu-west-1:692391178777:function:s4e_parts_update_function"
+      "LambdaFunctionArn": "arn:aws:lambda:eu-west-1:692391178777:function:s4e_parts_update_function"
       ,"Events": ["s3:ObjectCreated:Put","s3:ObjectCreated:Post"],
       "Filter": {
         "Key": {
@@ -21,7 +21,7 @@
     }
     , {
       "Id": "s4e_parts_bucket_update_event_prod",
-	  "LambdaFunctionArn": "arn:aws:lambda:eu-west-1:692391178777:function:s4e_parts_update_function"
+      "LambdaFunctionArn": "arn:aws:lambda:eu-west-1:692391178777:function:s4e_parts_update_function"
       ,"Events": ["s3:ObjectCreated:Put","s3:ObjectCreated:Post"],
       "Filter": {
         "Key": {

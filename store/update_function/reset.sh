@@ -1,6 +1,7 @@
 #!/bin/sh
 
-this_folder=$(dirname $(readlink -f $0))
+#this_folder=$(dirname $(readlink -f $0))
+this_folder="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 parent_folder=$(dirname $this_folder)
 grand_parent_folder=$(dirname $parent_folder)
 

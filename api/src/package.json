@@ -1,0 +1,17 @@
+{
+  "name": "s4e_parts_api_function",
+  "version": "1.0.0",
+  "description": "parts api function set",
+  "author": "developer",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.385.0",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "util": "^0.11.1"
+  }
+}

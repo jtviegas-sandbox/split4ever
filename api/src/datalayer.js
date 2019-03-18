@@ -108,38 +108,42 @@ const datalayer_module = function(){
         console.log("[toKey|in] record:", record);
         let result = {
             id: record.id
-            , num: record.num
+            , number: record.number
         }
         console.log("[toKey|out]=>", result); 
         return result;
     }
-    
-    var getObj = (table, key, callback) => {
+
+    const getObj = (table, key, callback) => {
         console.log("[getObj|in] table:", table, " key:", key);
 
         let params = {
-          ExpressionAttributeValues: {
-            ':id': key.id
-            , ':num': key.num
-           },
-         KeyConditionExpression: 'id = :id and num= :num',
-         TableName: table
+            ExpressionAttributeValues: {
+                ':id': key.id
+                , ':number': key.number
+            },
+            ExpressionAttributeNames:{
+                '#id': 'id',
+                '#number': 'number'
+            },
+            KeyConditionExpression: '#id = :id and #number = :number',
+            TableName: table
         };
-        doc.query(params, (e,d) => {
-            
-            if(e)
+        doc.query(params, (e, d) => {
+            console.log('[getObj|doc.query|cb] e:', e);
+            if (e)
                 callback(e);
-            else{
+            else {
                 let out = null;
-                if( Array.isArray(d.Items) && 0 < d.Items.length )
+                if (Array.isArray(d.Items) && 0 < d.Items.length)
                     out = d.Items[0]
                 callback(null, out);
             }
- 
+
         });
         console.log("[getObj|out]");
-    }
-    
+    };
+
     var delObj = (table, key, callback) => {
         console.log("[delObj|in] table:", table, "key:", key);
         var params = {

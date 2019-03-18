@@ -3,6 +3,7 @@ DOMAIN=$PROJ.com
 OWNER_ACCOUNT=split4ever.proj
 REGION=eu-west-1
 API_STACK=split4ever
+API_STAGE=prod
 
 USER1=tiago
 USER2=rocha
@@ -41,6 +42,9 @@ PARTS_UPDATE_FUNCTION_PERMISSION_ID=s4e001
 AWS_SDK_MODULE_PATH=node_modules/aws-sdk
 BUCKET_PARTS_ARN="arn:aws:s3:::$BUCKET_PARTS"
 BUCKET_PARTS_FOLDERS="dev prod"
+
+API_URL_FILE=api.url
+
 
 
 # -----------------------------------------

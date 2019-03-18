@@ -28,7 +28,6 @@ const config_module = function(){
         config['pagesize'] = process.env.PAGE_SIZE;
     else 
         config['pagesize'] = DEFAULT_PAGESIZE;
-
     
     return config;
     

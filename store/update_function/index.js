@@ -4,7 +4,7 @@ const uuidv4 = require('uuid/v4');
 
 const REGION='eu-west-1';
 const SPEC_FILE = 'parts.txt';
-const PART_FIELDS_NUM = 7;
+const PART_FIELDS_NUM = 8;
 //const S3_AMAZON_URL = 'https://s3.amazonaws.com';
 const S3_AMAZON_URL = 'https://s3.' + REGION + '.amazonaws.com'
 
@@ -224,15 +224,16 @@ const toPart = (o) => {
     let part = {};
     part['id'] = uuidv4();
     part['number'] = parseInt(o[0], 10);
-    part['name'] = o[1];
-    part['price'] = parseFloat(o[2]);
-    part['category'] = o[3];
-    part['subcategory'] = o[4];
-    part['notes'] = o[5];
+    part['family'] = o[1];
+    part['category'] = o[2];
+    part['subcategory'] = o[3];
+    part['name'] = o[4];
+    part['price'] = parseFloat(o[5]);
+    part['notes'] = o[6];
     part['images'] = [];
     let dateAsString = null;
     try{
-        dateAsString = o[6];
+        dateAsString = o[7];
         let dt = new Date(dateAsString.replace(DATE_PATTERN,'$1-$2-$3')); 
         part['ts'] = dt.getTime();
     }

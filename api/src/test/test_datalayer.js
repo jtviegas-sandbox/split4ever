@@ -12,22 +12,35 @@ describe('datalayer tests', function() {
     
     before(function(done) {
 
+        this.timeout(12000);
+
         const load = (callback) => {
 
+            let cb = function(limit, callback){
+                let count = 0;
+
+                let f = function(e,o){
+                    if(e)
+                        callback(e);
+                    else{
+                        count++;
+                        if(count === limit){
+                            console.log("enough objects:", count)
+                            callback(null, o);
+                        }
+                    }
+                };
+                return{f:f}
+            }(ITERATIONS, callback);
+
             let i = 0;
-            let item = {'id': 'xpto' + i, 'number': i, 'description': 'xpto' + i, 'category': 'a' + i};
-            while (i < (ITERATIONS - 1)) {
+
+            while (i < (ITERATIONS)) {
+                let item = {'id': 'xpto' + i, 'number': i, 'description': 'xpto' + i, 'category': 'a' + i};
                 console.log("putting object:", item)
-                datalayer.putObj(TABLE, item, (e, d) => {
-                    if (e)
-                        console.log('[datalayer.putObj|cb] failed putObj:', e);
-                    else
-                        console.log('[datalayer.putObj|cb] done putObj')
-                });
+                datalayer.putObj(TABLE, item, cb.f);
                 i++;
-                item = {'id': 'xpto' + i, 'number': i, 'description': 'xpto' + i, 'category': 'a' + i};
             }
-            datalayer.putObj(TABLE, item, callback);
 
         };
 
@@ -60,7 +73,7 @@ describe('datalayer tests', function() {
                 done(e);
             else{
                 console.log('[after|cb] dropped table');
-                done();
+                done(null);
             }
         });
 
@@ -74,12 +87,10 @@ describe('datalayer tests', function() {
                         reject(e);
                     else{
                         console.log(util.inspect(d,  { compact: true, depth: 5 }));
-                        expect(d.Count).to.equal(2);
-                        expect(d.Items).to.be.an('array');
-                        expect(d.Items.length).to.equal(2);
-                        expect(d.LastEvaluatedKey).not.to.be.a('null');
-                        console.log('getting first two')
-                        resolve(d.LastEvaluatedKey);
+                        expect(d.data.length).to.equal(2);
+                        expect(d.data).to.be.an('array');
+                        console.log('d.next', d.next);
+                        resolve(d.next);
                     }
                         
                 });  
@@ -91,12 +102,11 @@ describe('datalayer tests', function() {
                             reject(e);
                         else{
                             console.log(util.inspect(d,  { compact: true, depth: 5 }));
-                            expect(d.Count).to.equal(2);
-                            expect(d.Items).to.be.an('array');
-                            expect(d.Items.length).to.equal(2);
-                            for(let i=0;i<d.Items.length;i++){
-                                expect(d.Items[i].id).to.not.deep.equal(result.id);
-                                console.log('item id:', d.Items[i].id, 'lastKey.id:', result.id);
+                            expect(d.data.length).to.equal(2);
+                            expect(d.data).to.be.an('array');
+                            for(let i=0;i<d.data.length;i++){
+                                expect(d.data[i].id).to.not.deep.equal(result.id);
+                                console.log('item id:', d.data[i].id, 'lastKey.id:', result.id);
                             }
                             resolve(d);
                         }
@@ -125,12 +135,11 @@ describe('datalayer tests', function() {
                     if(e)
                         reject(e);
                     else{
-                        expect(d.Count).to.equal(2);
-                        expect(d.Items).to.be.an('array');
-                        expect(d.Items.length).to.equal(2);
+                        expect(d.data.length).to.equal(2);
+                        expect(d.data).to.be.an('array');
                         let objs=[];
-                        objs.push(d.Items[0]);
-                        objs.push(d.Items[1]);
+                        objs.push(d.data[0]);
+                        objs.push(d.data[1]);
                         resolve(objs);   
                     }
                         
@@ -138,7 +147,7 @@ describe('datalayer tests', function() {
             })
             .then((result)=>{
                 new Promise(function (resolve, reject) {
-                    datalayer.getObj(TABLE, datalayer.toKey(result[0]), (e,d)=>{
+                    datalayer.getObj(TABLE, result[0].id, (e,d)=>{
                         if(e)
                             reject(e);
                         else{
@@ -178,7 +187,7 @@ describe('datalayer tests', function() {
             .then((result)=>{
                     let items = result;
                     new Promise(function (resolve, reject) {
-                        datalayer.delObj(TABLE, datalayer.toKey(items[0]), (e,d)=>{
+                        datalayer.delObj(TABLE, items[0].id, (e,d)=>{
                             if(e)
                                 reject(e);
                             else{

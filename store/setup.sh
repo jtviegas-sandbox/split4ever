@@ -51,7 +51,7 @@ for _table in $TABLES; do
     else
         tables_arn="$tables_arn,$arn"
     fi
-done
+donegit status
 
 update_function_tables_policy=$(buildPolicy "Allow" "$UPDATE_FUNCTION_TABLES_ACTIONS" "$tables_arn")
 info "...creating policy: $UPDATE_FUNCTION_TABLES_POLICY..."

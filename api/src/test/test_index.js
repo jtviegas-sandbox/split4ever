@@ -6,65 +6,79 @@ const should = chai.should;
 const expect = chai.expect;
 const util = require('util');
 const datalayer = require("../datalayer");
-const index = require("../index");
+const index = require("..");
 const config = require("../config");
 const common = require("../common");
 const TABLE = config.table_dev;
 
 describe('index tests', function() {
-    
+
     before(function(done) {
-        
-        var load = (callback) => {
-            
-            let i = 0;
-            let item = {'id': "xpto"+i,'number':i,"description":"xpto"+i,"category":"a"+i};
-            while(i<(ITERATIONS-1)){
-                console.log("putting object:", i)
-                datalayer.putObj(TABLE, item, (e,d)=>{ 
+
+        this.timeout(12000);
+
+        const load = (callback) => {
+
+            let cb = function(limit, callback){
+                let count = 0;
+
+                let f = function(e,o){
                     if(e)
-                        console.log('failed putObj');
-                    else
-                        console.log('done putObj')
-                });
+                        callback(e);
+                    else{
+                        count++;
+                        if(count === limit){
+                            console.log("enough objects:", count)
+                            callback(null, o);
+                        }
+                    }
+                };
+                return{f:f}
+            }(ITERATIONS, callback);
+
+            let i = 0;
+
+            while (i < (ITERATIONS)) {
+                let item = {'id': 'xpto' + i, 'number': i, 'description': 'xpto' + i, 'category': 'a' + i};
+                console.log("putting object:", item)
+                datalayer.putObj(TABLE, item, cb.f);
                 i++;
-                item = {'id': "xpto"+i,'number':i,"description":"xpto"+i,"category":"a"+i};
             }
-            datalayer.putObj(TABLE, item, callback);
 
         };
-        
-        var create = (table, callback)=> {
+
+        const create = (table, callback) => {
             console.log('going to create table:', table);
-            datalayer.createTable(TABLE, (e,d) => {
-                if(e)
+            datalayer.createTable(TABLE, (e, d) => {
+                if (e)
                     callback(e);
-                else{
+                else {
                     console.log('created table')
                     load(callback);
                 }
             });
-        }
-        
+        };
+
         datalayer.findTable(TABLE, (e,d) => {
+            console.log('[before|datalayer.findTable|cb] e:',e,'d:',d);
             if(e || d)
                 done();
             else
                 create(TABLE, done);
         });
-        
+
     });
 
     after(function(done) {
-
+        console.log('[after] going to drop table:', TABLE);
         datalayer.dropTable(TABLE, (e,d) => {
             if(e)
                 done(e);
             else{
-                console.log('dropped table');
-                done();
+                console.log('[after|cb] dropped table');
+                done(null);
             }
-        }); 
+        });
 
     });
     
@@ -86,19 +100,21 @@ describe('index tests', function() {
                         reject(e); 
                     else {
                         let out = JSON.parse(d.body);
-                        expect(out.Items.length).to.equal(2);
+                        expect(out.data.length).to.equal(2);
+                        console.log("* out", out)
                         resolve(out);
                     }
                 });
  
             })
             .then((result)=>{
+
                     new Promise(function (resolve, reject) {
                         let event = {
                             httpMethod: 'GET'
                             , queryStringParameters: {
                                 pagesize: 2
-                                , lastkey: common.encodeKey(result.LastEvaluatedKey)
+                                , lastkey: result.data[1].id
                                 , dev: 'true'
                             }
                         };
@@ -106,13 +122,12 @@ describe('index tests', function() {
                             if(e)
                                 reject(e); 
                             else {
-                                
                                 let out = JSON.parse(d.body);
-                                expect(out.Items.length).to.equal(2);
+
+                                expect(out.data.length).to.equal(2);
                                 for(let i=0;i<2;i++)
-                                   expect(out.Items[i].id).to.not.equal(result.LastEvaluatedKey.id); 
-                                
-                                expect(out.LastEvaluatedKey.id).to.equal(out.Items[1].id);
+                                   expect(out.data[i].id).to.not.equal(result.data[1].id);
+
                                 resolve(out);
                             }
                         });
@@ -149,8 +164,8 @@ describe('index tests', function() {
                         reject(e); 
                     else {
                         let out = JSON.parse(d.body);
-                        expect(out.Items.length).to.equal(1);
-                        resolve(out.Items[0]);
+                        expect(out.data.length).to.equal(1);
+                        resolve(out.data[0]);
                     }
                 });
  
@@ -160,17 +175,17 @@ describe('index tests', function() {
                         let event = {
                             httpMethod: 'GET'
                             , queryStringParameters: {
-                                pagesize: 2
-                                , dev: 'true'
+                                dev: 'true'
                             }
                             , pathParameters: {
-                                key: common.encodeKey({ id: result.id, number: result.number })
+                                key: result.id
                             }
                         };
                         index.handler(event, context, (e,d)=>{
                             if(e)
                                 reject(e); 
                             else {
+                                console.log("* d",d);
                                 let out = JSON.parse(d.body);
                                 expect(out).to.deep.equal(result);
                                 resolve(out);

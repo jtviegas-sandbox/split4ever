@@ -14,6 +14,7 @@ exports.handler = (event, context, callback) => {
         body: err ? err.message : JSON.stringify(res),
         headers: {
             'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
         },
     });
 
@@ -23,7 +24,7 @@ exports.handler = (event, context, callback) => {
     else {
         let table = common.findTable(event);
         if( event.pathParameters && event.pathParameters.key ){
-            let key = common.parseKey(event.pathParameters.key);
+            let key = event.pathParameters.key;
             datalayer.getObj(table, key, (e,d)=>{
                 if(e)
                     done(e);
@@ -32,7 +33,7 @@ exports.handler = (event, context, callback) => {
             });
         }
         else {
-            let lastKey = common.findLastKey(event);
+            let lastKey = event.queryStringParameters.lastkey;
             let pageSize = common.findPagesize(event);
             
             datalayer.getPagedObjs(table, pageSize, lastKey, (e,d)=>{

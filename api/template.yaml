@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: parts backend function (reads from DynamoDB) with a RESTful API endpoint using Amazon API Gateway.
+Description: entities backend function (reads from DynamoDB) with a RESTful API endpoint using Amazon API Gateway.
 Resources:
   partsEndpoint:
     Type: 'AWS::Serverless::Function'
@@ -8,8 +8,8 @@ Resources:
       Handler: index.handler
       Runtime: nodejs8.10
       CodeUri: .
-      FunctionName: parts
-      Description: parts backend function (reads from DynamoDB) with a RESTful API endpoint using Amazon API Gateway.
+      FunctionName: entities
+      Description: entities backend function (reads from DynamoDB) with a RESTful API endpoint using Amazon API Gateway.
       MemorySize: 512
       Timeout: 10
       Role: [ ROLE_ARN ]
@@ -20,14 +20,14 @@ Resources:
         getCollection:
           Type: Api
           Properties:
-            Path: /parts
+            Path: /entities/{entity}
             Method: GET
         getSingular:
           Type: Api
           Properties:
-            Path: /parts/{key}
+            Path: /entities/{entity}/{id}
             Method: GET
 Outputs:
     partsApi:
-      Description: "API Gateway endpoint URL for Prod stage for parts function"
+      Description: "API Gateway endpoint URL for Prod stage for entities function"
       Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/"

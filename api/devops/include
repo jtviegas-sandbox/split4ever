@@ -1,4 +1,4 @@
-PROJ=split4ever
+PROJ=store-api-function
 DOMAIN=$PROJ.com
 OWNER_ACCOUNT=split4ever.proj
 REGION=eu-west-1

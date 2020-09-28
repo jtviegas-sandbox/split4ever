@@ -1,34 +1,72 @@
 'use strict';
 
+const winston = require('winston');
 const config_module = function(){
-    
-    const DEFAULT_PAGESIZE = 12;
-    const LOCAL_DB_ENDPOINT = "http://localhost:8000";
-    const DEFAULT_REGION = 'eu-west-1';
-    const API_VERSION = '2012-08-10';
-    const PROD_TABLE = 'parts';
-    const DEV_TABLE = 'parts_DEV';
-    const DEFAULT_KEY_SEPARATOR = '_';
-    
-    
+
     let config = {
-        apiVersion: API_VERSION
-        , region: DEFAULT_REGION
-        , table_prod: PROD_TABLE
-        , table_dev: DEV_TABLE
-        , default_key_separator: DEFAULT_KEY_SEPARATOR
+        STAGES: ['local', 'dev', 'test', 'prod']
+        , ENVS: ['dev', 'test', 'prod']
     };
-    
-    if ( process.env.RUN_ENV === 'local' ){
-        console.log('running locally')
-        config['endpoint'] = LOCAL_DB_ENDPOINT;
+
+    const variables = [
+        'STAGE'
+        , 'ENV'
+        , 'DB_ENDPOINT'
+        , 'DB_API_REGION'
+        , 'DB_API_VERSION'
+        , 'ENTITIES'
+        , 'WINSTON_CONFIG'
+        , 'TENANT'
+        , 'DB_API_ACCESS_KEY_ID'
+        , 'DB_API_ACCESS_KEY'
+        , 'TEST_ITERATIONS'
+
+    ];
+    const defaults = [
+         'local'
+        , 'dev'
+        , 'http://localhost:8000'
+        , 'eu-west-1'
+        , '2012-08-10'
+        , ['item']
+        , {
+            level: 'debug',
+            format: winston.format.combine(
+                winston.format.splat(),
+                winston.format.timestamp(),
+                winston.format.printf(info => {
+                    return `${info.timestamp} ${info.level}: ${info.message}`;
+                })
+            ),
+            transports: [new winston.transports.Console()]
+        }
+        , 'split4ever'
+        , ''
+        , ''
+        , 6
+
+    ];
+
+    for(let i in variables){
+
+        let variable = variables[i];
+        let defaultValue = defaults[i];
+
+        if ( process.env[variable] ){
+            let value = process.env[variable];
+            let rangeVariable = variable + 'S';
+            if( config[rangeVariable] ){
+                let range = config[rangeVariable];
+                if( -1 === range.indexOf(value) )
+                    throw new Error('!!! variable: ' + variable + ' has an invalid value: ' + value + ' !!!');
+            }
+            config[variable] = value;
+        }
+        else
+            config[variable] = defaultValue;
+
     }
-    
-    if ( process.env.PAGE_SIZE )
-        config['pagesize'] = process.env.PAGE_SIZE;
-    else 
-        config['pagesize'] = DEFAULT_PAGESIZE;
-    
+    console.log(config)
     return config;
     
 }();
